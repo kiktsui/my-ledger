@@ -1,0 +1,1303 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>日常記帳</title>
+    
+    <!-- iOS PWA 專屬 Meta 標籤：支援「加入主畫面」全螢幕原生體驗 -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="冬日日常記帳">
+    <meta name="theme-color" id="meta-theme-color" content="#F7F4EB">
+
+    <!-- 動態生成 iOS Touch Icon (Canvas 生成聖誕松綠金徽章) -->
+    <link rel="apple-touch-icon" id="ios-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%231B4332'/%3E%3Ccircle cx='256' cy='256' r='200' fill='none' stroke='%23F59E0B' stroke-width='10' stroke-dasharray='18 12'/%3E%3Ctext x='50%25' y='52%25' dominant-baseline='middle' text-anchor='middle' font-size='220'%3E🎄%3C/text%3E%3C/svg%3E">
+    <!-- 動態 Manifest 佔位符 -->
+    <link rel="manifest" id="pwa-manifest">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"Helvetica Neue"', 'Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 主題色彩變數系統 */
+        :root, [data-theme="christmas"] {
+            --bg-page: #F7F4EB;
+            --bg-header: rgba(247, 244, 235, 0.86);
+            --bg-card: #FFFDF9;
+            --bg-subtle: #EFECE1;
+            --border-card: rgba(217, 119, 6, 0.16);
+            --text-main: #1C2520;
+            --text-muted: #6B726D;
+            --primary: #1B4332;
+            --primary-light: #2D6A4F;
+            --primary-soft: rgba(27, 67, 50, 0.09);
+            --expense: #B91C1C;
+            --expense-soft: rgba(185, 28, 28, 0.09);
+            --gold: #D97706;
+            --gold-soft: rgba(217, 119, 6, 0.14);
+            --snow-color: rgba(217, 119, 6, 0.35);
+            --snow-flake: rgba(255, 255, 255, 0.9);
+        }
+
+        [data-theme="winter"] {
+            --bg-page: #EEF4FA;
+            --bg-header: rgba(238, 244, 250, 0.86);
+            --bg-card: #FFFFFF;
+            --bg-subtle: #E1ECF7;
+            --border-card: rgba(59, 130, 246, 0.15);
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --primary: #0369A1;
+            --primary-light: #0284C7;
+            --primary-soft: rgba(3, 105, 161, 0.09);
+            --expense: #BE123C;
+            --expense-soft: rgba(190, 18, 60, 0.09);
+            --gold: #0EA5E9;
+            --gold-soft: rgba(14, 165, 233, 0.14);
+            --snow-color: rgba(14, 165, 233, 0.35);
+            --snow-flake: rgba(255, 255, 255, 0.95);
+        }
+
+        [data-theme="classic"] {
+            --bg-page: #F2F2F7;
+            --bg-header: rgba(242, 242, 247, 0.86);
+            --bg-card: #FFFFFF;
+            --bg-subtle: #E5E5EA;
+            --border-card: rgba(15, 23, 42, 0.08);
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --primary: #10B981;
+            --primary-light: #059669;
+            --primary-soft: rgba(16, 185, 129, 0.1);
+            --expense: #E11D48;
+            --expense-soft: rgba(225, 29, 72, 0.1);
+            --gold: #F59E0B;
+            --gold-soft: rgba(245, 158, 11, 0.14);
+            --snow-color: rgba(148, 163, 184, 0.35);
+            --snow-flake: rgba(255, 255, 255, 0.8);
+        }
+
+        /* iOS 安全區域與原生滾動優化 */
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            -webkit-tap-highlight-color: transparent;
+            padding-top: env(safe-area-inset-top);
+            padding-bottom: calc(env(safe-area-inset-bottom) + 88px);
+            user-select: none;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+        input, select {
+            user-select: auto;
+        }
+        .theme-header {
+            background-color: var(--bg-header);
+            border-bottom: 1px solid var(--border-card);
+        }
+        .theme-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-card);
+            box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.04);
+        }
+        .theme-subtle {
+            background-color: var(--bg-subtle);
+        }
+        .text-muted {
+            color: var(--text-muted);
+        }
+        .text-primary-theme {
+            color: var(--primary);
+        }
+        .bg-primary-theme {
+            background-color: var(--primary);
+        }
+        .bg-primary-soft {
+            background-color: var(--primary-soft);
+        }
+        .text-expense-theme {
+            color: var(--expense);
+        }
+        .bg-expense-theme {
+            background-color: var(--expense);
+        }
+        .bg-expense-soft {
+            background-color: var(--expense-soft);
+        }
+        .text-gold-theme {
+            color: var(--gold);
+        }
+        .bg-gold-soft {
+            background-color: var(--gold-soft);
+        }
+
+        /* 抽屜動畫 */
+        .drawer-enter {
+            transform: translateY(100%);
+        }
+        .drawer-active {
+            transform: translateY(0);
+        }
+        /* 聖誕吊飾按鈕光澤與微動效 */
+        .ornament-btn {
+            background: linear-gradient(135deg, var(--expense) 0%, #991B1B 100%);
+            box-shadow: 0 8px 20px -3px rgba(185, 28, 28, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.35);
+        }
+        [data-theme="winter"] .ornament-btn {
+            background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
+            box-shadow: 0 8px 20px -3px rgba(2, 132, 199, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.35);
+        }
+        [data-theme="classic"] .ornament-btn {
+            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
+            box-shadow: 0 8px 20px -3px rgba(16, 185, 129, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.35);
+        }
+    </style>
+</head>
+<body class="font-sans antialiased min-h-screen relative overflow-x-hidden">
+
+    <!-- 輕柔冬日飄雪背景 Canvas (不阻擋任何點擊事件) -->
+    <canvas id="snow-canvas" class="fixed inset-0 pointer-events-none z-10"></canvas>
+
+    <!-- 頂部導航與月份選擇器 -->
+    <header class="sticky top-0 z-20 theme-header backdrop-blur-md px-5 pt-3 pb-3 flex items-center justify-between">
+        <div>
+            <div class="flex items-center gap-1.5">
+                <span id="header-festive-icon" class="text-lg">🎄</span>
+                <h1 class="text-xl font-bold tracking-tight">日常記帳</h1>
+                <span id="offline-badge" class="hidden px-2 py-0.5 text-[10px] font-bold bg-amber-100 text-amber-800 rounded-full">離線模式</span>
+            </div>
+            <p id="header-subtitle" class="text-[11px] text-muted mt-0.5 flex items-center gap-1">
+                <span>✨ 冬日暖心版 · 本地離線儲存</span>
+            </p>
+        </div>
+
+        <!-- 月份切換控制 -->
+        <div class="flex items-center theme-card rounded-full px-2 py-1">
+            <button onclick="changeMonth(-1)" class="p-1.5 text-muted hover:opacity-75 active:scale-90 transition" aria-label="上個月">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            </button>
+            <span id="current-month-label" class="text-sm font-bold px-2 min-w-[88px] text-center tabular-nums">2026年11月</span>
+            <button onclick="changeMonth(1)" class="p-1.5 text-muted hover:opacity-75 active:scale-90 transition" aria-label="下個月">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- 主內容區：分頁切換 -->
+    <main class="relative z-10 max-w-md mx-auto px-4 pt-4">
+        
+        <!-- 分頁 1：帳目總覽 (Home Tab) -->
+        <div id="tab-home" class="space-y-4">
+            <!-- 結餘與收支總覽卡片（帶有節日松綠/金邊裝飾） -->
+            <section class="theme-card rounded-3xl p-5 relative overflow-hidden">
+                <!-- 右上角節日水印裝飾 -->
+                <div id="card-corner-deco" class="absolute -right-3 -top-3 text-6xl opacity-[0.07] pointer-events-none select-none">❄️</div>
+
+                <div class="flex justify-between items-start">
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <p class="text-xs font-semibold text-muted uppercase tracking-wider">本月結餘</p>
+                            <span id="season-pill" class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-gold-soft text-gold-theme">Holiday</span>
+                        </div>
+                        <h2 id="summary-balance" class="text-3xl font-extrabold tracking-tight mt-1.5 tabular-nums">$0</h2>
+                    </div>
+                    <span id="tx-count-badge" class="text-xs font-semibold px-2.5 py-1 rounded-full theme-subtle text-muted">0 筆紀錄</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 mt-5 pt-4 border-t border-black/5">
+                    <div class="bg-primary-soft rounded-2xl p-3">
+                        <div class="flex items-center gap-1.5 text-primary-theme text-xs font-bold">
+                            <span class="w-2 h-2 rounded-full bg-primary-theme"></span>
+                            <span>總收入</span>
+                        </div>
+                        <p id="summary-income" class="text-lg font-extrabold text-primary-theme mt-1 tabular-nums">$0</p>
+                    </div>
+                    <div class="bg-expense-soft rounded-2xl p-3">
+                        <div class="flex items-center gap-1.5 text-expense-theme text-xs font-bold">
+                            <span class="w-2 h-2 rounded-full bg-expense-theme"></span>
+                            <span>總支出</span>
+                        </div>
+                        <p id="summary-expense" class="text-lg font-extrabold text-expense-theme mt-1 tabular-nums">$0</p>
+                    </div>
+                </div>
+
+                <!-- 支出分類比例視覺化橫條 -->
+                <div id="category-breakdown-container" class="mt-4 pt-3 border-t border-black/5 hidden">
+                    <div class="flex justify-between items-center text-xs text-muted mb-2">
+                        <span>支出分類分佈</span>
+                        <button onclick="switchTab('stats')" id="top-category-label" class="font-semibold text-gold-theme hover:underline">查看圖表 ›</button>
+                    </div>
+                    <div id="category-bar" class="w-full h-2.5 theme-subtle rounded-full overflow-hidden flex gap-0.5"></div>
+                    <div id="category-legend" class="flex flex-wrap gap-x-3 gap-y-1.5 mt-2.5 text-[11px] text-muted"></div>
+                </div>
+            </section>
+
+            <!-- 交易明細清單 -->
+            <section class="space-y-3 pb-4">
+                <div class="flex items-center justify-between px-1">
+                    <h3 class="text-sm font-bold text-muted">收支明細</h3>
+                    <button onclick="filterTypeToggle()" id="filter-pill" class="text-xs font-semibold px-3 py-1 rounded-full theme-card text-muted active:scale-95 transition">
+                        篩選：全部
+                    </button>
+                </div>
+
+                <div id="transaction-list" class="space-y-3">
+                    <!-- 動態生成每日帳目卡片 -->
+                </div>
+            </section>
+        </div>
+
+        <!-- 分頁 2：統計分析 (Stats Tab - 圓環圖與分類佔比) -->
+        <div id="tab-stats" class="hidden space-y-4 pb-6">
+            <section class="theme-card rounded-3xl p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h3 class="font-bold text-base">支出結構分析</h3>
+                        <p class="text-xs text-muted mt-0.5">按分類統計當月消費佔比</p>
+                    </div>
+                    <div class="inline-flex p-1 rounded-xl theme-subtle text-xs font-bold">
+                        <button onclick="setStatsType('expense')" id="stats-btn-exp" class="px-3 py-1 rounded-lg bg-white shadow-xs text-expense-theme transition">支出</button>
+                        <button onclick="setStatsType('income')" id="stats-btn-inc" class="px-3 py-1 rounded-lg text-muted transition">收入</button>
+                    </div>
+                </div>
+
+                <!-- 自訂 SVG 圓環圖 -->
+                <div id="donut-wrapper" class="flex flex-col items-center justify-center py-2">
+                    <div class="relative w-48 h-48 flex items-center justify-center">
+                        <svg id="stats-donut-svg" viewBox="0 0 160 160" class="w-full h-full -rotate-90 transform"></svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
+                            <span id="donut-center-label" class="text-[11px] font-semibold text-muted">本月總支出</span>
+                            <span id="donut-center-total" class="text-xl font-extrabold tabular-nums mt-0.5">$0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 詳細分類進度列表 -->
+                <div id="stats-category-list" class="mt-4 space-y-3 pt-4 border-t border-black/5">
+                    <!-- 動態生成分類進度條 -->
+                </div>
+            </section>
+        </div>
+
+        <!-- 分頁 3：主題、備份與 PWA 設定 (Settings Tab) -->
+        <div id="tab-settings" class="hidden space-y-4 pb-6">
+            <!-- 冬日/聖誕氛圍與主題切換 -->
+            <section class="theme-card rounded-3xl p-5 space-y-4">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-2xl">🎅</span>
+                        <div>
+                            <h3 class="font-bold text-base">節日主題與背景氣氛</h3>
+                            <p class="text-xs text-muted">自訂你同朋友鍾意嘅介面風格</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 三款主題選擇器 -->
+                <div class="grid grid-cols-3 gap-2.5">
+                    <button onclick="setAppTheme('christmas')" id="theme-opt-christmas" class="p-3 rounded-2xl border-2 text-center transition active:scale-95">
+                        <div class="text-xl mb-1">🎄</div>
+                        <div class="text-xs font-bold">溫馨聖誕</div>
+                        <div class="flex justify-center gap-1 mt-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#1B4332]"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#B91C1C]"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#D97706]"></span>
+                        </div>
+                    </button>
+
+                    <button onclick="setAppTheme('winter')" id="theme-opt-winter" class="p-3 rounded-2xl border-2 text-center transition active:scale-95">
+                        <div class="text-xl mb-1">❄️</div>
+                        <div class="text-xs font-bold">冬日初雪</div>
+                        <div class="flex justify-center gap-1 mt-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#0369A1]"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#38BDF8]"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#E0F2FE]"></span>
+                        </div>
+                    </button>
+
+                    <button onclick="setAppTheme('classic')" id="theme-opt-classic" class="p-3 rounded-2xl border-2 text-center transition active:scale-95">
+                        <div class="text-xl mb-1">🌿</div>
+                        <div class="text-xs font-bold">經典簡約</div>
+                        <div class="flex justify-center gap-1 mt-1.5">
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#E11D48]"></span>
+                            <span class="w-2.5 h-2.5 rounded-full bg-[#94A3B8]"></span>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- 飄雪動畫開關 -->
+                <div class="flex items-center justify-between pt-2 border-t border-black/5">
+                    <div>
+                        <p class="text-sm font-bold">背景輕柔飄雪效果</p>
+                        <p class="text-[11px] text-muted">極低耗電，營造冬日聖誕氣氛</p>
+                    </div>
+                    <button id="snow-toggle-btn" onclick="toggleSnowEffect()" class="w-12 h-7 rounded-full bg-primary-theme p-1 transition-colors duration-200 flex items-center">
+                        <span id="snow-toggle-knob" class="w-5 h-5 rounded-full bg-white shadow-sm transform translate-x-5 transition-transform duration-200"></span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- iOS 主畫面安裝教學卡片 -->
+            <section class="theme-card rounded-3xl p-5">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="w-10 h-10 rounded-2xl bg-primary-soft text-primary-theme flex items-center justify-center text-xl">📱</div>
+                    <div>
+                        <h3 class="font-bold text-base">加到 iPhone 主畫面</h3>
+                        <p class="text-xs text-muted">變成獨立 App，搭地鐵無網絡都用到</p>
+                    </div>
+                </div>
+                <ol class="text-xs text-muted space-y-2 theme-subtle p-3.5 rounded-2xl leading-relaxed">
+                    <li>1. 用 iPhone 嘅 <strong>Safari 瀏覽器</strong> 開啟此網頁。</li>
+                    <li>2. 點擊底部工具列中間嘅 <strong>「分享」按鈕</strong> (正方形加向上箭咀)。</li>
+                    <li>3. 向下滑並選擇 <strong>「加入主畫面」</strong>，再按右上角「新增」。</li>
+                    <li>4. 之後直接喺桌面點擊 🎄 Icon 開啟，所有資料離線保存。</li>
+                </ol>
+                <div class="mt-3 flex items-center justify-between text-xs px-1">
+                    <span class="text-muted">離線快取引擎狀態：</span>
+                    <span id="sw-status" class="font-bold text-primary-theme">檢查中...</span>
+                </div>
+            </section>
+
+            <!-- 資料備份與還原 -->
+            <section class="theme-card rounded-3xl p-5 space-y-3">
+                <div>
+                    <h3 class="font-bold text-base">資料備份與匯出</h3>
+                    <p class="text-xs text-muted mt-1">帳目存於手機本地瀏覽器。建議定期匯出備份，或分享畀朋友。</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 pt-1">
+                    <button onclick="exportData('csv')" class="flex flex-col items-center justify-center p-3.5 rounded-2xl theme-subtle hover:opacity-85 active:scale-95 transition">
+                        <span class="text-xl mb-1">📊</span>
+                        <span class="text-xs font-bold">匯出 Excel (CSV)</span>
+                    </button>
+                    <button onclick="exportData('json')" class="flex flex-col items-center justify-center p-3.5 rounded-2xl theme-subtle hover:opacity-85 active:scale-95 transition">
+                        <span class="text-xl mb-1">💾</span>
+                        <span class="text-xs font-bold">匯出備份 (JSON)</span>
+                    </button>
+                </div>
+
+                <div class="pt-1">
+                    <label class="w-full flex items-center justify-center gap-2 p-3.5 rounded-2xl bg-primary-soft text-primary-theme text-xs font-bold cursor-pointer active:scale-98 transition">
+                        <span>📥 匯入 JSON 備份檔案還原</span>
+                        <input type="file" id="import-file" accept=".json" class="hidden" onchange="importJSON(event)">
+                    </label>
+                </div>
+            </section>
+
+            <!-- 測試資料與重置 -->
+            <section class="theme-card rounded-3xl p-5 space-y-2.5">
+                <h3 class="font-bold text-sm text-muted">測試與管理</h3>
+                <button onclick="loadSampleData()" class="w-full py-3 px-4 rounded-2xl bg-gold-soft text-gold-theme text-xs font-bold active:scale-98 transition">
+                    🎁 載入聖誕冬日示範帳目（預覽圖表效果）
+                </button>
+                <button onclick="promptClearAll()" class="w-full py-3 px-4 rounded-2xl bg-expense-soft text-xs font-bold text-expense-theme active:scale-98 transition">
+                    清空所有本地紀錄
+                </button>
+            </section>
+        </div>
+    </main>
+
+    <!-- 底部 iOS Tab Bar + 中央聖誕吊飾懸浮記帳按鈕 -->
+    <nav class="fixed bottom-0 inset-x-0 z-30 theme-card backdrop-blur-lg border-t border-black/5 pb-[env(safe-area-inset-bottom)]">
+        <div class="max-w-md mx-auto h-16 px-6 flex items-center justify-between relative">
+            <button onclick="switchTab('home')" id="nav-home" class="flex-1 flex flex-col items-center justify-center gap-1 text-primary-theme transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                <span class="text-[10px] font-bold">帳目</span>
+            </button>
+
+            <button onclick="switchTab('stats')" id="nav-stats" class="flex-1 flex flex-col items-center justify-center gap-1 text-muted transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
+                <span class="text-[10px] font-bold">統計</span>
+            </button>
+
+            <!-- 中央節日吊飾快速記帳按鈕 -->
+            <div class="flex-1 flex justify-center">
+                <button onclick="openAddModal()" class="w-14 h-14 -mt-7 rounded-full ornament-btn text-white flex items-center justify-center active:scale-90 transition relative" aria-label="新增記帳">
+                    <!-- 頂部小金環裝飾 -->
+                    <span class="absolute -top-1.5 w-3.5 h-2 rounded-t-sm bg-amber-400 border border-amber-500/50"></span>
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                </button>
+            </div>
+
+            <button onclick="switchTab('settings')" id="nav-settings" class="flex-1 flex flex-col items-center justify-center gap-1 text-muted transition">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
+                <span class="text-[10px] font-bold">主題與設定</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- 底部彈出式快速記帳抽屜 (Modal Drawer) -->
+    <div id="add-modal" class="fixed inset-0 z-50 hidden">
+        <!-- 背景遮罩 -->
+        <div onclick="closeAddModal()" class="absolute inset-0 bg-black/45 backdrop-blur-xs transition-opacity"></div>
+        
+        <!-- 抽屜主體 -->
+        <div id="add-drawer" class="absolute bottom-0 inset-x-0 max-w-md mx-auto theme-card rounded-t-3xl p-5 pb-[calc(env(safe-area-inset-bottom)+20px)] shadow-2xl transition-transform duration-300 drawer-enter">
+            <!-- 頂部拖曳條 -->
+            <div class="w-10 h-1 bg-black/15 rounded-full mx-auto mb-4"></div>
+            
+            <div class="flex items-center justify-between mb-4">
+                <!-- 支出 / 收入 切換器 -->
+                <div class="inline-flex p-1 rounded-2xl theme-subtle">
+                    <button type="button" onclick="setTxType('expense')" id="btn-type-expense" class="px-5 py-1.5 rounded-xl text-sm font-bold bg-white text-expense-theme shadow-xs transition">支出</button>
+                    <button type="button" onclick="setTxType('income')" id="btn-type-income" class="px-5 py-1.5 rounded-xl text-sm font-bold text-muted transition">收入</button>
+                </div>
+                <button onclick="closeAddModal()" class="p-2 rounded-full theme-subtle text-muted">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <form id="tx-form" onsubmit="saveTransaction(event)" class="space-y-4">
+                <!-- 金額輸入框 -->
+                <div class="theme-subtle rounded-2xl px-4 py-3 flex items-center justify-between">
+                    <span class="text-2xl font-bold text-muted">$</span>
+                    <input type="number" id="input-amount" inputmode="decimal" step="0.01" min="0.01" placeholder="0.00" required
+                        class="w-full text-right text-3xl font-extrabold bg-transparent focus:outline-none tabular-nums">
+                </div>
+
+                <!-- 快捷金額按鈕 -->
+                <div class="flex gap-2 overflow-x-auto no-scrollbar">
+                    <button type="button" onclick="quickAddAmount(50)" class="px-3 py-1 rounded-xl theme-subtle text-xs font-bold text-muted active:scale-95 transition">+$50</button>
+                    <button type="button" onclick="quickAddAmount(100)" class="px-3 py-1 rounded-xl theme-subtle text-xs font-bold text-muted active:scale-95 transition">+$100</button>
+                    <button type="button" onclick="quickAddAmount(200)" class="px-3 py-1 rounded-xl theme-subtle text-xs font-bold text-muted active:scale-95 transition">+$200</button>
+                    <button type="button" onclick="quickAddAmount(500)" class="px-3 py-1 rounded-xl theme-subtle text-xs font-bold text-muted active:scale-95 transition">+$500</button>
+                </div>
+
+                <!-- 分類選擇網格 -->
+                <div>
+                    <label class="block text-xs font-bold text-muted mb-2">選擇分類</label>
+                    <div id="category-grid" class="grid grid-cols-4 gap-2">
+                        <!-- 動態生成分類按鈕 -->
+                    </div>
+                </div>
+
+                <!-- 日期與備註 -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-muted mb-1">日期</label>
+                        <input type="date" id="input-date" required
+                            class="w-full px-3 py-2.5 rounded-xl theme-subtle text-xs font-semibold focus:outline-none">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-muted mb-1">備註 (選填)</label>
+                        <input type="text" id="input-note" placeholder="例如：聖誕大餐、交換禮物" maxlength="40"
+                            class="w-full px-3 py-2.5 rounded-xl theme-subtle text-xs font-semibold focus:outline-none">
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full py-3.5 rounded-2xl bg-expense-theme text-white font-bold text-base shadow-lg active:scale-98 transition">
+                    儲存支出
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 自訂提示訊息與確認對話框 -->
+    <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-slate-900/90 text-white text-xs font-bold shadow-lg opacity-0 pointer-events-none transition-opacity duration-200"></div>
+
+    <div id="confirm-dialog" class="fixed inset-0 z-50 hidden flex items-center justify-center p-5">
+        <div onclick="closeConfirm()" class="absolute inset-0 bg-black/45 backdrop-blur-xs"></div>
+        <div class="relative theme-card rounded-3xl p-5 max-w-xs w-full shadow-xl text-center space-y-4">
+            <h4 id="confirm-title" class="font-bold text-base">確定刪除？</h4>
+            <p id="confirm-desc" class="text-xs text-muted">此操作無法復原。</p>
+            <div class="grid grid-cols-2 gap-2.5 pt-1">
+                <button onclick="closeConfirm()" class="py-2.5 rounded-xl theme-subtle text-xs font-bold">取消</button>
+                <button id="confirm-ok-btn" class="py-2.5 rounded-xl bg-expense-theme text-white text-xs font-bold">確定</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 1. 分類定義（加入聖誕/冬日節日分類）
+        // ==========================================
+        const CATEGORIES = {
+            expense: [
+                { id: 'food', name: '餐飲美食', icon: '🍲', color: '#D97706' },
+                { id: 'gift', name: '聖誕禮物', icon: '🎁', color: '#B91C1C' },
+                { id: 'transport', name: '交通出行', icon: '🚇', color: '#2563EB' },
+                { id: 'shopping', name: '冬日購物', icon: '🧣', color: '#DB2777' },
+                { id: 'entertainment', name: '聚會娛樂', icon: '🥂', color: '#7C3AED' },
+                { id: 'home', name: '家居日用', icon: '🕯️', color: '#1B4332' },
+                { id: 'medical', name: '醫療健康', icon: '💊', color: '#DC2626' },
+                { id: 'other_exp', name: '其他支出', icon: '❄️', color: '#64748B' }
+            ],
+            income: [
+                { id: 'salary', name: '人工薪金', icon: '💼', color: '#1B4332' },
+                { id: 'bonus', name: '年終花紅', icon: '🎄', color: '#D97706' },
+                { id: 'gift_inc', name: '利是/禮物', icon: '🧧', color: '#B91C1C' },
+                { id: 'invest', name: '投資回報', icon: '📈', color: '#0284C7' },
+                { id: 'other_inc', name: '其他收入', icon: '✨', color: '#64748B' }
+            ]
+        };
+
+        // ==========================================
+        // 2. 狀態與 LocalStorage 持久化管理
+        // ==========================================
+        const STORAGE_KEY = 'hk_pwa_ledger_v1';
+        const PREFS_KEY = 'hk_pwa_ledger_prefs_v1';
+
+        let transactions = [];
+        let prefs = {
+            theme: 'christmas', // 'christmas' | 'winter' | 'classic'
+            snowEnabled: true
+        };
+        let currentDate = new Date();
+        let currentTxType = 'expense';
+        let selectedCategory = 'food';
+        let filterMode = 'all';
+        let statsType = 'expense';
+        let confirmCallback = null;
+
+        // 初始化應用程式
+        function initApp() {
+            loadPrefs();
+            applyTheme(prefs.theme, false);
+            loadFromStorage();
+            updateMonthLabel();
+            renderCategoryGrid();
+            renderDashboard();
+            setupOfflineDetection();
+            initSnowfall();
+            initPWAFeatures();
+        }
+
+        function loadPrefs() {
+            try {
+                const raw = localStorage.getItem(PREFS_KEY);
+                if (raw) prefs = { ...prefs, ...JSON.parse(raw) };
+            } catch (e) {}
+        }
+
+        function savePrefs() {
+            try {
+                localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
+            } catch (e) {}
+        }
+
+        function loadFromStorage() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                transactions = raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                transactions = [];
+            }
+        }
+
+        function saveToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
+            } catch (e) {
+                showToast('儲存空間已滿或受限，請匯出備份');
+            }
+        }
+
+        // ==========================================
+        // 3. 主題切換與冬日飄雪背景引擎
+        // ==========================================
+        function setAppTheme(themeName) {
+            prefs.theme = themeName;
+            savePrefs();
+            applyTheme(themeName, true);
+        }
+
+        function applyTheme(themeName, notify) {
+            document.documentElement.setAttribute('data-theme', themeName);
+
+            const themeMeta = {
+                christmas: { icon: '🎄', sub: '✨ 溫馨聖誕版 · 本地離線儲存', pill: 'Merry X’mas', corner: '🎄', metaColor: '#F7F4EB', toast: '已切換至「溫馨聖誕」主題' },
+                winter: { icon: '❄️', sub: '☃️ 冬日初雪版 · 本地離線儲存', pill: 'Winter Snow', corner: '❄️', metaColor: '#EEF4FA', toast: '已切換至「冬日初雪」主題' },
+                classic: { icon: '📒', sub: '本地儲存 · 零網絡可用', pill: 'Minimal', corner: '✨', metaColor: '#F2F2F7', toast: '已切換至「經典簡約」主題' }
+            };
+
+            const cfg = themeMeta[themeName] || themeMeta.christmas;
+            document.getElementById('header-festive-icon').textContent = cfg.icon;
+            document.getElementById('header-subtitle').innerHTML = `<span>${cfg.sub}</span>`;
+            document.getElementById('season-pill').textContent = cfg.pill;
+            document.getElementById('card-corner-deco').textContent = cfg.corner;
+            document.getElementById('meta-theme-color').setAttribute('content', cfg.metaColor);
+
+            // 更新設定頁主題按鈕選中框
+            ['christmas', 'winter', 'classic'].forEach(t => {
+                const btn = document.getElementById(`theme-opt-${t}`);
+                if (btn) {
+                    if (t === themeName) {
+                        btn.style.borderColor = 'var(--primary)';
+                        btn.style.backgroundColor = 'var(--primary-soft)';
+                    } else {
+                        btn.style.borderColor = 'transparent';
+                        btn.style.backgroundColor = 'var(--bg-subtle)';
+                    }
+                }
+            });
+
+            updateSnowToggleUI();
+            if (notify) showToast(cfg.toast);
+        }
+
+        function toggleSnowEffect() {
+            prefs.snowEnabled = !prefs.snowEnabled;
+            savePrefs();
+            updateSnowToggleUI();
+            showToast(prefs.snowEnabled ? '❄️ 已開啟背景飄雪' : '已關閉背景飄雪');
+        }
+
+        function updateSnowToggleUI() {
+            const btn = document.getElementById('snow-toggle-btn');
+            const knob = document.getElementById('snow-toggle-knob');
+            const canvas = document.getElementById('snow-canvas');
+            if (prefs.snowEnabled) {
+                btn.style.backgroundColor = 'var(--primary)';
+                knob.classList.add('translate-x-5');
+                canvas.style.opacity = '1';
+            } else {
+                btn.style.backgroundColor = '#CBD5E1';
+                knob.classList.remove('translate-x-5');
+                canvas.style.opacity = '0';
+            }
+        }
+
+        function initSnowfall() {
+            const canvas = document.getElementById('snow-canvas');
+            const ctx = canvas.getContext('2d');
+            let width = canvas.width = window.innerWidth;
+            let height = canvas.height = window.innerHeight;
+
+            window.addEventListener('resize', () => {
+                width = canvas.width = window.innerWidth;
+                height = canvas.height = window.innerHeight;
+            });
+
+            // 輕量化 28 粒雪花與金星微粒，確保 iPhone 省電流暢
+            const flakes = Array.from({ length: 28 }, () => ({
+                x: Math.random() * width,
+                y: Math.random() * height,
+                r: Math.random() * 2.6 + 1.2,
+                speedY: Math.random() * 0.65 + 0.25,
+                speedX: Math.random() * 0.4 - 0.2,
+                isGold: Math.random() > 0.72
+            }));
+
+            function draw() {
+                ctx.clearRect(0, 0, width, height);
+                if (prefs.snowEnabled) {
+                    const goldColor = getComputedStyle(document.documentElement).getPropertyValue('--snow-color').trim() || 'rgba(217, 119, 6, 0.35)';
+                    flakes.forEach(f => {
+                        ctx.beginPath();
+                        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+                        ctx.fillStyle = f.isGold ? goldColor : 'rgba(255, 255, 255, 0.85)';
+                        ctx.fill();
+
+                        f.y += f.speedY;
+                        f.x += f.speedX + Math.sin(f.y * 0.015) * 0.15;
+
+                        if (f.y > height) {
+                            f.y = -5;
+                            f.x = Math.random() * width;
+                        }
+                        if (f.x > width) f.x = 0;
+                        if (f.x < 0) f.x = width;
+                    });
+                }
+                requestAnimationFrame(draw);
+            }
+            draw();
+        }
+
+        // ==========================================
+        // 4. UI 渲染、統計圓環圖與核心計算邏輯
+        // ==========================================
+        function formatCurrency(num) {
+            return '$' + Number(num).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+        }
+
+        function getYearMonthKey(dateObj) {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            return `${y}-${m}`;
+        }
+
+        function updateMonthLabel() {
+            const y = currentDate.getFullYear();
+            const m = currentDate.getMonth() + 1;
+            document.getElementById('current-month-label').textContent = `${y}年${m}月`;
+        }
+
+        function changeMonth(delta) {
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            updateMonthLabel();
+            renderDashboard();
+            renderStatsPage();
+        }
+
+        function filterTypeToggle() {
+            const modes = ['all', 'expense', 'income'];
+            const labels = { all: '篩選：全部', expense: '篩選：只看支出', income: '篩選：只看收入' };
+            const nextIdx = (modes.indexOf(filterMode) + 1) % modes.length;
+            filterMode = modes[nextIdx];
+            document.getElementById('filter-pill').textContent = labels[filterMode];
+            renderDashboard();
+        }
+
+        function renderDashboard() {
+            const targetYM = getYearMonthKey(currentDate);
+            const monthTxs = transactions.filter(t => t.date.startsWith(targetYM));
+
+            let totalIncome = 0;
+            let totalExpense = 0;
+            const expenseByCat = {};
+
+            monthTxs.forEach(tx => {
+                const amt = parseFloat(tx.amount) || 0;
+                if (tx.type === 'income') {
+                    totalIncome += amt;
+                } else {
+                    totalExpense += amt;
+                    expenseByCat[tx.category] = (expenseByCat[tx.category] || 0) + amt;
+                }
+            });
+
+            const balance = totalIncome - totalExpense;
+            const balanceEl = document.getElementById('summary-balance');
+            balanceEl.textContent = (balance < 0 ? '-' : '') + formatCurrency(Math.abs(balance));
+            balanceEl.style.color = balance < 0 ? 'var(--expense)' : 'var(--text-main)';
+
+            document.getElementById('summary-income').textContent = formatCurrency(totalIncome);
+            document.getElementById('summary-expense').textContent = formatCurrency(totalExpense);
+            document.getElementById('tx-count-badge').textContent = `${monthTxs.length} 筆紀錄`;
+
+            renderCategoryChart(expenseByCat, totalExpense);
+            renderTransactionList(monthTxs);
+        }
+
+        function renderCategoryChart(expenseByCat, totalExpense) {
+            const container = document.getElementById('category-breakdown-container');
+            const barEl = document.getElementById('category-bar');
+            const legendEl = document.getElementById('category-legend');
+
+            if (totalExpense <= 0) {
+                container.classList.add('hidden');
+                return;
+            }
+            container.classList.remove('hidden');
+
+            const sorted = Object.entries(expenseByCat)
+                .map(([catId, amount]) => {
+                    const meta = CATEGORIES.expense.find(c => c.id === catId) || { name: '其他', color: '#64748B' };
+                    return { ...meta, amount, pct: (amount / totalExpense) * 100 };
+                })
+                .sort((a, b) => b.amount - a.amount);
+
+            document.getElementById('top-category-label').textContent = `最高：${sorted[0].name} (${Math.round(sorted[0].pct)}%) ›`;
+
+            barEl.innerHTML = sorted.map(item => 
+                `<div style="width: ${item.pct}%; background-color: ${item.color};" class="h-full transition-all duration-300"></div>`
+            ).join('');
+
+            legendEl.innerHTML = sorted.slice(0, 4).map(item => `
+                <div class="flex items-center gap-1">
+                    <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
+                    <span>${item.name} ${Math.round(item.pct)}%</span>
+                </div>
+            `).join('');
+        }
+
+        function setStatsType(type) {
+            statsType = type;
+            const expBtn = document.getElementById('stats-btn-exp');
+            const incBtn = document.getElementById('stats-btn-inc');
+            if (type === 'expense') {
+                expBtn.className = 'px-3 py-1 rounded-lg bg-white shadow-xs text-expense-theme transition';
+                incBtn.className = 'px-3 py-1 rounded-lg text-muted transition';
+            } else {
+                incBtn.className = 'px-3 py-1 rounded-lg bg-white shadow-xs text-primary-theme transition';
+                expBtn.className = 'px-3 py-1 rounded-lg text-muted transition';
+            }
+            renderStatsPage();
+        }
+
+        function renderStatsPage() {
+            const targetYM = getYearMonthKey(currentDate);
+            const filtered = transactions.filter(t => t.date.startsWith(targetYM) && t.type === statsType);
+            const total = filtered.reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
+
+            document.getElementById('donut-center-label').textContent = statsType === 'expense' ? '本月總支出' : '本月總收入';
+            document.getElementById('donut-center-total').textContent = formatCurrency(total);
+
+            const svg = document.getElementById('stats-donut-svg');
+            const listEl = document.getElementById('stats-category-list');
+            const radius = 58;
+            const circumference = 2 * Math.PI * radius;
+
+            if (total <= 0) {
+                svg.innerHTML = `<circle cx="80" cy="80" r="${radius}" fill="none" stroke="var(--bg-subtle)" stroke-width="20" />`;
+                listEl.innerHTML = `<p class="text-xs text-center text-muted py-4">呢個月暫無${statsType === 'expense' ? '支出' : '收入'}數據</p>`;
+                return;
+            }
+
+            const byCat = {};
+            filtered.forEach(t => {
+                byCat[t.category] = (byCat[t.category] || 0) + (parseFloat(t.amount) || 0);
+            });
+
+            const sorted = Object.entries(byCat)
+                .map(([catId, amount]) => {
+                    const meta = (CATEGORIES[statsType] || []).find(c => c.id === catId) || { name: '其他', icon: '📌', color: '#64748B' };
+                    return { ...meta, amount, pct: (amount / total) * 100 };
+                })
+                .sort((a, b) => b.amount - a.amount);
+
+            let offset = 0;
+            svg.innerHTML = sorted.map(item => {
+                const strokeDash = (item.pct / 100) * circumference;
+                const seg = `<circle cx="80" cy="80" r="${radius}" fill="none" stroke="${item.color}" stroke-width="20" stroke-dasharray="${strokeDash} ${circumference}" stroke-dashoffset="-${offset}" stroke-linecap="butt" />`;
+                offset += strokeDash;
+                return seg;
+            }).join('');
+
+            listEl.innerHTML = sorted.map(item => `
+                <div class="space-y-1.5">
+                    <div class="flex items-center justify-between text-xs">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">${item.icon}</span>
+                            <span class="font-bold">${item.name}</span>
+                            <span class="text-muted">${item.pct.toFixed(1)}%</span>
+                        </div>
+                        <span class="font-extrabold tabular-nums">${formatCurrency(item.amount)}</span>
+                    </div>
+                    <div class="w-full h-2 theme-subtle rounded-full overflow-hidden">
+                        <div class="h-full rounded-full transition-all duration-300" style="width: ${item.pct}%; background-color: ${item.color};"></div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderTransactionList(monthTxs) {
+            const listEl = document.getElementById('transaction-list');
+            const filtered = monthTxs.filter(t => filterMode === 'all' || t.type === filterMode);
+
+            if (filtered.length === 0) {
+                listEl.innerHTML = `
+                    <div class="theme-card rounded-3xl p-8 text-center">
+                        <div class="text-3xl mb-2">🎄</div>
+                        <p class="text-sm font-bold">呢個月暫時未有紀錄</p>
+                        <p class="text-xs text-muted mt-1">撳下方紅色吊飾「+」掣開始記帳，或去設定載入示範帳目</p>
+                    </div>
+                `;
+                return;
+            }
+
+            filtered.sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
+
+            const groups = {};
+            filtered.forEach(tx => {
+                if (!groups[tx.date]) groups[tx.date] = [];
+                groups[tx.date].push(tx);
+            });
+
+            listEl.innerHTML = Object.entries(groups).map(([dateStr, items]) => {
+                const dayExpense = items.filter(i => i.type === 'expense').reduce((s, i) => s + Number(i.amount), 0);
+                const dayIncome = items.filter(i => i.type === 'income').reduce((s, i) => s + Number(i.amount), 0);
+                const displayDate = formatDisplayDate(dateStr);
+
+                const rowsHtml = items.map(tx => {
+                    const catList = CATEGORIES[tx.type] || [];
+                    const cat = catList.find(c => c.id === tx.category) || { name: '其他', icon: '📌' };
+                    const isExp = tx.type === 'expense';
+
+                    return `
+                        <div class="flex items-center justify-between py-3 px-4 border-b last:border-b-0 border-black/5 transition">
+                            <div class="flex items-center gap-3 min-w-0">
+                                <div class="w-10 h-10 rounded-2xl theme-subtle flex items-center justify-center text-lg shrink-0">
+                                    ${cat.icon}
+                                </div>
+                                <div class="min-w-0">
+                                    <p class="text-sm font-bold truncate">${cat.name}</p>
+                                    ${tx.note ? `<p class="text-xs text-muted truncate">${escapeHtml(tx.note)}</p>` : ''}
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5 shrink-0 ml-2">
+                                <span class="text-sm font-extrabold tabular-nums ${isExp ? 'text-expense-theme' : 'text-primary-theme'}">
+                                    ${isExp ? '-' : '+'}${formatCurrency(tx.amount)}
+                                </span>
+                                <button onclick="promptDeleteTx('${tx.id}')" class="p-1.5 text-muted opacity-40 hover:opacity-100 hover:text-expense-theme transition" aria-label="刪除">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="theme-card rounded-3xl overflow-hidden">
+                        <div class="theme-subtle px-4 py-2 flex justify-between items-center text-[11px] font-bold text-muted">
+                            <span>${displayDate}</span>
+                            <div class="flex gap-2.5 tabular-nums">
+                                ${dayIncome > 0 ? `<span class="text-primary-theme">收 +${formatCurrency(dayIncome)}</span>` : ''}
+                                ${dayExpense > 0 ? `<span class="text-expense-theme">支 -${formatCurrency(dayExpense)}</span>` : ''}
+                            </div>
+                        </div>
+                        <div>${rowsHtml}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function formatDisplayDate(dateStr) {
+            const today = new Date().toISOString().split('T')[0];
+            if (dateStr === today) return `${dateStr} (今日)`;
+            const parts = dateStr.split('-');
+            const d = new Date(parts[0], parts[1] - 1, parts[2]);
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            return `${Number(parts[1])}月${Number(parts[2])}日 週${weekdays[d.getDay()]}`;
+        }
+
+        function escapeHtml(str) {
+            return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+        }
+
+        // ==========================================
+        // 5. 新增與刪除交易互動
+        // ==========================================
+        function openAddModal() {
+            const modal = document.getElementById('add-modal');
+            const drawer = document.getElementById('add-drawer');
+            document.getElementById('input-amount').value = '';
+            document.getElementById('input-note').value = '';
+            
+            const now = new Date();
+            const localISO = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+            document.getElementById('input-date').value = localISO;
+
+            modal.classList.remove('hidden');
+            requestAnimationFrame(() => {
+                drawer.classList.remove('drawer-enter');
+                drawer.classList.add('drawer-active');
+            });
+            setTimeout(() => document.getElementById('input-amount').focus(), 150);
+        }
+
+        function closeAddModal() {
+            const modal = document.getElementById('add-modal');
+            const drawer = document.getElementById('add-drawer');
+            drawer.classList.remove('drawer-active');
+            drawer.classList.add('drawer-enter');
+            setTimeout(() => modal.classList.add('hidden'), 250);
+        }
+
+        function quickAddAmount(val) {
+            const input = document.getElementById('input-amount');
+            const cur = parseFloat(input.value) || 0;
+            input.value = (cur + val).toFixed(2).replace(/\.00$/, '');
+        }
+
+        function setTxType(type) {
+            currentTxType = type;
+            selectedCategory = CATEGORIES[type][0].id;
+
+            const expBtn = document.getElementById('btn-type-expense');
+            const incBtn = document.getElementById('btn-type-income');
+            const submitBtn = document.getElementById('submit-btn');
+
+            if (type === 'expense') {
+                expBtn.className = 'px-5 py-1.5 rounded-xl text-sm font-bold bg-white text-expense-theme shadow-xs transition';
+                incBtn.className = 'px-5 py-1.5 rounded-xl text-sm font-bold text-muted transition';
+                submitBtn.className = 'w-full py-3.5 rounded-2xl bg-expense-theme text-white font-bold text-base shadow-lg active:scale-98 transition';
+                submitBtn.textContent = '儲存支出';
+            } else {
+                incBtn.className = 'px-5 py-1.5 rounded-xl text-sm font-bold bg-white text-primary-theme shadow-xs transition';
+                expBtn.className = 'px-5 py-1.5 rounded-xl text-sm font-bold text-muted transition';
+                submitBtn.className = 'w-full py-3.5 rounded-2xl bg-primary-theme text-white font-bold text-base shadow-lg active:scale-98 transition';
+                submitBtn.textContent = '儲存收入';
+            }
+            renderCategoryGrid();
+        }
+
+        function renderCategoryGrid() {
+            const grid = document.getElementById('category-grid');
+            const list = CATEGORIES[currentTxType];
+
+            grid.innerHTML = list.map(cat => {
+                const isSelected = cat.id === selectedCategory;
+                const borderStyle = isSelected 
+                    ? `border-color: ${currentTxType === 'expense' ? 'var(--expense)' : 'var(--primary)'}; background-color: ${currentTxType === 'expense' ? 'var(--expense-soft)' : 'var(--primary-soft)'};`
+                    : 'border-color: transparent; background-color: var(--bg-subtle);';
+
+                return `
+                    <button type="button" onclick="selectCategory('${cat.id}')" style="${borderStyle}" class="flex flex-col items-center justify-center py-2.5 rounded-2xl border-2 transition active:scale-95">
+                        <span class="text-xl mb-0.5">${cat.icon}</span>
+                        <span class="text-[11px] font-bold">${cat.name}</span>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        function selectCategory(catId) {
+            selectedCategory = catId;
+            renderCategoryGrid();
+        }
+
+        function saveTransaction(e) {
+            e.preventDefault();
+            const amount = parseFloat(document.getElementById('input-amount').value);
+            const date = document.getElementById('input-date').value;
+            const note = document.getElementById('input-note').value.trim();
+
+            if (!amount || amount <= 0) {
+                showToast('請輸入有效金額');
+                return;
+            }
+
+            const newTx = {
+                id: 'tx_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                type: currentTxType,
+                amount: amount,
+                category: selectedCategory,
+                date: date,
+                note: note,
+                createdAt: Date.now()
+            };
+
+            transactions.push(newTx);
+            saveToStorage();
+
+            const [y, m] = date.split('-');
+            currentDate = new Date(Number(y), Number(m) - 1, 1);
+            updateMonthLabel();
+
+            closeAddModal();
+            renderDashboard();
+            renderStatsPage();
+            showToast(currentTxType === 'expense' ? '🎁 已記低一筆支出' : '✨ 已記低一筆收入');
+        }
+
+        function promptDeleteTx(id) {
+            openConfirm('刪除呢筆紀錄？', '刪除後無法復原。', () => {
+                transactions = transactions.filter(t => t.id !== id);
+                saveToStorage();
+                renderDashboard();
+                renderStatsPage();
+                showToast('已刪除紀錄');
+            });
+        }
+
+        // ==========================================
+        // 6. 分頁切換、匯出/匯入與聖誕示範資料
+        // ==========================================
+        function switchTab(tab) {
+            const tabs = ['home', 'stats', 'settings'];
+            tabs.forEach(t => {
+                const pageEl = document.getElementById(`tab-${t}`);
+                const navEl = document.getElementById(`nav-${t}`);
+                if (t === tab) {
+                    pageEl.classList.remove('hidden');
+                    navEl.classList.remove('text-muted');
+                    navEl.classList.add('text-primary-theme');
+                } else {
+                    pageEl.classList.add('hidden');
+                    navEl.classList.remove('text-primary-theme');
+                    navEl.classList.add('text-muted');
+                }
+            });
+            if (tab === 'stats') renderStatsPage();
+        }
+
+        function exportData(format) {
+            if (transactions.length === 0) {
+                showToast('目前無任何帳目可以匯出');
+                return;
+            }
+            const dateStamp = new Date().toISOString().slice(0, 10);
+            let content = '';
+            let mimeType = '';
+            let filename = '';
+
+            if (format === 'json') {
+                content = JSON.stringify(transactions, null, 2);
+                mimeType = 'application/json';
+                filename = `冬日日常記帳備份_${dateStamp}.json`;
+            } else {
+                const headers = ['日期', '類型', '分類', '金額', '備註'];
+                const rows = transactions.map(t => {
+                    const cat = (CATEGORIES[t.type] || []).find(c => c.id === t.category)?.name || t.category;
+                    const typeName = t.type === 'expense' ? '支出' : '收入';
+                    const safeNote = `"${(t.note || '').replace(/"/g, '""')}"`;
+                    return [t.date, typeName, cat, t.amount, safeNote].join(',');
+                });
+                content = '\uFEFF' + [headers.join(','), ...rows].join('\n');
+                mimeType = 'text/csv;charset=utf-8;';
+                filename = `冬日日常記帳明細_${dateStamp}.csv`;
+            }
+
+            const blob = new Blob([content], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast(`已匯出 ${filename}`);
+        }
+
+        function importJSON(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (!Array.isArray(imported)) throw new Error('格式錯誤');
+                    const existingIds = new Set(transactions.map(t => t.id));
+                    let addedCount = 0;
+                    imported.forEach(item => {
+                        if (item.id && item.amount && item.date && !existingIds.has(item.id)) {
+                            transactions.push(item);
+                            addedCount++;
+                        }
+                    });
+                    saveToStorage();
+                    renderDashboard();
+                    renderStatsPage();
+                    showToast(`成功匯入 ${addedCount} 筆新紀錄`);
+                } catch (err) {
+                    showToast('備份檔案格式無效');
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function loadSampleData() {
+            const ym = getYearMonthKey(currentDate);
+            const samples = [
+                { id: 'xmas_1', type: 'income', amount: 26000, category: 'salary', date: `${ym}-01`, note: '今個月出糧', createdAt: Date.now() - 60000 },
+                { id: 'xmas_2', type: 'income', amount: 3500, category: 'bonus', date: `${ym}-15`, note: '公司聖誕節花紅', createdAt: Date.now() - 50000 },
+                { id: 'xmas_3', type: 'expense', amount: 480, category: 'gift', date: `${ym}-18`, note: '公司交換聖誕禮物 🎁', createdAt: Date.now() - 40000 },
+                { id: 'xmas_4', type: 'expense', amount: 680, category: 'food', date: `${ym}-20`, note: '冬至同屋企人食晚飯', createdAt: Date.now() - 30000 },
+                { id: 'xmas_5', type: 'expense', amount: 390, category: 'shopping', date: `${ym}-22`, note: '買暖笠笠羊毛頸巾', createdAt: Date.now() - 20000 },
+                { id: 'xmas_6', type: 'expense', amount: 165, category: 'entertainment', date: `${ym}-24`, note: '平安夜去尖沙咀睇燈飾飲熱朱古力', createdAt: Date.now() - 10000 }
+            ];
+            const existingIds = new Set(transactions.map(t => t.id));
+            samples.forEach(s => { if (!existingIds.has(s.id)) transactions.push(s); });
+            saveToStorage();
+            renderDashboard();
+            renderStatsPage();
+            switchTab('home');
+            showToast('🎄 已載入聖誕冬日示範帳目');
+        }
+
+        function promptClearAll() {
+            openConfirm('清空所有記帳資料？', '建議先匯出 JSON 備份，清空後無法復原。', () => {
+                transactions = [];
+                saveToStorage();
+                renderDashboard();
+                renderStatsPage();
+                showToast('已清空所有資料');
+            });
+        }
+
+        // 自訂 Toast 與 Confirm Modal
+        let toastTimer;
+        function showToast(msg) {
+            const el = document.getElementById('toast');
+            el.textContent = msg;
+            el.classList.remove('opacity-0');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => el.classList.add('opacity-0'), 2400);
+        }
+
+        function openConfirm(title, desc, onOk) {
+            document.getElementById('confirm-title').textContent = title;
+            document.getElementById('confirm-desc').textContent = desc;
+            confirmCallback = onOk;
+            document.getElementById('confirm-dialog').classList.remove('hidden');
+        }
+
+        function closeConfirm() {
+            document.getElementById('confirm-dialog').classList.add('hidden');
+            confirmCallback = null;
+        }
+
+        document.getElementById('confirm-ok-btn').addEventListener('click', () => {
+            if (confirmCallback) confirmCallback();
+            closeConfirm();
+        });
+
+        // ==========================================
+        // 7. 離線偵測與動態 PWA Manifest / Service Worker
+        // ==========================================
+        function setupOfflineDetection() {
+            const badge = document.getElementById('offline-badge');
+            const updateOnlineStatus = () => {
+                if (!navigator.onLine) {
+                    badge.classList.remove('hidden');
+                } else {
+                    badge.classList.add('hidden');
+                }
+            };
+            window.addEventListener('online', updateOnlineStatus);
+            window.addEventListener('offline', updateOnlineStatus);
+            updateOnlineStatus();
+        }
+
+        function initPWAFeatures() {
+            const manifestObj = {
+                name: '冬日日常記帳',
+                short_name: '日常記帳',
+                start_url: location.href,
+                display: 'standalone',
+                background_color: '#F7F4EB',
+                theme_color: '#1B4332',
+                icons: [{
+                    src: document.getElementById('ios-icon').href,
+                    sizes: '512x512',
+                    type: 'image/svg+xml'
+                }]
+            };
+            const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
+            document.getElementById('pwa-manifest').href = URL.createObjectURL(manifestBlob);
+
+            const swStatusEl = document.getElementById('sw-status');
+            if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+                const swCode = `
+                    const CACHE_NAME = 'hk-winter-ledger-v1';
+                    self.addEventListener('install', e => {
+                        self.skipWaiting();
+                        e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['./'])));
+                    });
+                    self.addEventListener('fetch', e => {
+                        e.respondWith(
+                            caches.match(e.request).then(res => res || fetch(e.request).then(netRes => {
+                                const clone = netRes.clone();
+                                caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
+                                return netRes;
+                            }).catch(() => caches.match('./')))
+                        );
+                    });
+                `;
+                const swBlob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(swBlob);
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => { swStatusEl.textContent = '已就緒（支援完全離線開啟）'; })
+                    .catch(() => { swStatusEl.textContent = '本地儲存已啟用（部署至 HTTPS 後啟用全離線快取）'; });
+            } else {
+                swStatusEl.textContent = '本地儲存已啟用（上傳至免費網頁空間即可離線安裝）';
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
