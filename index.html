@@ -27,7 +27,6 @@
       --income: #18794e;
       --expense: #c53030;
       --shadow: 0 10px 26px rgba(27, 54, 38, 0.07);
-      --particle-type: snow;
     }
 
     html[data-theme="furuya"] {
@@ -53,7 +52,6 @@
       --income: #3f826d;
       --expense: #c85a6c;
       --shadow: 0 10px 26px rgba(138, 109, 102, 0.08);
-      --particle-type: sakura;
     }
 
     html[data-theme="donald"] {
@@ -78,7 +76,6 @@
       --income: #0ca678;
       --expense: #e03131;
       --shadow: 0 10px 26px rgba(18, 53, 91, 0.08);
-      --particle-type: bubble;
     }
 
     html[data-theme="frost"] {
@@ -97,7 +94,6 @@
       --income: #16796f;
       --expense: #c2415a;
       --shadow: 0 10px 26px rgba(23, 43, 58, 0.07);
-      --particle-type: snow;
     }
 
     * {
@@ -140,7 +136,6 @@
       padding: calc(14px + env(safe-area-inset-top)) 16px 24px;
     }
 
-    /* 頂部標題列 */
     .header {
       display: flex;
       align-items: center;
@@ -224,7 +219,6 @@
       white-space: nowrap;
     }
 
-    /* 卡片與區塊 */
     .card {
       background: var(--card);
       border: 1px solid var(--border);
@@ -303,7 +297,6 @@
     .income-color { color: var(--income); }
     .expense-color { color: var(--expense); }
 
-    /* 分類橫條圖 */
     .dist-header {
       display: flex;
       justify-content: space-between;
@@ -343,7 +336,6 @@
       margin-right: 4px;
     }
 
-    /* 明細列表 */
     .list-header {
       display: flex;
       align-items: center;
@@ -452,7 +444,6 @@
       cursor: pointer;
     }
 
-    /* 統計圓環圖 */
     .donut-wrap {
       display: flex;
       flex-direction: column;
@@ -509,7 +500,6 @@
       border-radius: 999px;
     }
 
-    /* 結算報（RICHMAN 財經快報，無 4 字） */
     .paper-head {
       display: flex;
       justify-content: space-between;
@@ -596,7 +586,6 @@
       color: var(--primary);
     }
 
-    /* 主題選擇器 */
     .theme-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -675,7 +664,6 @@
       display: none !important;
     }
 
-    /* 底部全幅置中 iPhone 導覽列 */
     .bottom-nav {
       position: fixed;
       left: 0;
@@ -751,7 +739,6 @@
       cursor: pointer;
     }
 
-    /* 底部彈出式入帳抽屜 */
     .modal-mask {
       position: fixed;
       inset: 0;
@@ -760,6 +747,12 @@
       display: flex;
       align-items: flex-end;
       justify-content: center;
+    }
+
+    .modal-mask.center-mask {
+      z-index: 55;
+      align-items: center;
+      padding: 16px;
     }
 
     .sheet-box {
@@ -772,6 +765,16 @@
       box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
       max-height: 92dvh;
       overflow-y: auto;
+    }
+
+    .dialog-box {
+      width: 100%;
+      max-width: 390px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 18px;
+      box-shadow: 0 14px 34px rgba(0, 0, 0, 0.2);
     }
 
     .sheet-handle {
@@ -872,6 +875,12 @@
       background: var(--accent-soft);
     }
 
+    .cat-tile.custom-trigger {
+      border: 1.5px dashed var(--primary);
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+
     .cat-tile-ico {
       font-size: 1.35rem;
       line-height: 1.1;
@@ -881,6 +890,45 @@
       font-size: 0.72rem;
       font-weight: 700;
       text-align: center;
+      word-break: break-all;
+    }
+
+    .emoji-picker-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin: 6px 0 14px;
+    }
+    .custom-emoji-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .custom-emoji-box {
+      width: 68px;
+      text-align: center;
+      font-size: 1.25rem;
+      padding: 6px 8px;
+    }
+
+    .emoji-opt {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1.5px solid var(--border);
+      background: var(--card-soft);
+      font-size: 1.05rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .emoji-opt.picked {
+      border-color: var(--primary);
+      background: var(--primary-soft);
     }
 
     .form-two-col {
@@ -943,7 +991,6 @@
   <div id="toast" class="toast hidden"></div>
 
   <div class="app-container">
-    <!-- 頂部 -->
     <header class="header">
       <div class="brand-box">
         <div id="header-mascot" class="mascot-avatar" aria-hidden="true"></div>
@@ -999,7 +1046,7 @@
       <div id="ledger-groups"></div>
     </main>
 
-    <!-- 分頁 2：統計（圓環圖） -->
+    <!-- 分頁 2：統計 -->
     <main id="tab-stats" class="tab-view hidden">
       <section class="card">
         <div class="card-top-row">
@@ -1018,7 +1065,7 @@
       </section>
     </main>
 
-    <!-- 分頁 3：結算（RICHMAN 財經快報，無 4 字） -->
+    <!-- 分頁 3：結算 -->
     <main id="tab-settlement" class="tab-view hidden">
       <section class="card">
         <div class="paper-head">
@@ -1096,7 +1143,6 @@
         </div>
       </section>
 
-      <!-- 加到 iPhone 主畫面教學卡片 -->
       <section class="card">
         <div style="display:flex;align-items:center;gap:10px;">
           <div style="width:40px;height:40px;border-radius:12px;background:var(--primary-soft);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">📱</div>
@@ -1190,6 +1236,31 @@
     </div>
   </div>
 
+  <!-- 自定分類彈窗 -->
+  <div id="custom-cat-modal" class="modal-mask center-mask hidden">
+    <div class="dialog-box">
+      <div class="sheet-top">
+        <h3 class="list-title">新增自定分類</h3>
+        <button id="close-custom-cat" type="button" class="close-circle" aria-label="關閉">✕</button>
+      </div>
+      <form id="custom-cat-form">
+        <label class="field-label" for="custom-cat-name">分類名稱</label>
+        <input id="custom-cat-name" class="field-input" type="text" maxlength="12" placeholder="例如：寵物零食、訂閱會籍、咖啡" required style="margin-bottom:10px;" />
+
+        <span class="field-label">選擇代表圖示</span>
+        <div id="custom-emoji-picker" class="emoji-picker-row"></div>
+
+        <label class="field-label" for="custom-emoji-input">或自行輸入／貼上 Emoji（會自動記住）</label>
+        <div class="custom-emoji-input-row">
+          <input id="custom-emoji-input" class="field-input custom-emoji-box" type="text" maxlength="8" placeholder="🧋" aria-label="自填 Emoji" />
+          <span style="font-size:0.74rem;color:var(--muted);">可按鍵盤 Emoji 掣直接揀任何圖示</span>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width:100%;padding:11px;font-size:0.9rem;">加入並選用分類</button>
+      </form>
+    </div>
+  </div>
+
   <!-- 新增資產/負債彈窗 -->
   <div id="asset-modal" class="modal-mask hidden">
     <div class="sheet-box">
@@ -1221,32 +1292,27 @@
 
   <script>
     (function () {
-      const STORAGE_KEY = "daily_ledger_themed_pwa_v3";
+      const STORAGE_KEY = "daily_ledger_themed_pwa_v4";
+      const EMOJI_CHOICES = ["🏷️", "🐾", "☕", "🎮", "💊", "🏋️", "🎁", "🎵", "✈️", "🛒", "💡", "💎"];
+      const EXTRA_COLORS = ["#0ea5e9", "#ec4899", "#8b5cf6", "#14b8a6", "#f97316", "#6366f1"];
 
       const MASCOT_SVGS = {
         furuya: `
           <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
             <rect width="80" height="80" rx="18" fill="#fff5f7"/>
-            <!-- 粉紅蟹鉗髮箍 -->
             <path d="M22 25 C15 14, 24 7, 29 16 L31 12 C35 10, 38 17, 32 25 Z" fill="#f7a8b8" stroke="#3a2724" stroke-width="2.6" stroke-linejoin="round"/>
             <path d="M58 25 C65 14, 56 7, 51 16 L49 12 C45 10, 42 17, 48 25 Z" fill="#f7a8b8" stroke="#3a2724" stroke-width="2.6" stroke-linejoin="round"/>
-            <!-- 頭型 -->
             <ellipse cx="40" cy="46" rx="22" ry="20" fill="#fffdfc" stroke="#3a2724" stroke-width="2.8"/>
-            <!-- 粉紅頭帶 -->
             <path d="M20 38 Q40 28 60 38 Q56 26 40 26 Q24 26 20 38 Z" fill="#f7a8b8"/>
-            <!-- 小耳朵 -->
             <path d="M18 45 C13 45, 13 54, 19 53" fill="#fffdfc" stroke="#3a2724" stroke-width="2.6" stroke-linecap="round"/>
             <path d="M62 45 C67 45, 67 54, 61 53" fill="#fffdfc" stroke="#3a2724" stroke-width="2.6" stroke-linecap="round"/>
-            <!-- 眼睛與腮紅 -->
             <circle cx="31" cy="46" r="3.2" fill="#3a2724"/>
             <circle cx="30" cy="45" r="1.1" fill="#ffffff"/>
             <circle cx="49" cy="46" r="3.2" fill="#3a2724"/>
             <circle cx="48" cy="45" r="1.1" fill="#ffffff"/>
             <ellipse cx="25" cy="52" rx="4.2" ry="2.6" fill="#f9b8c4"/>
             <ellipse cx="55" cy="52" rx="4.2" ry="2.6" fill="#f9b8c4"/>
-            <!-- 嘴巴 -->
             <path d="M36 52 Q38 55 40 52 Q42 55 44 52" fill="none" stroke="#3a2724" stroke-width="2.2" stroke-linecap="round"/>
-            <!-- 底部小書本 -->
             <rect x="27" y="64" width="26" height="10" rx="2" fill="#c98b5b" stroke="#3a2724" stroke-width="2.2"/>
             <line x1="40" y1="64" x2="40" y2="74" stroke="#3a2724" stroke-width="2"/>
           </svg>
@@ -1254,21 +1320,16 @@
         donald: `
           <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
             <rect width="80" height="80" rx="18" fill="#e6f4ff"/>
-            <!-- 水手帽 -->
             <ellipse cx="42" cy="19" rx="20" ry="9" transform="rotate(-12 42 19)" fill="#1c9cf6" stroke="#102a43" stroke-width="2.6"/>
             <path d="M25 24 Q40 19 55 24" fill="none" stroke="#102a43" stroke-width="4"/>
             <path d="M23 23 L15 31 L20 33 L26 25 Z" fill="#102a43"/>
-            <!-- 鴨頭 -->
             <ellipse cx="40" cy="44" rx="20" ry="18" fill="#ffffff" stroke="#102a43" stroke-width="2.6"/>
-            <!-- 大眼睛 -->
             <ellipse cx="34" cy="39" rx="4.2" ry="6.2" fill="#cde8ff" stroke="#102a43" stroke-width="2"/>
             <ellipse cx="46" cy="39" rx="4.2" ry="6.2" fill="#cde8ff" stroke="#102a43" stroke-width="2"/>
             <circle cx="35" cy="40" r="2.2" fill="#102a43"/>
             <circle cx="45" cy="40" r="2.2" fill="#102a43"/>
-            <!-- 鴨嘴 -->
             <path d="M25 49 Q40 43 55 49 Q52 58 40 58 Q28 58 25 49 Z" fill="#f6a623" stroke="#102a43" stroke-width="2.4"/>
             <path d="M29 51 Q40 55 51 51" fill="none" stroke="#102a43" stroke-width="2"/>
-            <!-- 紅色水手蝴蝶結 -->
             <polygon points="40,64 27,58 27,70" fill="#e03131" stroke="#102a43" stroke-width="2.2" stroke-linejoin="round"/>
             <polygon points="40,64 53,58 53,70" fill="#e03131" stroke="#102a43" stroke-width="2.2" stroke-linejoin="round"/>
             <circle cx="40" cy="64" r="4" fill="#ff6b6b" stroke="#102a43" stroke-width="2"/>
@@ -1435,6 +1496,8 @@
           filterCat: "ALL",
           entryType: "expense",
           selectedCat: "餐飲美食",
+          customEmoji: "🏷️",
+          customCats: { expense: [], income: [] },
           transactions: [],
           assets: [
             { id: "as-1", kind: "asset", name: "活期儲蓄存款", amount: 75000 },
@@ -1455,6 +1518,12 @@
             particles: typeof p.particles === "boolean" ? p.particles : d.particles,
             tab: ["ledger", "stats", "settlement", "settings"].includes(p.tab) ? p.tab : d.tab,
             month: typeof p.month === "string" && /^\d{4}-\d{2}$/.test(p.month) ? p.month : d.month,
+            customEmoji: typeof p.customEmoji === "string" ? p.customEmoji : d.customEmoji,
+            customEmojis: Array.isArray(p.customEmojis) ? p.customEmojis : [],
+            customCats: {
+              expense: Array.isArray(p.customCats?.expense) ? p.customCats.expense : [],
+              income: Array.isArray(p.customCats?.income) ? p.customCats.income : []
+            },
             transactions: Array.isArray(p.transactions) ? p.transactions : [],
             assets: Array.isArray(p.assets) ? p.assets : d.assets
           };
@@ -1481,11 +1550,28 @@
         toastTimer = setTimeout(() => el.classList.add("hidden"), 1800);
       }
 
-      function getCatMeta(type, name) {
+      function getCategoriesForType(type) {
+        const tKey = type === "income" ? "income" : "expense";
         const themeObj = THEMES[state.theme] || THEMES.furuya;
-        const pool = type === "income" ? INCOME_CATS : themeObj.expenseCats;
-        const found = pool.find((c) => c.name === name);
+        const base = tKey === "income" ? INCOME_CATS : themeObj.expenseCats;
+        const extra = (state.customCats[tKey] || []).map((c, idx) => ({
+          name: c.name,
+          icon: c.icon || "🏷️",
+          color: c.color || EXTRA_COLORS[idx % EXTRA_COLORS.length]
+        }));
+        return [...base, ...extra];
+      }
+
+      function getCatMeta(type, name) {
+        const currentPool = getCategoriesForType(type);
+        const found = currentPool.find((c) => c.name === name);
         if (found) return found;
+
+        for (const t of ["expense", "income"]) {
+          const otherCustom = (state.customCats[t] || []).find((c) => c.name === name);
+          if (otherCustom) return { name: otherCustom.name, icon: otherCustom.icon || "🏷️", color: otherCustom.color || "#0ea5e9" };
+        }
+
         for (const key of Object.keys(THEMES)) {
           const cross = THEMES[key].expenseCats.find((c) => c.name === name);
           if (cross) return cross;
@@ -1570,7 +1656,6 @@
         if (expEl) expEl.textContent = formatMoney(stats.expense);
         if (cntEl) cntEl.textContent = `${stats.list.length} 筆紀錄`;
 
-        // 分類橫條圖
         const catSums = new Map();
         stats.list.filter((t) => t.type !== "income").forEach((t) => {
           catSums.set(t.category, (catSums.get(t.category) || 0) + (Number(t.amount) || 0));
@@ -1609,7 +1694,6 @@
           }
         }
 
-        // 更新篩選器
         const filterSel = document.getElementById("category-filter");
         if (filterSel) {
           const allNames = [...new Set(stats.list.map((t) => t.category))];
@@ -1620,7 +1704,6 @@
           filterSel.value = currentVal;
         }
 
-        // 按日期分組明細
         const groupsEl = document.getElementById("ledger-groups");
         if (!groupsEl) return;
 
@@ -1768,7 +1851,6 @@
         if (subEl) subEl.textContent = `對比 ${formatYMTitle(prevYM)} 收支與淨資產變動`;
         if (quoteEl) quoteEl.textContent = themeInfo.quote;
 
-        // 累積帳目現金流（截至選定月份）
         const cumCashflow = state.transactions
           .filter((t) => (t.date || "").slice(0, 7) <= curYM)
           .reduce((sum, t) => sum + (t.type === "income" ? Number(t.amount) || 0 : -(Number(t.amount) || 0)), 0);
@@ -1864,8 +1946,7 @@
         const submitBtn = document.getElementById("submit-tx-btn");
         if (!grid) return;
 
-        const themeInfo = THEMES[state.theme] || THEMES.furuya;
-        const cats = state.entryType === "income" ? INCOME_CATS : themeInfo.expenseCats;
+        const cats = getCategoriesForType(state.entryType);
         if (!cats.some((c) => c.name === state.selectedCat)) {
           state.selectedCat = cats[0].name;
         }
@@ -1878,12 +1959,41 @@
           submitBtn.textContent = state.entryType === "income" ? "儲存收入" : "儲存支出";
         }
 
-        grid.innerHTML = cats.map((c) => `
+        const catTilesHtml = cats.map((c) => `
           <button type="button" class="cat-tile ${c.name === state.selectedCat ? "selected" : ""}" data-pick-cat="${esc(c.name)}">
             <span class="cat-tile-ico">${c.icon}</span>
             <span class="cat-tile-name">${esc(c.name)}</span>
           </button>
         `).join("");
+
+        const addCustomTileHtml = `
+          <button type="button" id="open-custom-cat-btn" class="cat-tile custom-trigger">
+            <span class="cat-tile-ico">➕</span>
+            <span class="cat-tile-name">自定分類</span>
+          </button>
+        `;
+
+        grid.innerHTML = catTilesHtml + addCustomTileHtml;
+      }
+
+      function getAllEmojis() {
+        const saved = Array.isArray(state.customEmojis) ? state.customEmojis : [];
+        return [...new Set([...EMOJI_CHOICES, ...saved])];
+      }
+
+      function renderEmojiPicker() {
+        const picker = document.getElementById("custom-emoji-picker");
+        const manualInput = document.getElementById("custom-emoji-input");
+        if (!picker) return;
+
+        const allEmojis = getAllEmojis();
+        picker.innerHTML = allEmojis.map((em) => `
+          <button type="button" class="emoji-opt ${em === state.customEmoji ? "picked" : ""}" data-pick-emoji="${esc(em)}">${em}</button>
+        `).join("");
+
+        if (manualInput && document.activeElement !== manualInput) {
+          manualInput.value = state.customEmoji || "";
+        }
       }
 
       function renderAll() {
@@ -2009,7 +2119,6 @@
           });
         }
 
-        // 開啟快速入帳抽屜
         const fabAdd = document.getElementById("fab-add-tx");
         const txModal = document.getElementById("tx-modal");
         const closeTx = document.getElementById("close-tx-modal");
@@ -2050,6 +2159,50 @@
           });
         });
 
+        // 自定分類彈窗事件
+        const customCatModal = document.getElementById("custom-cat-modal");
+        const closeCustomCat = document.getElementById("close-custom-cat");
+        const customCatForm = document.getElementById("custom-cat-form");
+
+        if (closeCustomCat && customCatModal) {
+          closeCustomCat.addEventListener("click", () => customCatModal.classList.add("hidden"));
+        }
+
+        if (customCatForm) {
+          customCatForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const nameInput = document.getElementById("custom-cat-name");
+            const emojiInput = document.getElementById("custom-emoji-input");
+            const cleanName = (nameInput?.value || "").trim();
+            if (!cleanName) return;
+
+            const typedEmoji = (emojiInput?.value || "").trim();
+            const chosenEmoji = typedEmoji || state.customEmoji || "🏷️";
+            state.customEmoji = chosenEmoji;
+
+            if (!EMOJI_CHOICES.includes(chosenEmoji) && !state.customEmojis.includes(chosenEmoji)) {
+              state.customEmojis.push(chosenEmoji);
+            }
+
+            const tKey = state.entryType === "income" ? "income" : "expense";
+            const existing = getCategoriesForType(tKey).some((c) => c.name === cleanName);
+
+            if (!existing) {
+              const idx = state.customCats[tKey].length;
+              state.customCats[tKey].push({
+                name: cleanName,
+                icon: chosenEmoji,
+                color: EXTRA_COLORS[idx % EXTRA_COLORS.length]
+              });
+            }
+
+            state.selectedCat = cleanName;
+            saveState();
+            renderCategoryGrid();
+            if (customCatModal) customCatModal.classList.add("hidden");
+            toast(`已加入分類「${cleanName}」`);
+          });
+        }
         const txForm = document.getElementById("tx-form");
         if (txForm) {
           txForm.addEventListener("submit", (e) => {
@@ -2075,7 +2228,6 @@
           });
         }
 
-        // 資產負債彈窗
         const openAsset = document.getElementById("open-asset-modal");
         const assetModal = document.getElementById("asset-modal");
         const closeAsset = document.getElementById("close-asset-modal");
@@ -2112,7 +2264,6 @@
           });
         }
 
-        // 示範與清空資料
         const sampleBtn = document.getElementById("load-sample-data");
         if (sampleBtn) {
           sampleBtn.addEventListener("click", () => {
@@ -2145,8 +2296,24 @@
           });
         }
 
-        // 委派點擊（分類選擇、刪除紀錄）
         document.addEventListener("click", (e) => {
+          const openCustomBtn = e.target.closest("#open-custom-cat-btn");
+          if (openCustomBtn && customCatModal) {
+            const nameInput = document.getElementById("custom-cat-name");
+            if (nameInput) nameInput.value = "";
+            renderEmojiPicker();
+            customCatModal.classList.remove("hidden");
+            setTimeout(() => nameInput && nameInput.focus(), 50);
+            return;
+          }
+
+          const pickEmoji = e.target.closest("[data-pick-emoji]");
+          if (pickEmoji) {
+            state.customEmoji = pickEmoji.getAttribute("data-pick-emoji") || "🏷️";
+            renderEmojiPicker();
+            return;
+          }
+
           const pickCat = e.target.closest("[data-pick-cat]");
           if (pickCat) {
             state.selectedCat = pickCat.getAttribute("data-pick-cat");
