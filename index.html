@@ -1,643 +1,757 @@
 <!DOCTYPE html>
-<html lang="zh-HK" data-theme="christmas">
+<html lang="zh-HK" data-theme="furuya">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>日常記帳 · 離線 PWA</title>
+  <meta name="theme-color" content="#fdf2f4" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="日常記帳" />
-  <meta name="theme-color" id="meta-theme-color" content="#e6f2ea" />
-  <link rel="apple-touch-icon" id="ios-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%2323533a'/%3E%3Ctext x='50%25' y='54%25' dominant-baseline='middle' text-anchor='middle' font-size='240'%3E🎄%3C/text%3E%3C/svg%3E" />
-  <link rel="manifest" id="pwa-manifest" />
+  <title>日常記帳 · 離線理財帳本</title>
   <style>
-    :root, [data-theme="christmas"] {
-      --bg-page: #e6f2ea;
-      --bg-gradient: linear-gradient(180deg, #e6f2ea 0%, #dcece2 100%);
-      --bg-header: rgba(230, 242, 234, 0.88);
-      --bg-card: #ffffff;
-      --bg-subtle: #eff6f1;
-      --border-card: rgba(35, 83, 58, 0.12);
-      --text-main: #1b3226;
-      --text-muted: #5a7265;
-      --primary: #23533a;
-      --primary-soft: rgba(35, 83, 58, 0.1);
-      --expense: #c8333a;
-      --expense-soft: rgba(200, 51, 58, 0.1);
-      --gold: #c98a2c;
-      --gold-soft: rgba(201, 138, 44, 0.14);
-      --fab-bg: linear-gradient(135deg, #c8333a 0%, #9e2228 100%);
-      --shadow: 0 8px 24px -4px rgba(27, 50, 38, 0.07);
+    :root,
+    html[data-theme="christmas"] {
+      --bg: #e4f2e7;
+      --bg-pattern: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.55) 0%, transparent 45%),
+                    radial-gradient(circle at 80% 70%, rgba(183,221,192,0.45) 0%, transparent 50%);
+      --card: #ffffff;
+      --card-soft: #f2f9f4;
+      --text: #1b3626;
+      --muted: #587564;
+      --border: #cde3d3;
+      --primary: #1f6e43;
+      --primary-soft: #dff2e6;
+      --accent: #c53030;
+      --accent-soft: #fde8e8;
+      --gold: #c6922c;
+      --income: #18794e;
+      --expense: #c53030;
+      --shadow: 0 10px 26px rgba(27, 54, 38, 0.07);
+      --particle-type: snow;
     }
 
-    [data-theme="furuhon"] {
-      --bg-page: #fdf2f4;
-      --bg-gradient: linear-gradient(180deg, #fdf2f4 0%, #fce7eb 100%);
-      --bg-header: rgba(253, 242, 244, 0.88);
-      --bg-card: #fffdf9;
-      --bg-subtle: #fbe8ec;
-      --border-card: rgba(217, 107, 130, 0.18);
-      --text-main: #4a3236;
-      --text-muted: #8a686e;
+    html[data-theme="furuya"] {
+      --bg: #fdf2f4;
+      --bg-pattern: repeating-linear-gradient(
+                      0deg,
+                      rgba(212, 163, 138, 0.06) 0px,
+                      rgba(212, 163, 138, 0.06) 1px,
+                      transparent 1px,
+                      transparent 28px
+                    ),
+                    radial-gradient(circle at 85% 15%, rgba(249, 198, 207, 0.4) 0%, transparent 45%);
+      --card: #fffdf9;
+      --card-soft: #f9ece8;
+      --text: #4a3531;
+      --muted: #8a6d66;
+      --border: #ecd5cf;
       --primary: #d96b82;
-      --primary-soft: rgba(217, 107, 130, 0.13);
-      --expense: #e05a6d;
-      --expense-soft: rgba(224, 90, 109, 0.12);
-      --gold: #d99b52;
-      --gold-soft: rgba(217, 155, 82, 0.16);
-      --fab-bg: linear-gradient(135deg, #e05a6d 0%, #c84659 100%);
-      --shadow: 0 8px 24px -4px rgba(74, 50, 54, 0.07);
+      --primary-soft: #fce4e9;
+      --accent: #b85d43;
+      --accent-soft: #f8e5de;
+      --gold: #c88a4b;
+      --income: #3f826d;
+      --expense: #c85a6c;
+      --shadow: 0 10px 26px rgba(138, 109, 102, 0.08);
+      --particle-type: sakura;
     }
 
-    [data-theme="frost"] {
-      --bg-page: #eef5fa;
-      --bg-gradient: linear-gradient(180deg, #eef5fa 0%, #e4eff8 100%);
-      --bg-header: rgba(238, 245, 250, 0.88);
-      --bg-card: #ffffff;
-      --bg-subtle: #e7f0f8;
-      --border-card: rgba(29, 93, 140, 0.12);
-      --text-main: #152938;
-      --text-muted: #5a7184;
-      --primary: #1d5d8c;
-      --primary-soft: rgba(29, 93, 140, 0.1);
-      --expense: #c93b5b;
-      --expense-soft: rgba(201, 59, 91, 0.1);
-      --gold: #2c88c9;
-      --gold-soft: rgba(44, 136, 201, 0.14);
-      --fab-bg: linear-gradient(135deg, #1d5d8c 0%, #154569 100%);
-      --shadow: 0 8px 24px -4px rgba(21, 41, 56, 0.07);
+    html[data-theme="donald"] {
+      --bg: #e3f3ff;
+      --bg-pattern: repeating-linear-gradient(
+                      -45deg,
+                      rgba(255, 255, 255, 0.55) 0px,
+                      rgba(255, 255, 255, 0.55) 12px,
+                      rgba(186, 224, 255, 0.35) 12px,
+                      rgba(186, 224, 255, 0.35) 24px
+                    );
+      --card: #ffffff;
+      --card-soft: #f0f8ff;
+      --text: #12355b;
+      --muted: #4b7096;
+      --border: #c5e2fa;
+      --primary: #0077cc;
+      --primary-soft: #dceeff;
+      --accent: #e03131;
+      --accent-soft: #ffe3e3;
+      --gold: #f59f00;
+      --income: #0ca678;
+      --expense: #e03131;
+      --shadow: 0 10px 26px rgba(18, 53, 91, 0.08);
+      --particle-type: bubble;
     }
 
-    [data-theme="minimal"] {
-      --bg-page: #f3f4f6;
-      --bg-gradient: linear-gradient(180deg, #f3f4f6 0%, #eceef1 100%);
-      --bg-header: rgba(243, 244, 246, 0.88);
-      --bg-card: #ffffff;
-      --bg-subtle: #f1f3f5;
-      --border-card: rgba(17, 24, 39, 0.08);
-      --text-main: #111827;
-      --text-muted: #6b7280;
-      --primary: #1f2937;
-      --primary-soft: rgba(31, 41, 55, 0.08);
-      --expense: #dc2626;
-      --expense-soft: rgba(220, 38, 38, 0.09);
-      --gold: #d97706;
-      --gold-soft: rgba(217, 119, 6, 0.12);
-      --fab-bg: linear-gradient(135deg, #1f2937 0%, #111827 100%);
-      --shadow: 0 8px 24px -4px rgba(17, 24, 39, 0.06);
+    html[data-theme="frost"] {
+      --bg: #eef5fa;
+      --bg-pattern: radial-gradient(circle at 30% 10%, rgba(255,255,255,0.8) 0%, transparent 50%);
+      --card: #ffffff;
+      --card-soft: #f3f8fc;
+      --text: #172b3a;
+      --muted: #556e80;
+      --border: #d5e4f0;
+      --primary: #1d6fa5;
+      --primary-soft: #e1eff9;
+      --accent: #2b82bd;
+      --accent-soft: #e3f1fb;
+      --gold: #5aa1d3;
+      --income: #16796f;
+      --expense: #c2415a;
+      --shadow: 0 10px 26px rgba(23, 43, 58, 0.07);
+      --particle-type: snow;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      overflow-x: hidden;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang HK", "Noto Sans TC", sans-serif;
+      background-color: var(--bg);
+      background-image: var(--bg-pattern);
+      color: var(--text);
+      line-height: 1.5;
+    }
 
     body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang HK", "Noto Sans HK", sans-serif;
-      background: var(--bg-gradient);
-      background-color: var(--bg-page);
-      color: var(--text-main);
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: calc(88px + env(safe-area-inset-bottom));
-      min-height: 100vh;
-      transition: background 0.3s ease, color 0.3s ease;
+      min-height: 100dvh;
+      padding-bottom: calc(96px + env(safe-area-inset-bottom));
     }
 
     #particle-canvas {
       position: fixed;
       inset: 0;
+      width: 100vw;
+      height: 100vh;
       pointer-events: none;
       z-index: 1;
-      transition: opacity 0.3s ease;
     }
 
-    .topbar {
-      position: sticky;
-      top: 0;
-      z-index: 20;
-      background: var(--bg-header);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-card);
-    }
-
-    .topbar-inner {
-      max-width: 540px;
+    .app-container {
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 560px;
       margin: 0 auto;
-      padding: 12px 16px;
+      padding: calc(14px + env(safe-area-inset-top)) 16px 24px;
+    }
+
+    /* 頂部標題列 */
+    .header {
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
+      margin-bottom: 16px;
     }
 
-    .brand {
+    .brand-box {
       display: flex;
       align-items: center;
       gap: 10px;
       min-width: 0;
     }
 
-    .brand-icon {
-      font-size: 1.55rem;
-      line-height: 1;
+    .mascot-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden;
+    }
+
+    .mascot-avatar svg {
+      width: 38px;
+      height: 38px;
+      display: block;
     }
 
     .brand-title {
       margin: 0;
-      font-size: 1.08rem;
+      font-size: 1.15rem;
       font-weight: 800;
+      color: var(--text);
       letter-spacing: -0.01em;
     }
 
     .brand-sub {
-      margin: 2px 0 0;
-      font-size: 0.72rem;
-      color: var(--text-muted);
+      margin: 1px 0 0;
+      font-size: 0.74rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
-    .month-pill {
+    .month-nav {
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-card);
+      gap: 4px;
+      background: var(--card);
+      border: 1px solid var(--border);
       border-radius: 999px;
-      padding: 5px 10px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-      shrink: 0;
+      padding: 4px 8px;
+      box-shadow: var(--shadow);
+      flex-shrink: 0;
     }
 
-    .month-nav-btn {
+    .month-nav button {
       border: 0;
       background: transparent;
-      color: var(--text-muted);
-      font-size: 0.9rem;
+      color: var(--muted);
       font-weight: 700;
-      padding: 2px 6px;
+      font-size: 0.9rem;
+      padding: 4px 7px;
       cursor: pointer;
+      border-radius: 999px;
     }
 
-    .month-label {
+    .month-nav span {
       font-size: 0.82rem;
-      font-weight: 800;
+      font-weight: 700;
+      color: var(--text);
+      padding: 0 2px;
       white-space: nowrap;
     }
 
-    .container {
-      position: relative;
-      z-index: 2;
-      max-width: 540px;
-      margin: 0 auto;
-      padding: 14px 16px 24px;
-    }
-
+    /* 卡片與區塊 */
     .card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-card);
-      border-radius: 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
       padding: 18px;
       box-shadow: var(--shadow);
       margin-bottom: 14px;
     }
 
-    .hidden { display: none !important; }
-
-    /* 帳目頁 Hero 卡 */
-    .hero-head {
+    .card-top-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 6px;
-    }
-
-    .hero-label-wrap {
-      display: flex;
-      align-items: center;
       gap: 8px;
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--text-muted);
+      margin-bottom: 4px;
     }
 
-    .season-badge {
-      font-size: 0.68rem;
-      font-weight: 800;
-      padding: 2px 8px;
+    .pill-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 10px;
       border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
       background: var(--primary-soft);
       color: var(--primary);
     }
 
-    .count-badge {
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 3px 9px;
+    .muted-pill {
+      padding: 3px 10px;
       border-radius: 999px;
-      background: var(--bg-subtle);
-      color: var(--text-muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      background: var(--card-soft);
+      color: var(--muted);
     }
 
     .hero-balance {
       font-size: 2rem;
       font-weight: 900;
-      letter-spacing: -0.02em;
       margin: 4px 0 14px;
-      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
     }
 
-    .io-grid {
+    .dual-box {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 10px;
+      margin-bottom: 14px;
     }
 
-    .io-box {
-      border-radius: 18px;
+    .mini-stat {
+      border-radius: 16px;
       padding: 12px 14px;
+      background: var(--card-soft);
+      border: 1px solid var(--border);
     }
 
-    .io-box.inc { background: var(--primary-soft); }
-    .io-box.exp { background: var(--expense-soft); }
+    .mini-stat.expense-bg {
+      background: var(--accent-soft);
+    }
 
-    .io-title {
-      font-size: 0.72rem;
+    .mini-label {
+      font-size: 0.75rem;
       font-weight: 700;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 5px;
+      color: var(--muted);
       margin-bottom: 4px;
     }
 
-    .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-    .dot.inc { background: var(--primary); }
-    .dot.exp { background: var(--expense); }
-
-    .io-val {
-      font-size: 1.15rem;
+    .mini-val {
+      font-size: 1.12rem;
       font-weight: 800;
-      font-variant-numeric: tabular-nums;
     }
 
-    .inc-color { color: var(--primary); }
-    .exp-color { color: var(--expense); }
-    .gold-color { color: var(--gold); }
+    .income-color { color: var(--income); }
+    .expense-color { color: var(--expense); }
 
-    .stacked-wrap {
-      margin-top: 14px;
-      padding-top: 12px;
-      border-top: 1px solid var(--border-card);
-    }
-
-    .stacked-head {
+    /* 分類橫條圖 */
+    .dist-header {
       display: flex;
       justify-content: space-between;
-      font-size: 0.72rem;
+      align-items: center;
+      font-size: 0.76rem;
+      color: var(--muted);
       margin-bottom: 6px;
-      color: var(--text-muted);
-      font-weight: 600;
     }
 
     .stacked-bar {
-      height: 8px;
+      height: 9px;
       border-radius: 999px;
-      background: var(--bg-subtle);
+      background: var(--card-soft);
       overflow: hidden;
       display: flex;
       gap: 2px;
+      margin-bottom: 8px;
     }
 
-    .stacked-legend {
+    .stacked-seg {
+      height: 100%;
+    }
+
+    .legend-inline {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
-      margin-top: 8px;
-      font-size: 0.7rem;
-      color: var(--text-muted);
+      gap: 8px 12px;
+      font-size: 0.72rem;
+      color: var(--muted);
     }
 
-    .legend-item { display: inline-flex; align-items: center; gap: 4px; }
+    .legend-dot {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      margin-right: 4px;
+    }
 
+    /* 明細列表 */
     .list-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin: 6px 2px 10px;
+      margin: 16px 2px 10px;
     }
 
-    .list-title { margin: 0; font-size: 0.92rem; font-weight: 800; }
+    .list-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      margin: 0;
+    }
 
-    .filter-btn {
-      border: 1px solid var(--border-card);
-      background: var(--bg-card);
-      color: var(--text-muted);
-      font-size: 0.74rem;
-      font-weight: 700;
-      padding: 5px 11px;
+    .filter-select {
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
       border-radius: 999px;
-      cursor: pointer;
+      padding: 5px 12px;
+      font-size: 0.75rem;
+      font-weight: 700;
     }
 
-    .day-group {
-      background: var(--bg-card);
-      border: 1px solid var(--border-card);
-      border-radius: 22px;
+    .day-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
       overflow: hidden;
+      margin-bottom: 10px;
       box-shadow: var(--shadow);
-      margin-bottom: 12px;
     }
 
     .day-head {
-      background: var(--bg-subtle);
-      padding: 8px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.72rem;
+      padding: 8px 14px;
+      background: var(--card-soft);
+      border-bottom: 1px solid var(--border);
+      font-size: 0.74rem;
       font-weight: 700;
-      color: var(--text-muted);
+      color: var(--muted);
     }
 
     .tx-row {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px 14px;
-      border-bottom: 1px solid var(--border-card);
       gap: 10px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
     }
 
-    .tx-row:last-child { border-bottom: 0; }
-
-    .tx-left {
-      display: flex;
-      align-items: center;
-      gap: 11px;
-      min-width: 0;
+    .tx-row:last-child {
+      border-bottom: 0;
     }
 
-    .tx-icon-box {
-      width: 40px;
-      height: 40px;
-      border-radius: 14px;
-      background: var(--bg-subtle);
+    .tx-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: var(--card-soft);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 1.2rem;
-      shrink: 0;
+      flex-shrink: 0;
     }
 
-    .tx-name { margin: 0; font-size: 0.88rem; font-weight: 700; }
-    .tx-note { margin: 2px 0 0; font-size: 0.74rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px; }
+    .tx-info {
+      flex: 1;
+      min-width: 0;
+    }
 
-    .tx-right { display: flex; align-items: center; gap: 8px; shrink: 0; }
-    .tx-amt { font-size: 0.92rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+    .tx-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+    }
+
+    .tx-note {
+      font-size: 0.74rem;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tx-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tx-amt {
+      font-size: 0.95rem;
+      font-weight: 800;
+      white-space: nowrap;
+    }
 
     .icon-del-btn {
       border: 0;
       background: transparent;
-      color: var(--text-muted);
-      opacity: 0.55;
-      padding: 5px;
-      cursor: pointer;
+      color: var(--muted);
       font-size: 0.95rem;
+      padding: 4px;
+      cursor: pointer;
     }
 
-    /* 統計頁圓環圖 */
+    /* 統計圓環圖 */
+    .donut-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin: 12px 0 18px;
+    }
+
     .seg-toggle {
       display: inline-flex;
-      background: var(--bg-subtle);
+      background: var(--card-soft);
+      border: 1px solid var(--border);
+      border-radius: 999px;
       padding: 3px;
-      border-radius: 12px;
     }
 
     .seg-btn {
       border: 0;
       background: transparent;
-      color: var(--text-muted);
+      color: var(--muted);
       font-size: 0.75rem;
       font-weight: 700;
-      padding: 5px 12px;
-      border-radius: 9px;
+      padding: 4px 12px;
+      border-radius: 999px;
       cursor: pointer;
     }
 
-    .seg-btn.active-exp { background: var(--bg-card); color: var(--expense); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-    .seg-btn.active-inc { background: var(--bg-card); color: var(--primary); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-
-    .donut-stage {
-      position: relative;
-      width: 210px;
-      height: 210px;
-      margin: 10px auto 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .seg-btn.active {
+      background: var(--card);
+      color: var(--accent);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
     }
 
-    .donut-center {
-      position: absolute;
-      text-align: center;
-      pointer-events: none;
+    .stat-row {
+      margin-bottom: 12px;
     }
 
-    .donut-center-lbl { display: block; font-size: 0.72rem; color: var(--text-muted); font-weight: 600; }
-    .donut-center-val { display: block; font-size: 1.25rem; font-weight: 900; margin-top: 2px; font-variant-numeric: tabular-nums; }
-
-    .cat-prog-item { margin-bottom: 12px; }
-    .cat-prog-head { display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 5px; }
-    .cat-prog-track { height: 8px; border-radius: 999px; background: var(--bg-subtle); overflow: hidden; }
-    .cat-prog-fill { height: 100%; border-radius: 999px; }
-
-    /* 大富翁4 結算頁 */
-    .monopoly-header {
-      border-top: 2px solid var(--border-card);
-      border-bottom: 2px solid var(--border-card);
-      padding: 6px 0;
-      margin-bottom: 10px;
+    .stat-row-top {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 0.68rem;
+      font-size: 0.84rem;
+      margin-bottom: 5px;
+    }
+
+    .stat-track {
+      height: 7px;
+      border-radius: 999px;
+      background: var(--card-soft);
+      overflow: hidden;
+    }
+
+    .stat-fill {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    /* 結算報（RICHMAN 財經快報，無 4 字） */
+    .paper-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--border);
+      font-size: 0.72rem;
       font-weight: 800;
-      letter-spacing: 0.06em;
-      color: var(--text-muted);
+      color: var(--muted);
+      letter-spacing: 0.04em;
     }
 
-    .monopoly-stamp {
-      transform: rotate(-5deg);
-      border: 2px double var(--expense);
-      color: var(--expense);
-      padding: 4px 10px;
-      border-radius: 10px;
-      font-size: 0.74rem;
+    .stamp-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 12px 0;
+    }
+
+    .rank-stamp {
+      border: 2px solid var(--accent);
+      color: var(--accent);
       font-weight: 900;
-      background: var(--bg-card);
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 8px;
+      transform: rotate(-3deg);
       white-space: nowrap;
+      background: var(--accent-soft);
     }
 
-    .mom-grid {
+    .advisor-banner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--card-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 10px 12px;
+      margin-bottom: 12px;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .rich-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 9px;
-      margin-top: 12px;
+      gap: 10px;
     }
 
-    .mom-cell {
-      background: var(--bg-subtle);
-      border-radius: 16px;
+    .rich-cell {
+      background: var(--card-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
       padding: 11px 12px;
     }
 
-    .mom-lbl { font-size: 0.7rem; font-weight: 700; color: var(--text-muted); }
-    .mom-val { font-size: 1rem; font-weight: 900; margin: 3px 0; font-variant-numeric: tabular-nums; }
-    .mom-prev { font-size: 0.66rem; color: var(--text-muted); }
+    .rich-cell-title {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-weight: 700;
+    }
 
-    .mom-badge {
+    .rich-cell-num {
+      font-size: 1.08rem;
+      font-weight: 900;
+      margin: 2px 0;
+    }
+
+    .rich-cell-prev {
+      font-size: 0.7rem;
+      color: var(--muted);
+    }
+
+    .delta-badge {
       display: inline-block;
       margin-top: 4px;
-      padding: 2px 6px;
-      border-radius: 6px;
-      font-size: 0.65rem;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: 0.68rem;
       font-weight: 800;
+      background: var(--primary-soft);
+      color: var(--primary);
     }
 
-    .mom-good { background: var(--primary-soft); color: var(--primary); }
-    .mom-bad { background: var(--expense-soft); color: var(--expense); }
-    .mom-flat { background: rgba(128,128,128,0.1); color: var(--text-muted); }
-
-    .tbl { width: 100%; border-collapse: collapse; font-size: 0.78rem; }
-    .tbl th, .tbl td { padding: 8px 4px; border-bottom: 1px solid var(--border-card); text-align: left; }
-    .tbl th:not(:first-child), .tbl td:not(:first-child) { text-align: right; font-variant-numeric: tabular-nums; }
-
-    /* 設定頁主題選擇器與 iOS 教學卡片 */
+    /* 主題選擇器 */
     .theme-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr 1fr;
       gap: 10px;
-      margin-top: 12px;
+      margin-top: 10px;
     }
 
-    .theme-card-btn {
-      border: 2px solid transparent;
-      background: var(--bg-subtle);
-      border-radius: 18px;
-      padding: 12px 10px;
-      text-align: center;
+    .theme-card {
+      border: 2px solid var(--border);
+      background: var(--card-soft);
+      border-radius: 16px;
+      padding: 12px;
+      text-align: left;
       cursor: pointer;
-      color: var(--text-main);
-      transition: transform 0.15s ease, border-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text);
     }
 
-    .theme-card-btn.selected {
+    .theme-card.active {
       border-color: var(--primary);
       background: var(--primary-soft);
     }
 
-    .swatch-row {
-      display: flex;
-      justify-content: center;
-      gap: 5px;
-      margin-top: 6px;
+    .theme-card-title {
+      font-size: 0.86rem;
+      font-weight: 800;
     }
 
-    .swatch-dot { width: 10px; height: 10px; border-radius: 50%; }
-
-    .guide-box {
-      background: var(--bg-subtle);
-      border-radius: 18px;
-      padding: 14px 16px;
-      margin: 12px 0;
-      font-size: 0.78rem;
-      line-height: 1.7;
-      color: var(--text-muted);
+    .theme-card-desc {
+      font-size: 0.7rem;
+      color: var(--muted);
     }
 
-    .guide-box ol {
+    .ios-guide-box {
+      background: var(--card-soft);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      font-size: 0.8rem;
+      color: var(--text);
+      margin-top: 10px;
+    }
+
+    .ios-guide-box ol {
       margin: 0;
       padding-left: 18px;
-    }
-
-    .guide-status-row {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 10px;
-      font-size: 0.76rem;
-      padding-top: 4px;
+      line-height: 1.75;
     }
 
     .btn {
-      border: 1px solid var(--border-card);
-      background: var(--bg-subtle);
-      color: var(--text-main);
-      border-radius: 14px;
-      padding: 10px 14px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 12px;
+      padding: 8px 12px;
       font-size: 0.8rem;
       font-weight: 700;
       cursor: pointer;
     }
 
-    .btn-primary { background: var(--primary); color: #ffffff; border-color: var(--primary); }
-    .btn-gold { background: var(--gold-soft); color: var(--gold); border-color: transparent; }
-    .btn-danger { background: var(--expense-soft); color: var(--expense); border-color: transparent; }
-    .btn-sm { padding: 6px 11px; font-size: 0.74rem; border-radius: 11px; }
-
-    /* 底部導覽列 */
-    .tabbar {
-      position: fixed;
-      bottom: 0;
-      inset-x: 0;
-      z-index: 30;
-      background: var(--bg-card);
-      border-top: 1px solid var(--border-card);
-      padding: 6px 8px calc( env(safe-area-inset-bottom));
+    .btn-primary {
+      background: var(--primary);
+      color: #ffffff;
+      border-color: var(--primary);
     }
 
-    .tabbar-inner {
-      max-width: 540px;
-      margin: 0 auto;
+    .btn-accent {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* 底部全幅置中 iPhone 導覽列 */
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: 100%;
+      z-index: 30;
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-top: 1px solid var(--border);
+      padding: 6px 8px calc(8px + env(safe-area-inset-bottom));
+      display: flex;
+      justify-content: center;
+    }
+
+    .bottom-nav-inner {
+      width: 100%;
+      max-width: 560px;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       align-items: center;
+      text-align: center;
     }
 
-    .nav-btn {
+    .nav-item {
       border: 0;
+      outline: none;
       background: transparent;
-      color: var(--text-muted);
+      color: var(--muted);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
-      padding: 5px 2px;
-      font-size: 0.68rem;
+      justify-content: center;
+      gap: 2px;
+      padding: 4px 2px;
+      font-size: 0.72rem;
       font-weight: 700;
       cursor: pointer;
     }
 
-    .nav-btn.active { color: var(--primary); }
+    .nav-item .nav-ico {
+      font-size: 1.15rem;
+      line-height: 1.2;
+    }
 
-    .fab-wrap { display: flex; justify-content: center; }
+    .nav-item.active {
+      color: var(--primary);
+      font-weight: 900;
+    }
 
-    .fab {
-      width: 54px;
-      height: 54px;
+    .fab-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .fab-plus {
+      width: 50px;
+      height: 50px;
       margin-top: -22px;
       border-radius: 50%;
-      border: 0;
-      background: var(--fab-bg);
+      border: 3px solid #ffffff;
+      background: var(--accent);
       color: #ffffff;
-      font-size: 1.7rem;
+      font-size: 1.65rem;
       font-weight: 700;
+      line-height: 1;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.22);
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
       cursor: pointer;
     }
 
-    /* 底部彈窗 */
+    /* 底部彈出式入帳抽屜 */
     .modal-mask {
       position: fixed;
       inset: 0;
@@ -648,121 +762,177 @@
       justify-content: center;
     }
 
-    .modal-mask.center-mask { align-items: center; padding: 16px; }
-
-    .drawer {
+    .sheet-box {
       width: 100%;
-      max-width: 540px;
-      background: var(--bg-card);
-      border-radius: 28px 28px 0 0;
-      padding: 16px 18px calc(20px + env(safe-area-inset-bottom));
+      max-width: 560px;
+      background: var(--card);
+      border-top-left-radius: 26px;
+      border-top-right-radius: 26px;
+      padding: 12px 18px calc(20px + env(safe-area-inset-bottom));
       box-shadow: 0 -10px 30px rgba(0, 0, 0, 0.15);
+      max-height: 92dvh;
+      overflow-y: auto;
     }
 
-    .dialog-card {
-      width: 100%;
-      max-width: 380px;
-      background: var(--bg-card);
-      border-radius: 24px;
-      padding: 20px;
-      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.2);
-    }
-
-    .grabber {
+    .sheet-handle {
       width: 38px;
       height: 4px;
       border-radius: 999px;
-      background: rgba(128, 128, 128, 0.25);
-      margin: 0 auto 14px;
+      background: var(--border);
+      margin: 0 auto 12px;
+    }
+
+    .sheet-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .close-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      border: 0;
+      background: var(--card-soft);
+      color: var(--muted);
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
     }
 
     .amount-box {
-      background: var(--bg-subtle);
-      border-radius: 18px;
-      padding: 10px 14px;
       display: flex;
       align-items: center;
-      margin: 12px 0 8px;
+      justify-content: space-between;
+      background: var(--card-soft);
+      border: 1.5px solid var(--border);
+      border-radius: 18px;
+      padding: 12px 16px;
+      margin-bottom: 10px;
     }
 
-    .amount-box span { font-size: 1.4rem; font-weight: 800; color: var(--text-muted); }
+    .amount-box span {
+      font-size: 1.4rem;
+      font-weight: 900;
+      color: var(--muted);
+    }
 
     .amount-box input {
-      width: 100%;
       border: 0;
       background: transparent;
       text-align: right;
       font-size: 1.85rem;
       font-weight: 900;
-      color: var(--text-main);
+      color: var(--text);
+      width: 75%;
       outline: none;
     }
 
-    .quick-pills { display: flex; gap: 7px; margin-bottom: 12px; flex-wrap: wrap; }
-    .pill-btn {
+    .quick-chips {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .chip-btn {
       border: 0;
-      background: var(--bg-subtle);
-      color: var(--text-muted);
-      font-size: 0.74rem;
+      background: var(--card-soft);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 5px 12px;
+      font-size: 0.76rem;
       font-weight: 700;
-      padding: 5px 11px;
-      border-radius: 10px;
       cursor: pointer;
     }
 
     .cat-grid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 7px;
-      margin: 8px 0 12px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin: 8px 0 14px;
     }
 
-    .cat-item-btn {
-      border: 2px solid transparent;
-      background: var(--bg-subtle);
-      border-radius: 15px;
-      padding: 8px 4px;
+    .cat-tile {
+      border: 1.5px solid transparent;
+      background: var(--card-soft);
+      border-radius: 16px;
+      padding: 10px 4px;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 3px;
+      gap: 4px;
       cursor: pointer;
-      color: var(--text-main);
+      color: var(--text);
     }
 
-    .cat-item-btn span:first-child { font-size: 1.2rem; }
-    .cat-item-btn span:last-child { font-size: 0.65rem; font-weight: 700; text-align: center; line-height: 1.15; }
+    .cat-tile.selected {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
 
-    .form-row-2 {
+    .cat-tile-ico {
+      font-size: 1.35rem;
+      line-height: 1.1;
+    }
+
+    .cat-tile-name {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .form-two-col {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1.2fr;
       gap: 10px;
       margin-bottom: 14px;
     }
 
-    .input-ctrl {
+    .field-label {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .field-input {
       width: 100%;
-      border: 1px solid var(--border-card);
-      background: var(--bg-subtle);
-      color: var(--text-main);
+      border: 1px solid var(--border);
+      background: var(--card-soft);
+      color: var(--text);
       border-radius: 12px;
-      padding: 9px 11px;
-      font-size: 0.82rem;
+      padding: 9px 10px;
+      font-size: 0.85rem;
       font-weight: 600;
       outline: none;
     }
 
+    .submit-full {
+      width: 100%;
+      border: 0;
+      border-radius: 16px;
+      padding: 13px;
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 0.98rem;
+      font-weight: 800;
+      cursor: pointer;
+    }
+
     .toast {
       position: fixed;
-      top: 16px;
+      top: calc(14px + env(safe-area-inset-top));
       left: 50%;
       transform: translateX(-50%);
       z-index: 60;
-      background: rgba(24, 24, 27, 0.92);
+      background: var(--text);
       color: #ffffff;
       padding: 8px 16px;
       border-radius: 999px;
-      font-size: 0.76rem;
+      font-size: 0.78rem;
       font-weight: 700;
       box-shadow: 0 8px 20px rgba(0,0,0,0.18);
     }
@@ -772,439 +942,531 @@
   <canvas id="particle-canvas"></canvas>
   <div id="toast" class="toast hidden"></div>
 
-  <header class="topbar">
-    <div class="topbar-inner">
-      <div class="brand">
-        <span id="header-icon" class="brand-icon">🎄</span>
+  <div class="app-container">
+    <!-- 頂部 -->
+    <header class="header">
+      <div class="brand-box">
+        <div id="header-mascot" class="mascot-avatar" aria-hidden="true"></div>
         <div>
           <h1 class="brand-title">日常記帳</h1>
-          <p id="header-sub" class="brand-sub">溫馨聖誕版 · 本地離線儲存</p>
+          <p id="header-subtitle" class="brand-sub">古本屋 (吉伊卡哇) · 本地離線儲存</p>
         </div>
       </div>
-      <div class="month-pill">
-        <button type="button" id="btn-prev-month" class="month-nav-btn" aria-label="上個月">‹</button>
-        <span id="month-label" class="month-label">2026年11月</span>
-        <button type="button" id="btn-next-month" class="month-nav-btn" aria-label="下個月">›</button>
+      <div class="month-nav">
+        <button id="prev-month" type="button" aria-label="上個月">‹</button>
+        <span id="current-month-label">2026年11月</span>
+        <button id="next-month" type="button" aria-label="下個月">›</button>
       </div>
-    </div>
-  </header>
+    </header>
 
-  <main class="container">
     <!-- 分頁 1：帳目 -->
-    <section id="tab-home">
-      <div class="card">
-        <div class="hero-head">
-          <div class="hero-label-wrap">
-            <span>本月結餘</span>
-            <span id="season-pill" class="season-badge">Merry X’mas</span>
+    <main id="tab-ledger" class="tab-view">
+      <section class="card">
+        <div class="card-top-row">
+          <div>
+            <span style="font-size:0.78rem;font-weight:700;color:var(--muted);">本月結餘</span>
+            <span id="theme-badge" class="pill-tag">古本屋書架</span>
           </div>
-          <span id="tx-count-badge" class="count-badge">0 筆紀錄</span>
+          <span id="record-count-pill" class="muted-pill">0 筆紀錄</span>
         </div>
-        <div id="summary-balance" class="hero-balance">$0</div>
-        <div class="io-grid">
-          <div class="io-box inc">
-            <div class="io-title"><span class="dot inc"></span>總收入</div>
-            <div id="summary-income" class="io-val inc-color">$0</div>
+        <div id="ledger-balance" class="hero-balance">$0</div>
+
+        <div class="dual-box">
+          <div class="mini-stat">
+            <div class="mini-label">● 總收入</div>
+            <div id="ledger-income" class="mini-val income-color">$0</div>
           </div>
-          <div class="io-box exp">
-            <div class="io-title"><span class="dot exp"></span>總支出</div>
-            <div id="summary-expense" class="io-val exp-color">$0</div>
+          <div class="mini-stat expense-bg">
+            <div class="mini-label">● 總支出</div>
+            <div id="ledger-expense" class="mini-val expense-color">$0</div>
           </div>
         </div>
-        <div id="stacked-wrap" class="stacked-wrap hidden">
-          <div class="stacked-head">
-            <span>支出分類分佈</span>
-            <span id="top-cat-lbl" class="inc-color"></span>
-          </div>
-          <div id="stacked-bar" class="stacked-bar"></div>
-          <div id="stacked-legend" class="stacked-legend"></div>
+
+        <div class="dist-header">
+          <span>支出分類分佈</span>
+          <span id="top-cat-hint" style="font-weight:700;color:var(--primary);">尚無支出</span>
         </div>
-      </div>
+        <div id="stacked-bar" class="stacked-bar"></div>
+        <div id="stacked-legend" class="legend-inline"></div>
+      </section>
 
       <div class="list-header">
         <h2 class="list-title">收支明細</h2>
-        <button type="button" id="btn-filter-toggle" class="filter-btn">篩選：全部</button>
+        <select id="category-filter" class="filter-select" aria-label="篩選分類">
+          <option value="ALL">篩選：全部</option>
+        </select>
       </div>
-      <div id="tx-list"></div>
-    </section>
+      <div id="ledger-groups"></div>
+    </main>
 
-    <!-- 分頁 2：統計（純 SVG 圓環圖） -->
-    <section id="tab-stats" class="hidden">
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+    <!-- 分頁 2：統計（圓環圖） -->
+    <main id="tab-stats" class="tab-view hidden">
+      <section class="card">
+        <div class="card-top-row">
           <div>
-            <h2 style="margin:0;font-size:1rem;font-weight:800;">支出結構分析</h2>
-            <p style="margin:2px 0 0;font-size:0.74rem;color:var(--text-muted);">按分類統計當月消費與收入佔比</p>
+            <h2 id="stats-heading" class="list-title">支出結構分析</h2>
+            <p class="brand-sub">按分類統計當月消費佔比</p>
           </div>
           <div class="seg-toggle">
-            <button type="button" id="stats-exp-btn" class="seg-btn active-exp">支出</button>
-            <button type="button" id="stats-inc-btn" class="seg-btn">收入</button>
+            <button type="button" class="seg-btn active" data-stat-type="expense">支出</button>
+            <button type="button" class="seg-btn" data-stat-type="income">收入</button>
           </div>
         </div>
 
-        <div class="donut-stage">
-          <svg id="donut-svg" width="210" height="210" viewBox="0 0 210 210"></svg>
-          <div class="donut-center">
-            <span id="donut-lbl" class="donut-center-lbl">本月總支出</span>
-            <span id="donut-total" class="donut-center-val">$0</span>
-          </div>
-        </div>
+        <div id="donut-container" class="donut-wrap"></div>
+        <div id="stats-breakdown"></div>
+      </section>
+    </main>
 
-        <div id="stats-cat-list" style="border-top:1px solid var(--border-card);padding-top:14px;"></div>
-      </div>
-    </section>
-
-    <!-- 分頁 3：《大富翁4》月度結算報 -->
-    <section id="tab-settlement" class="hidden">
-      <div class="card">
-        <div class="monopoly-header">
-          <span>📰 RICHMAN 4 · 財經快報</span>
-          <span id="settlement-period">2026年11月號</span>
+    <!-- 分頁 3：結算（RICHMAN 財經快報，無 4 字） -->
+    <main id="tab-settlement" class="tab-view hidden">
+      <section class="card">
+        <div class="paper-head">
+          <span>📰 RICHMAN · 財經快報</span>
+          <span id="report-issue-month">2026年11月號</span>
         </div>
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+        <div class="stamp-row">
           <div>
-            <h2 style="margin:0;font-size:1.1rem;font-weight:900;">大富翁月度財務結算報</h2>
-            <p id="settlement-sub" style="margin:3px 0 0;font-size:0.74rem;color:var(--text-muted);">對比上月收支與淨資產增減</p>
+            <h2 class="list-title" style="font-size:1.1rem;">大富翁月度財務結算報</h2>
+            <p id="report-compare-sub" class="brand-sub">對比上月收支與淨資產變動</p>
           </div>
-          <div id="monopoly-stamp" class="monopoly-stamp">穩健地主</div>
+          <div id="rank-stamp" class="rank-stamp">古本屋店長</div>
         </div>
-        <div style="margin-top:12px;padding:10px 12px;border-radius:16px;background:var(--bg-subtle);display:flex;align-items:center;gap:10px;font-size:0.76rem;">
-          <span id="monopoly-avatar" style="font-size:1.5rem;">🎩</span>
-          <span id="monopoly-comment" style="font-weight:600;line-height:1.45;">收支表現穩健，繼續保持儲蓄節奏！</span>
-        </div>
-        <div id="mom-grid" class="mom-grid"></div>
-      </div>
 
-      <div class="card">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <div class="advisor-banner">
+          <div id="advisor-mini-art" style="width:32px;height:32px;flex-shrink:0;"></div>
+          <div id="advisor-quote">精打細算每一筆開支，書架同荷包一齊滿滿！</div>
+        </div>
+
+        <div id="richman-metrics" class="rich-grid"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-top-row" style="margin-bottom:10px;">
           <div>
-            <h3 style="margin:0;font-size:0.95rem;font-weight:800;">🏦 資產與負債配置表</h3>
-            <p style="margin:2px 0 0;font-size:0.7rem;color:var(--text-muted);">累積帳目結餘自動計入總資產</p>
+            <h2 class="list-title">🏛️ 資產與負債配置表</h2>
+            <p class="brand-sub">累積帳目結餘自動計入總資產</p>
           </div>
-          <button type="button" id="btn-open-asset" class="btn btn-primary btn-sm">+ 新增項目</button>
+          <button id="open-asset-modal" type="button" class="btn btn-accent">+ 新增項目</button>
         </div>
-        <div id="asset-items-wrap"></div>
-      </div>
+        <div id="asset-items-list"></div>
+      </section>
+    </main>
 
-      <div class="card">
-        <h3 style="margin:0 0 8px;font-size:0.95rem;font-weight:800;">📋 分類開支上月對比表</h3>
-        <table class="tbl">
-          <thead>
-            <tr>
-              <th>分類</th>
-              <th>上月</th>
-              <th>本月</th>
-              <th>增減變化</th>
-            </tr>
-          </thead>
-          <tbody id="cat-mom-tbody"></tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- 分頁 4：設定（含古本屋主題與加到 iPhone 主畫面教學卡） -->
-    <section id="tab-settings" class="hidden">
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span id="settings-theme-badge" style="font-size:1.5rem;">🎄</span>
-          <div>
-            <h3 style="margin:0;font-size:0.98rem;font-weight:800;">主題風格與背景氣氛</h3>
-            <p style="margin:2px 0 0;font-size:0.74rem;color:var(--text-muted);">自由切換淺綠聖誕、《吉伊卡哇》古本屋或冬日初雪</p>
-          </div>
-        </div>
-
+    <!-- 分頁 4：設定與主題 -->
+    <main id="tab-settings" class="tab-view hidden">
+      <section class="card">
+        <h2 class="list-title">🎨 選擇佈景主題</h2>
+        <p class="brand-sub">切換不同角色主題、背景色調與分類圖示</p>
         <div class="theme-grid">
-          <button type="button" class="theme-card-btn selected" data-theme-opt="christmas">
-            <div style="font-size:1.3rem;">🎄</div>
-            <div style="font-size:0.8rem;font-weight:800;margin-top:3px;">溫馨聖誕</div>
-            <div style="font-size:0.66rem;color:var(--text-muted);">淺綠聖誕背景</div>
-            <div class="swatch-row">
-              <span class="swatch-dot" style="background:#e6f2ea;border:1px solid #23533a;"></span>
-              <span class="swatch-dot" style="background:#23533a;"></span>
-              <span class="swatch-dot" style="background:#c8333a;"></span>
+          <button type="button" class="theme-card" data-theme-pick="furuya">
+            <div class="mascot-avatar" style="width:38px;height:38px;" data-mini-mascot="furuya"></div>
+            <div>
+              <div class="theme-card-title">古本屋 (吉伊卡哇)</div>
+              <div class="theme-card-desc">古書文庫 · 粉紅蟹鉗</div>
             </div>
           </button>
-
-          <button type="button" class="theme-card-btn" data-theme-opt="furuhon">
-            <div style="font-size:1.3rem;">📚</div>
-            <div style="font-size:0.8rem;font-weight:800;margin-top:3px;">古本屋 (吉伊卡哇)</div>
-            <div style="font-size:0.66rem;color:var(--text-muted);">櫻花粉嫩書屋</div>
-            <div class="swatch-row">
-              <span class="swatch-dot" style="background:#fdf2f4;border:1px solid #d96b82;"></span>
-              <span class="swatch-dot" style="background:#d96b82;"></span>
-              <span class="swatch-dot" style="background:#d99b52;"></span>
+          <button type="button" class="theme-card" data-theme-pick="donald">
+            <div class="mascot-avatar" style="width:38px;height:38px;" data-mini-mascot="donald"></div>
+            <div>
+              <div class="theme-card-title">唐老鴨 (Q版水手)</div>
+              <div class="theme-card-desc">天藍白配色 · 航海風</div>
             </div>
           </button>
-
-          <button type="button" class="theme-card-btn" data-theme-opt="frost">
-            <div style="font-size:1.3rem;">❄️</div>
-            <div style="font-size:0.8rem;font-weight:800;margin-top:3px;">冬日初雪</div>
-            <div style="font-size:0.66rem;color:var(--text-muted);">冰藍晴雪</div>
-            <div class="swatch-row">
-              <span class="swatch-dot" style="background:#eef5fa;border:1px solid #1d5d8c;"></span>
-              <span class="swatch-dot" style="background:#1d5d8c;"></span>
-              <span class="swatch-dot" style="background:#2c88c9;"></span>
+          <button type="button" class="theme-card" data-theme-pick="christmas">
+            <div class="mascot-avatar" style="width:38px;height:38px;" data-mini-mascot="christmas"></div>
+            <div>
+              <div class="theme-card-title">溫馨聖誕</div>
+              <div class="theme-card-desc">淺綠聖誕色 · 飄雪</div>
             </div>
           </button>
-
-          <button type="button" class="theme-card-btn" data-theme-opt="minimal">
-            <div style="font-size:1.3rem;">⬜</div>
-            <div style="font-size:0.8rem;font-weight:800;margin-top:3px;">經典簡約</div>
-            <div style="font-size:0.66rem;color:var(--text-muted);">清爽純淨</div>
-            <div class="swatch-row">
-              <span class="swatch-dot" style="background:#f3f4f6;border:1px solid #1f2937;"></span>
-              <span class="swatch-dot" style="background:#1f2937;"></span>
-              <span class="swatch-dot" style="background:#dc2626;"></span>
+          <button type="button" class="theme-card" data-theme-pick="frost">
+            <div class="mascot-avatar" style="width:38px;height:38px;" data-mini-mascot="frost"></div>
+            <div>
+              <div class="theme-card-title">冬日初雪</div>
+              <div class="theme-card-desc">冰藍清爽 · 雪花</div>
             </div>
           </button>
         </div>
 
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:14px;padding-top:12px;border-top:1px solid var(--border-card);">
-          <div>
-            <div style="font-size:0.84rem;font-weight:800;">背景飄雪 / 櫻花瓣效果</div>
-            <div style="font-size:0.7rem;color:var(--text-muted);">古本屋主題自動切換為輕柔櫻花瓣</div>
-          </div>
-          <button type="button" id="btn-toggle-snow" class="btn btn-primary btn-sm">已開啟</button>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
+          <button id="toggle-particles" type="button" class="btn">✨ 背景飄落效果：開啟</button>
+          <button id="load-sample-data" type="button" class="btn btn-primary">📖 載入示範帳目</button>
+          <button id="reset-all-data" type="button" class="btn">🗑️ 清空資料</button>
         </div>
-      </div>
+      </section>
 
       <!-- 加到 iPhone 主畫面教學卡片 -->
-      <div class="card">
-        <div style="display:flex;align-items:center;gap:12px;">
-          <div style="width:42px;height:42px;border-radius:14px;background:var(--bg-subtle);display:flex;align-items:center;justify-content:center;font-size:1.3rem;shrink:0;">📱</div>
+      <section class="card">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:40px;height:40px;border-radius:12px;background:var(--primary-soft);display:flex;align-items:center;justify-content:center;font-size:1.3rem;">📱</div>
           <div>
-            <h3 style="margin:0;font-size:0.98rem;font-weight:800;">加到 iPhone 主畫面</h3>
-            <p style="margin:2px 0 0;font-size:0.74rem;color:var(--text-muted);">變成獨立 App，搭地鐵無網絡都用到</p>
+            <h2 class="list-title">加到 iPhone 主畫面</h2>
+            <p class="brand-sub">變成獨立 App，搭地鐵無網絡都用到</p>
           </div>
         </div>
-
-        <div class="guide-box">
+        <div class="ios-guide-box">
           <ol>
             <li>用 iPhone 嘅 <strong>Safari 瀏覽器</strong> 開啟此網頁。</li>
-            <li>點擊底部工具列中間嘅 <strong>「分享」按鈕</strong> (正方形加向上箭咀)。</li>
-            <li>向下滑並選擇 <strong>「加入主畫面」</strong>，再按右上角「新增」。</li>
-            <li>之後直接喺桌面點擊 <span id="guide-theme-icon">🎄</span> Icon 開啟，所有資料離線保存。</li>
+            <li>點擊底部工具列中間嘅 <strong>「分享」按鈕</strong>（正方形加向上箭咀）。</li>
+            <li>向下滑並選擇 <strong>「加入主畫面」</strong>，再按右上角 <strong>「新增」</strong>。</li>
+            <li>之後直接喺桌面點擊 <span id="guide-theme-icon">📚</span> Icon 開啟，所有資料離線保存。</li>
           </ol>
         </div>
-
-        <div class="guide-status-row">
-          <span style="color:var(--text-muted);font-weight:600;white-space:nowrap;">離線快取引擎狀態：</span>
-          <span id="sw-status" class="inc-color" style="font-weight:800;text-align:right;">本地儲存已啟用（上傳至免費網頁空間即可離線安裝）</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:12px;font-size:0.76rem;">
+          <span style="color:var(--muted);font-weight:700;">離線快取引擎狀態：</span>
+          <span style="color:var(--primary);font-weight:800;text-align:right;">本地儲存已啟用（上傳至免費網頁空間即可離線安裝）</span>
         </div>
-      </div>
-
-      <!-- 資料備份與示範資料 -->
-      <div class="card">
-        <h3 style="margin:0 0 10px;font-size:0.95rem;font-weight:800;">資料備份與示範測試</h3>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
-          <button type="button" id="btn-export-json" class="btn">💾 匯出備份 (JSON)</button>
-          <label class="btn" style="text-align:center;display:block;">
-            📥 匯入還原
-            <input type="file" id="input-import-json" accept=".json" class="hidden" />
-          </label>
-        </div>
-        <button type="button" id="btn-load-demo" class="btn btn-gold" style="width:100%;margin-bottom:8px;">🎁 載入跨月份示範帳目（含廢水支出與對比）</button>
-        <button type="button" id="btn-clear-all" class="btn btn-danger" style="width:100%;">🗑️ 清空所有本地紀錄</button>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
+  </div>
 
   <!-- 底部導覽列 -->
-  <nav class="tabbar" aria-label="主導覽">
-    <div class="tabbar-inner">
-      <button type="button" class="nav-btn active" data-tab="home">
-        <span style="font-size:1.15rem;">💳</span>
+  <nav class="bottom-nav" aria-label="主導覽列">
+    <div class="bottom-nav-inner">
+      <button type="button" class="nav-item active" data-nav="ledger">
+        <span class="nav-ico">💳</span>
         <span>帳目</span>
       </button>
-      <button type="button" class="nav-btn" data-tab="stats">
-        <span style="font-size:1.15rem;">◔</span>
+      <button type="button" class="nav-item" data-nav="stats">
+        <span class="nav-ico">◔</span>
         <span>統計</span>
       </button>
       <div class="fab-wrap">
-        <button type="button" id="btn-open-add" class="fab" aria-label="新增收支">+</button>
+        <button id="fab-add-tx" type="button" class="fab-plus" aria-label="新增收支">+</button>
       </div>
-      <button type="button" class="nav-btn" data-tab="settlement">
-        <span style="font-size:1.15rem;">📰</span>
+      <button type="button" class="nav-item" data-nav="settlement">
+        <span class="nav-ico">📰</span>
         <span>結算</span>
       </button>
-      <button type="button" class="nav-btn" data-tab="settings">
-        <span style="font-size:1.15rem;">🎛️</span>
+      <button type="button" class="nav-item" data-nav="settings">
+        <span class="nav-ico">🎛️</span>
         <span>設定</span>
       </button>
     </div>
   </nav>
 
-  <!-- 底部快速入帳彈窗 -->
-  <div id="add-modal" class="modal-mask hidden">
-    <div class="drawer">
-      <div class="grabber"></div>
-      <div style="display:flex;align-items:center;justify-content:space-between;">
+  <!-- 底部彈出式快速入帳抽屜 -->
+  <div id="tx-modal" class="modal-mask hidden">
+    <div class="sheet-box">
+      <div class="sheet-handle"></div>
+      <div class="sheet-top">
         <div class="seg-toggle">
-          <button type="button" id="type-exp-btn" class="seg-btn active-exp">支出</button>
-          <button type="button" id="type-inc-btn" class="seg-btn">收入</button>
+          <button type="button" class="seg-btn active" data-entry-type="expense">支出</button>
+          <button type="button" class="seg-btn" data-entry-type="income">收入</button>
         </div>
-        <button type="button" id="btn-close-add" class="btn btn-sm" style="border-radius:50%;width:32px;height:32px;padding:0;">✕</button>
+        <button id="close-tx-modal" type="button" class="close-circle" aria-label="關閉">✕</button>
       </div>
 
       <form id="tx-form">
         <div class="amount-box">
           <span>$</span>
-          <input type="number" id="inp-amount" step="0.01" min="0.01" inputmode="decimal" placeholder="0.00" required />
+          <input id="entry-amount" type="number" step="0.01" min="0.01" placeholder="0.00" required />
         </div>
 
-        <div class="quick-pills">
-          <button type="button" class="pill-btn" data-add="50">+$50</button>
-          <button type="button" class="pill-btn" data-add="100">+$100</button>
-          <button type="button" class="pill-btn" data-add="200">+$200</button>
-          <button type="button" class="pill-btn" data-add="500">+$500</button>
+        <div class="quick-chips">
+          <button type="button" class="chip-btn" data-add-amt="50">+$50</button>
+          <button type="button" class="chip-btn" data-add-amt="100">+$100</button>
+          <button type="button" class="chip-btn" data-add-amt="200">+$200</button>
+          <button type="button" class="chip-btn" data-add-amt="500">+$500</button>
         </div>
 
-        <div style="font-size:0.74rem;font-weight:700;color:var(--text-muted);">選擇分類</div>
-        <div id="cat-grid" class="cat-grid"></div>
+        <span class="field-label">選擇分類</span>
+        <div id="category-grid" class="cat-grid"></div>
 
-        <div class="form-row-2">
+        <div class="form-two-col">
           <div>
-            <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:4px;">日期</label>
-            <input type="date" id="inp-date" class="input-ctrl" required />
+            <label class="field-label" for="entry-date">日期</label>
+            <input id="entry-date" class="field-input" type="date" required />
           </div>
           <div>
-            <label style="display:block;font-size:0.72rem;font-weight:700;color:var(--text-muted);margin-bottom:4px;">備註 (選填)</label>
-            <input type="text" id="inp-note" class="input-ctrl" placeholder="例如：珍珠奶茶、月租" maxlength="40" />
+            <label class="field-label" for="entry-note">備註（選填）</label>
+            <input id="entry-note" class="field-input" type="text" placeholder="例如：珍珠奶茶、二手文庫本" />
           </div>
         </div>
 
-        <button type="submit" id="btn-submit-tx" class="btn" style="width:100%;padding:13px;background:var(--expense);color:#fff;border:0;font-size:0.95rem;">儲存支出</button>
+        <button id="submit-tx-btn" type="submit" class="submit-full">儲存支出</button>
       </form>
     </div>
   </div>
 
   <!-- 新增資產/負債彈窗 -->
-  <div id="asset-modal" class="modal-mask center-mask hidden">
-    <div class="dialog-card">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-        <h3 style="margin:0;font-size:0.98rem;font-weight:800;">新增資產 / 負債項目</h3>
-        <button type="button" id="btn-close-asset" class="btn btn-sm">✕</button>
+  <div id="asset-modal" class="modal-mask hidden">
+    <div class="sheet-box">
+      <div class="sheet-handle"></div>
+      <div class="sheet-top">
+        <h3 class="list-title">新增資產或負債項目</h3>
+        <button id="close-asset-modal" type="button" class="close-circle" aria-label="關閉">✕</button>
       </div>
-      <form id="asset-form" style="display:flex;flex-direction:column;gap:10px;">
-        <select id="inp-asset-kind" class="input-ctrl">
-          <option value="asset">📈 資產（銀行存款 / 股票 / 現金）</option>
-          <option value="liability">💳 負債（信用卡結餘 / 分期貸款）</option>
-        </select>
-        <input type="text" id="inp-asset-name" class="input-ctrl" placeholder="項目名稱（例如：活期存款）" required />
-        <input type="number" id="inp-asset-amt" class="input-ctrl" step="0.01" min="0" inputmode="decimal" placeholder="金額 ($)" required />
-        <button type="submit" class="btn btn-primary" style="width:100%;">儲存項目</button>
+      <form id="asset-form">
+        <div style="margin-bottom:10px;">
+          <label class="field-label" for="asset-kind">類別</label>
+          <select id="asset-kind" class="field-input">
+            <option value="asset">資產（儲蓄 / 現金 / 投資）</option>
+            <option value="liability">負債（信用卡 / 分期 / 貸款）</option>
+          </select>
+        </div>
+        <div style="margin-bottom:10px;">
+          <label class="field-label" for="asset-name">項目名稱</label>
+          <input id="asset-name" class="field-input" type="text" placeholder="例如：活期儲蓄存款、信用卡結餘" required />
+        </div>
+        <div style="margin-bottom:14px;">
+          <label class="field-label" for="asset-amount">金額</label>
+          <input id="asset-amount" class="field-input" type="number" step="0.01" min="0" placeholder="0.00" required />
+        </div>
+        <button type="submit" class="submit-full">確認新增</button>
       </form>
     </div>
   </div>
 
   <script>
     (function () {
-      const STORAGE_KEY = "winter_furuhon_ledger_v2";
-      const CATEGORIES = {
-        expense: [
-          { id: "food", name: "餐飲美食", icon: "🍲", color: "#d97706" },
-          { id: "boba", name: "廢水支出", icon: "🧋", color: "#b45309" },
-          { id: "fixed", name: "固定支出", icon: "📌", color: "#4f46e5" },
-          { id: "gift", name: "聖誕禮物", icon: "🎄", color: "#c8333a" },
-          { id: "transport", name: "交通出行", icon: "🚇", color: "#2563eb" },
-          { id: "shopping", name: "冬日購物", icon: "🧣", color: "#db2777" },
-          { id: "party", name: "聚會娛樂", icon: "🥂", color: "#7c3aed" },
-          { id: "home", name: "家居日用", icon: "🕯️", color: "#23533a" },
-          { id: "health", name: "醫療健康", icon: "💊", color: "#e11d48" },
-          { id: "other_exp", name: "其他支出", icon: "❄️", color: "#64748b" }
-        ],
-        income: [
-          { id: "salary", name: "人工薪金", icon: "💰", color: "#23533a" },
-          { id: "bonus", name: "年終花紅", icon: "🎄", color: "#d97706" },
-          { id: "redpacket", name: "利是/禮物", icon: "🧧", color: "#c8333a" },
-          { id: "invest", name: "投資回報", icon: "📈", color: "#0284c7" },
-          { id: "other_inc", name: "其他收入", icon: "✨", color: "#64748b" }
-        ]
+      const STORAGE_KEY = "daily_ledger_themed_pwa_v3";
+
+      const MASCOT_SVGS = {
+        furuya: `
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <rect width="80" height="80" rx="18" fill="#fff5f7"/>
+            <!-- 粉紅蟹鉗髮箍 -->
+            <path d="M22 25 C15 14, 24 7, 29 16 L31 12 C35 10, 38 17, 32 25 Z" fill="#f7a8b8" stroke="#3a2724" stroke-width="2.6" stroke-linejoin="round"/>
+            <path d="M58 25 C65 14, 56 7, 51 16 L49 12 C45 10, 42 17, 48 25 Z" fill="#f7a8b8" stroke="#3a2724" stroke-width="2.6" stroke-linejoin="round"/>
+            <!-- 頭型 -->
+            <ellipse cx="40" cy="46" rx="22" ry="20" fill="#fffdfc" stroke="#3a2724" stroke-width="2.8"/>
+            <!-- 粉紅頭帶 -->
+            <path d="M20 38 Q40 28 60 38 Q56 26 40 26 Q24 26 20 38 Z" fill="#f7a8b8"/>
+            <!-- 小耳朵 -->
+            <path d="M18 45 C13 45, 13 54, 19 53" fill="#fffdfc" stroke="#3a2724" stroke-width="2.6" stroke-linecap="round"/>
+            <path d="M62 45 C67 45, 67 54, 61 53" fill="#fffdfc" stroke="#3a2724" stroke-width="2.6" stroke-linecap="round"/>
+            <!-- 眼睛與腮紅 -->
+            <circle cx="31" cy="46" r="3.2" fill="#3a2724"/>
+            <circle cx="30" cy="45" r="1.1" fill="#ffffff"/>
+            <circle cx="49" cy="46" r="3.2" fill="#3a2724"/>
+            <circle cx="48" cy="45" r="1.1" fill="#ffffff"/>
+            <ellipse cx="25" cy="52" rx="4.2" ry="2.6" fill="#f9b8c4"/>
+            <ellipse cx="55" cy="52" rx="4.2" ry="2.6" fill="#f9b8c4"/>
+            <!-- 嘴巴 -->
+            <path d="M36 52 Q38 55 40 52 Q42 55 44 52" fill="none" stroke="#3a2724" stroke-width="2.2" stroke-linecap="round"/>
+            <!-- 底部小書本 -->
+            <rect x="27" y="64" width="26" height="10" rx="2" fill="#c98b5b" stroke="#3a2724" stroke-width="2.2"/>
+            <line x1="40" y1="64" x2="40" y2="74" stroke="#3a2724" stroke-width="2"/>
+          </svg>
+        `,
+        donald: `
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <rect width="80" height="80" rx="18" fill="#e6f4ff"/>
+            <!-- 水手帽 -->
+            <ellipse cx="42" cy="19" rx="20" ry="9" transform="rotate(-12 42 19)" fill="#1c9cf6" stroke="#102a43" stroke-width="2.6"/>
+            <path d="M25 24 Q40 19 55 24" fill="none" stroke="#102a43" stroke-width="4"/>
+            <path d="M23 23 L15 31 L20 33 L26 25 Z" fill="#102a43"/>
+            <!-- 鴨頭 -->
+            <ellipse cx="40" cy="44" rx="20" ry="18" fill="#ffffff" stroke="#102a43" stroke-width="2.6"/>
+            <!-- 大眼睛 -->
+            <ellipse cx="34" cy="39" rx="4.2" ry="6.2" fill="#cde8ff" stroke="#102a43" stroke-width="2"/>
+            <ellipse cx="46" cy="39" rx="4.2" ry="6.2" fill="#cde8ff" stroke="#102a43" stroke-width="2"/>
+            <circle cx="35" cy="40" r="2.2" fill="#102a43"/>
+            <circle cx="45" cy="40" r="2.2" fill="#102a43"/>
+            <!-- 鴨嘴 -->
+            <path d="M25 49 Q40 43 55 49 Q52 58 40 58 Q28 58 25 49 Z" fill="#f6a623" stroke="#102a43" stroke-width="2.4"/>
+            <path d="M29 51 Q40 55 51 51" fill="none" stroke="#102a43" stroke-width="2"/>
+            <!-- 紅色水手蝴蝶結 -->
+            <polygon points="40,64 27,58 27,70" fill="#e03131" stroke="#102a43" stroke-width="2.2" stroke-linejoin="round"/>
+            <polygon points="40,64 53,58 53,70" fill="#e03131" stroke="#102a43" stroke-width="2.2" stroke-linejoin="round"/>
+            <circle cx="40" cy="64" r="4" fill="#ff6b6b" stroke="#102a43" stroke-width="2"/>
+          </svg>
+        `,
+        christmas: `
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <rect width="80" height="80" rx="18" fill="#e6f5ea"/>
+            <polygon points="40,14 20,42 30,42 16,60 64,60 50,42 60,42" fill="#2b8a57" stroke="#17492e" stroke-width="2.5" stroke-linejoin="round"/>
+            <rect x="35" y="60" width="10" height="10" rx="2" fill="#8c5a3c" stroke="#17492e" stroke-width="2"/>
+            <circle cx="40" cy="13" r="4.5" fill="#f5b82e"/>
+            <circle cx="34" cy="34" r="3" fill="#e03131"/>
+            <circle cx="47" cy="48" r="3" fill="#ffd43b"/>
+            <circle cx="30" cy="52" r="3" fill="#ff8787"/>
+          </svg>
+        `,
+        frost: `
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <rect width="80" height="80" rx="18" fill="#eaf4fc"/>
+            <g stroke="#2274a5" stroke-width="3.5" stroke-linecap="round">
+              <line x1="40" y1="14" x2="40" y2="66"/>
+              <line x1="17" y1="27" x2="63" y2="53"/>
+              <line x1="63" y1="27" x2="17" y2="53"/>
+            </g>
+            <circle cx="40" cy="40" r="7" fill="#ffffff" stroke="#2274a5" stroke-width="3"/>
+          </svg>
+        `
       };
 
       const THEMES = {
-        christmas: {
-          icon: "🎄",
-          sub: "溫馨聖誕版 · 本地離線儲存",
-          pill: "Merry X’mas",
-          meta: "#e6f2ea",
-          toast: "已切換至「溫馨聖誕」淺綠主題"
+        furuya: {
+          label: "古本屋 (吉伊卡哇)",
+          badge: "古本屋書架",
+          guideIcon: "📚",
+          rankHigh: "古本屋傳奇店長",
+          rankMid: "文庫本收藏家",
+          rankLow: "舊書攤見習生",
+          quote: "把每一本舊書同每一蚊都妥善整理，古本屋今日都大豐收！",
+          expenseCats: [
+            { name: "餐飲美食", icon: "🍲", color: "#e07a5f" },
+            { name: "廢水支出", icon: "🧋", color: "#d96b82" },
+            { name: "固定支出", icon: "📌", color: "#7b6d8d" },
+            { name: "古本繪本", icon: "📚", color: "#c88a4b" },
+            { name: "古本雜貨", icon: "🧸", color: "#e5989b" },
+            { name: "交通出行", icon: "🚇", color: "#5c80bc" },
+            { name: "手作書籤", icon: "🔖", color: "#84a59d" },
+            { name: "其他支出", icon: "📦", color: "#9c89b8" }
+          ]
         },
-        furuhon: {
-          icon: "📚",
-          sub: "古本屋 (吉伊卡哇) · 本地離線儲存",
-          pill: "古本屋書香",
-          meta: "#fdf2f4",
-          toast: "已切換至《吉伊卡哇》古本屋主題 📚🦀"
+        donald: {
+          label: "唐老鴨 (Q版水手)",
+          badge: "水手航海帳",
+          guideIcon: "🦆",
+          rankHigh: "航海大富翁船長",
+          rankMid: "水手長理財官",
+          rankLow: "甲板見習水手",
+          quote: "呱呱！揚起天藍白水手帆，向住正數結餘全速前進！",
+          expenseCats: [
+            { name: "水手餐飲", icon: "🍔", color: "#f59f00" },
+            { name: "廢水支出", icon: "🧋", color: "#e03131" },
+            { name: "固定支出", icon: "📌", color: "#3b5bdb" },
+            { name: "航海出行", icon: "⛵", color: "#0077cc" },
+            { name: "水手服飾", icon: "🧢", color: "#1c7ed6" },
+            { name: "樂園娛樂", icon: "🎡", color: "#ae3ec9" },
+            { name: "家居日用", icon: "⚓", color: "#0ca678" },
+            { name: "其他支出", icon: "🦆", color: "#748ffc" }
+          ]
+        },
+        christmas: {
+          label: "溫馨聖誕",
+          badge: "淺綠聖誕夜",
+          guideIcon: "🎄",
+          rankHigh: "聖誕理財大亨",
+          rankMid: "雪夜穩健管家",
+          rankLow: "馴鹿送禮見習生",
+          quote: "淺綠聖誕夜暖笠笠，控制好開支就有更多預算買禮物！",
+          expenseCats: [
+            { name: "餐飲美食", icon: "🍲", color: "#d97706" },
+            { name: "廢水支出", icon: "🧋", color: "#c53030" },
+            { name: "固定支出", icon: "📌", color: "#2f6f4e" },
+            { name: "聖誕禮物", icon: "🎁", color: "#e03131" },
+            { name: "交通出行", icon: "🚇", color: "#2b6cb0" },
+            { name: "冬日購物", icon: "🧣", color: "#d53f8c" },
+            { name: "聚會娛樂", icon: "🥂", color: "#805ad5" },
+            { name: "其他支出", icon: "❄️", color: "#319795" }
+          ]
         },
         frost: {
-          icon: "❄️",
-          sub: "冬日初雪版 · 本地離線儲存",
-          pill: "Winter Snow",
-          meta: "#eef5fa",
-          toast: "已切換至「冬日初雪」主題"
-        },
-        minimal: {
-          icon: "📒",
-          sub: "經典簡約版 · 本地離線儲存",
-          pill: "Minimal",
-          meta: "#f3f4f6",
-          toast: "已切換至「經典簡約」主題"
+          label: "冬日初雪",
+          badge: "Winter Snow",
+          guideIcon: "❄️",
+          rankHigh: "冰晶理財大師",
+          rankMid: "初雪穩健管家",
+          rankLow: "雪地探索者",
+          quote: "頭腦同冬日初雪一樣清晰，每一筆收支一目了然！",
+          expenseCats: [
+            { name: "餐飲美食", icon: "🍲", color: "#d97706" },
+            { name: "廢水支出", icon: "🧋", color: "#c2415a" },
+            { name: "固定支出", icon: "📌", color: "#1d6fa5" },
+            { name: "交通出行", icon: "🚇", color: "#2b82bd" },
+            { name: "冬日購物", icon: "🧣", color: "#d6336c" },
+            { name: "聚會娛樂", icon: "🥂", color: "#7950f2" },
+            { name: "家居日用", icon: "🕯️", color: "#0ca678" },
+            { name: "其他支出", icon: "❄️", color: "#4dabf7" }
+          ]
         }
       };
 
+      const INCOME_CATS = [
+        { name: "薪金收入", icon: "💼", color: "#18794e" },
+        { name: "花紅獎金", icon: "🧧", color: "#e67700" },
+        { name: "副業稿費", icon: "✍️", color: "#1c7ed6" },
+        { name: "投資回報", icon: "📈", color: "#0ca678" },
+        { name: "二手回血", icon: "📚", color: "#d96b82" },
+        { name: "其他收入", icon: "✨", color: "#7048e8" }
+      ];
+
+      function pad2(n) {
+        return String(n).padStart(2, "0");
+      }
+
       function getNowYM() {
         const d = new Date();
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}`;
       }
 
-      function getTodayISO() {
+      function getToday() {
         const d = new Date();
-        const local = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
-        return local.toISOString().split("T")[0];
+        return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
       }
 
-      function shiftYM(ym, delta) {
-        const [y, m] = ym.split("-").map(Number);
-        const dt = new Date(y, (m - 1) + delta, 1);
-        return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, "0")}`;
+      function shiftMonth(ym, delta) {
+        const [yStr, mStr] = (ym || getNowYM()).split("-");
+        const dt = new Date(Number(yStr), Number(mStr) - 1 + delta, 1);
+        return `${dt.getFullYear()}-${pad2(dt.getMonth() + 1)}`;
       }
 
-      function defaultState() {
+      function formatYMTitle(ym) {
+        const [y, m] = ym.split("-");
+        return `${y}年${Number(m)}月`;
+      }
+
+      function formatMoney(val) {
+        const num = Number(val) || 0;
+        const abs = Math.abs(num).toLocaleString("en-US", { maximumFractionDigits: 2 });
+        return (num < 0 ? "-$" : "$") + abs;
+      }
+
+      function esc(str) {
+        return String(str ?? "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function defaultData() {
         return {
-          theme: "christmas",
-          snowEnabled: true,
-          activeTab: "home",
-          selectedYM: getNowYM(),
-          filterMode: "all",
-          statsType: "expense",
+          theme: "furuya",
+          particles: true,
+          tab: "ledger",
+          month: getNowYM(),
+          statType: "expense",
+          filterCat: "ALL",
+          entryType: "expense",
+          selectedCat: "餐飲美食",
           transactions: [],
           assets: [
-            { id: "bs_init_1", kind: "asset", name: "銀行存款", amount: 50000 }
+            { id: "as-1", kind: "asset", name: "活期儲蓄存款", amount: 75000 },
+            { id: "as-2", kind: "liability", name: "信用卡結餘", amount: 2400 }
           ]
         };
       }
 
-      let state = defaultState();
-      try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return defaultData();
           const p = JSON.parse(raw);
-          state = {
-            ...defaultState(),
-            ...p,
-            theme: THEMES[p.theme] ? p.theme : "christmas",
+          const d = defaultData();
+          return {
+            ...d,
+            theme: THEMES[p.theme] ? p.theme : d.theme,
+            particles: typeof p.particles === "boolean" ? p.particles : d.particles,
+            tab: ["ledger", "stats", "settlement", "settings"].includes(p.tab) ? p.tab : d.tab,
+            month: typeof p.month === "string" && /^\d{4}-\d{2}$/.test(p.month) ? p.month : d.month,
             transactions: Array.isArray(p.transactions) ? p.transactions : [],
-            assets: Array.isArray(p.assets) ? p.assets : defaultState().assets
+            assets: Array.isArray(p.assets) ? p.assets : d.assets
           };
+        } catch (_e) {
+          return defaultData();
         }
-      } catch (_e) {}
+      }
 
-      let entryType = "expense";
-      let entryCat = "food";
+      let state = loadState();
       let toastTimer = null;
 
-      function save() {
+      function saveState() {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         } catch (_e) {}
@@ -1216,477 +1478,470 @@
         el.textContent = msg;
         el.classList.remove("hidden");
         clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => el.classList.add("hidden"), 2000);
+        toastTimer = setTimeout(() => el.classList.add("hidden"), 1800);
       }
 
-      function fmt(n) {
-        const num = Number(n) || 0;
-        const sign = num < 0 ? "-" : "";
-        return sign + "$" + Math.abs(num).toLocaleString("en-US", { maximumFractionDigits: 2 });
+      function getCatMeta(type, name) {
+        const themeObj = THEMES[state.theme] || THEMES.furuya;
+        const pool = type === "income" ? INCOME_CATS : themeObj.expenseCats;
+        const found = pool.find((c) => c.name === name);
+        if (found) return found;
+        for (const key of Object.keys(THEMES)) {
+          const cross = THEMES[key].expenseCats.find((c) => c.name === name);
+          if (cross) return cross;
+        }
+        return { name: name || "其他", icon: type === "income" ? "💰" : "🧾", color: "#64748b" };
       }
 
-      function esc(str) {
-        return String(str || "").replace(/[&<>"']/g, m => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[m]));
-      }
+      function applyTheme() {
+        const key = THEMES[state.theme] ? state.theme : "furuya";
+        state.theme = key;
+        const info = THEMES[key];
+        document.documentElement.setAttribute("data-theme", key);
 
-      function applyTheme(notify) {
-        const cfg = THEMES[state.theme] || THEMES.christmas;
-        document.documentElement.setAttribute("data-theme", state.theme);
+        const headerMascot = document.getElementById("header-mascot");
+        const headerSub = document.getElementById("header-subtitle");
+        const themeBadge = document.getElementById("theme-badge");
+        const guideIcon = document.getElementById("guide-theme-icon");
+        const advisorArt = document.getElementById("advisor-mini-art");
+        const particleBtn = document.getElementById("toggle-particles");
 
-        const hIcon = document.getElementById("header-icon");
-        const hSub = document.getElementById("header-sub");
-        const sPill = document.getElementById("season-pill");
-        const gIcon = document.getElementById("guide-theme-icon");
-        const stBadge = document.getElementById("settings-theme-badge");
-        const metaColor = document.getElementById("meta-theme-color");
-        const snowBtn = document.getElementById("btn-toggle-snow");
-        const canvas = document.getElementById("particle-canvas");
+        if (headerMascot) headerMascot.innerHTML = MASCOT_SVGS[key] || "";
+        if (headerSub) headerSub.textContent = `${info.label} · 本地離線儲存`;
+        if (themeBadge) themeBadge.textContent = info.badge;
+        if (guideIcon) guideIcon.textContent = info.guideIcon;
+        if (advisorArt) advisorArt.innerHTML = MASCOT_SVGS[key] || "";
+        if (particleBtn) {
+          particleBtn.textContent = state.particles ? "✨ 背景飄落效果：開啟" : "✨ 背景飄落效果：關閉";
+        }
 
-        if (hIcon) hIcon.textContent = cfg.icon;
-        if (hSub) hSub.textContent = cfg.sub;
-        if (sPill) sPill.textContent = cfg.pill;
-        if (gIcon) gIcon.textContent = cfg.icon;
-        if (stBadge) stBadge.textContent = cfg.icon;
-        if (metaColor) metaColor.setAttribute("content", cfg.meta);
-
-        document.querySelectorAll("[data-theme-opt]").forEach(btn => {
-          btn.classList.toggle("selected", btn.getAttribute("data-theme-opt") === state.theme);
+        document.querySelectorAll("[data-mini-mascot]").forEach((el) => {
+          const mKey = el.getAttribute("data-mini-mascot");
+          el.innerHTML = MASCOT_SVGS[mKey] || "";
         });
 
-        const showParticles = state.snowEnabled && state.theme !== "minimal";
-        if (snowBtn) {
-          snowBtn.textContent = showParticles ? "已開啟" : "已關閉";
-          snowBtn.className = showParticles ? "btn btn-primary btn-sm" : "btn btn-sm";
-        }
-        if (canvas) {
-          canvas.style.opacity = showParticles ? "1" : "0";
-        }
-        if (notify) toast(cfg.toast);
+        document.querySelectorAll("[data-theme-pick]").forEach((btn) => {
+          btn.classList.toggle("active", btn.getAttribute("data-theme-pick") === key);
+        });
       }
 
-      function switchTab(tab) {
-        const valid = ["home", "stats", "settlement", "settings"];
-        state.activeTab = valid.includes(tab) ? tab : "home";
-        save();
+      function switchTab(tabName) {
+        const valid = ["ledger", "stats", "settlement", "settings"];
+        const target = valid.includes(tabName) ? tabName : "ledger";
+        state.tab = target;
+        saveState();
 
-        valid.forEach(t => {
-          const sec = document.getElementById(`tab-${t}`);
-          if (sec) sec.classList.toggle("hidden", t !== state.activeTab);
+        valid.forEach((t) => {
+          const view = document.getElementById(`tab-${t}`);
+          if (view) view.classList.toggle("hidden", t !== target);
         });
 
-        document.querySelectorAll(".nav-btn[data-tab]").forEach(btn => {
-          btn.classList.toggle("active", btn.getAttribute("data-tab") === state.activeTab);
+        document.querySelectorAll("[data-nav]").forEach((btn) => {
+          btn.classList.toggle("active", btn.getAttribute("data-nav") === target);
         });
 
         renderAll();
       }
 
       function getMonthStats(ym) {
-        const list = state.transactions.filter(t => (t.date || "").startsWith(ym));
+        const list = state.transactions.filter((t) => (t.date || "").startsWith(ym));
         let income = 0;
         let expense = 0;
-        const expByCat = {};
-        const incByCat = {};
-
-        list.forEach(t => {
+        list.forEach((t) => {
           const amt = Number(t.amount) || 0;
-          if (t.type === "income") {
-            income += amt;
-            incByCat[t.category] = (incByCat[t.category] || 0) + amt;
-          } else {
-            expense += amt;
-            expByCat[t.category] = (expByCat[t.category] || 0) + amt;
-          }
+          if (t.type === "income") income += amt;
+          else expense += amt;
         });
-
-        const cumCashflow = state.transactions.reduce((acc, t) => {
-          if ((t.date || "").slice(0, 7) <= ym) {
-            const amt = Number(t.amount) || 0;
-            return acc + (t.type === "income" ? amt : -amt);
-          }
-          return acc;
-        }, 0);
-
-        let manualAssets = 0;
-        let liabilities = 0;
-        state.assets.forEach(a => {
-          const val = Number(a.amount) || 0;
-          if (a.kind === "liability") liabilities += val;
-          else manualAssets += val;
-        });
-
-        const totalAssets = cumCashflow + manualAssets;
-        const netWorth = totalAssets - liabilities;
-        return { ym, list, income, expense, balance: income - expense, expByCat, incByCat, cumCashflow, totalAssets, liabilities, netWorth };
+        return { income, expense, balance: income - expense, list };
       }
 
-      function renderHome() {
-        const [y, m] = state.selectedYM.split("-").map(Number);
-        const mLbl = document.getElementById("month-label");
-        if (mLbl) mLbl.textContent = `${y}年${m}月`;
+      function renderLedger() {
+        const monthLabel = document.getElementById("current-month-label");
+        if (monthLabel) monthLabel.textContent = formatYMTitle(state.month);
 
-        const st = getMonthStats(state.selectedYM);
-        const balEl = document.getElementById("summary-balance");
-        const incEl = document.getElementById("summary-income");
-        const expEl = document.getElementById("summary-expense");
-        const cntEl = document.getElementById("tx-count-badge");
+        const stats = getMonthStats(state.month);
+        const balEl = document.getElementById("ledger-balance");
+        const incEl = document.getElementById("ledger-income");
+        const expEl = document.getElementById("ledger-expense");
+        const cntEl = document.getElementById("record-count-pill");
 
-        if (balEl) {
-          balEl.textContent = fmt(st.balance);
-          balEl.className = "hero-balance " + (st.balance < 0 ? "exp-color" : "");
-        }
-        if (incEl) incEl.textContent = fmt(st.income);
-        if (expEl) expEl.textContent = fmt(st.expense);
-        if (cntEl) cntEl.textContent = `${st.list.length} 筆紀錄`;
+        if (balEl) balEl.textContent = formatMoney(stats.balance);
+        if (incEl) incEl.textContent = formatMoney(stats.income);
+        if (expEl) expEl.textContent = formatMoney(stats.expense);
+        if (cntEl) cntEl.textContent = `${stats.list.length} 筆紀錄`;
 
-        const stackWrap = document.getElementById("stacked-wrap");
-        const stackBar = document.getElementById("stacked-bar");
-        const stackLeg = document.getElementById("stacked-legend");
-        const topLbl = document.getElementById("top-cat-lbl");
+        // 分類橫條圖
+        const catSums = new Map();
+        stats.list.filter((t) => t.type !== "income").forEach((t) => {
+          catSums.set(t.category, (catSums.get(t.category) || 0) + (Number(t.amount) || 0));
+        });
+        const sortedCats = [...catSums.entries()].sort((a, b) => b[1] - a[1]);
 
-        if (stackWrap && stackBar && stackLeg) {
-          if (st.expense <= 0) {
-            stackWrap.classList.add("hidden");
+        const topHint = document.getElementById("top-cat-hint");
+        const barEl = document.getElementById("stacked-bar");
+        const legEl = document.getElementById("stacked-legend");
+
+        if (topHint) {
+          if (sortedCats.length > 0 && stats.expense > 0) {
+            const topPct = Math.round((sortedCats[0][1] / stats.expense) * 100);
+            topHint.textContent = `最高：${sortedCats[0][0]} (${topPct}%) ›`;
           } else {
-            stackWrap.classList.remove("hidden");
-            const sorted = Object.entries(st.expByCat)
-              .map(([cid, amt]) => {
-                const meta = CATEGORIES.expense.find(c => c.id === cid) || { name: "其他", color: "#64748b" };
-                return { ...meta, amt, pct: (amt / st.expense) * 100 };
-              })
-              .sort((a, b) => b.amt - a.amt);
-
-            if (topLbl && sorted[0]) {
-              topLbl.textContent = `最高：${sorted[0].name} (${Math.round(sorted[0].pct)}%) ›`;
-            }
-            stackBar.innerHTML = sorted.map(s => `<div style="width:${s.pct}%;background:${s.color};height:100%;"></div>`).join("");
-            stackLeg.innerHTML = sorted.slice(0, 4).map(s => `<span class="legend-item"><span class="dot" style="background:${s.color};"></span>${esc(s.name)} ${Math.round(s.pct)}%</span>`).join("");
+            topHint.textContent = "尚無支出紀錄";
           }
         }
 
-        const listEl = document.getElementById("tx-list");
-        if (!listEl) return;
-        const filtered = st.list.filter(t => state.filterMode === "all" || t.type === state.filterMode);
+        if (barEl && legEl) {
+          if (sortedCats.length === 0 || stats.expense <= 0) {
+            barEl.innerHTML = "";
+            legEl.innerHTML = "<span>點擊底部「+」開始記帳</span>";
+          } else {
+            barEl.innerHTML = sortedCats.map(([name, val]) => {
+              const meta = getCatMeta("expense", name);
+              const pct = (val / stats.expense) * 100;
+              return `<div class="stacked-seg" style="width:${pct}%;background:${meta.color};"></div>`;
+            }).join("");
+
+            legEl.innerHTML = sortedCats.map(([name, val]) => {
+              const meta = getCatMeta("expense", name);
+              const pct = Math.round((val / stats.expense) * 100);
+              return `<span><i class="legend-dot" style="background:${meta.color};"></i>${esc(name)} ${pct}%</span>`;
+            }).join("");
+          }
+        }
+
+        // 更新篩選器
+        const filterSel = document.getElementById("category-filter");
+        if (filterSel) {
+          const allNames = [...new Set(stats.list.map((t) => t.category))];
+          const currentVal = allNames.includes(state.filterCat) ? state.filterCat : "ALL";
+          state.filterCat = currentVal;
+          filterSel.innerHTML = `<option value="ALL">篩選：全部</option>` +
+            allNames.map((n) => `<option value="${esc(n)}">${esc(n)}</option>`).join("");
+          filterSel.value = currentVal;
+        }
+
+        // 按日期分組明細
+        const groupsEl = document.getElementById("ledger-groups");
+        if (!groupsEl) return;
+
+        const filtered = stats.list
+          .filter((t) => state.filterCat === "ALL" || t.category === state.filterCat)
+          .sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+
         if (filtered.length === 0) {
-          const emptyIcon = state.theme === "furuhon" ? "📚" : "🎄";
-          listEl.innerHTML = `<div class="card" style="text-align:center;padding:30px 16px;"><div style="font-size:2rem;margin-bottom:6px;">${emptyIcon}</div><div style="font-weight:800;font-size:0.9rem;">本月暫無紀錄</div><div style="font-size:0.75rem;color:var(--text-muted);margin-top:4px;">撳下方「+」掣開始記帳，或去設定載入示範帳目</div></div>`;
+          groupsEl.innerHTML = `<div class="card" style="text-align:center;color:var(--muted);font-size:0.86rem;">本月暫無符合條件的帳目，按底部「+」記一筆吧！</div>`;
           return;
         }
 
-        filtered.sort((a, b) => (b.date || "").localeCompare(a.date || "") || (b.createdAt || 0) - (a.createdAt || 0));
-        const groups = {};
-        filtered.forEach(tx => {
-          if (!groups[tx.date]) groups[tx.date] = [];
-          groups[tx.date].push(tx);
+        const weekdays = ["週日", "週一", "週二", "週三", "週四", "週五", "週六"];
+        const byDate = new Map();
+        filtered.forEach((item) => {
+          const d = item.date || getToday();
+          if (!byDate.has(d)) byDate.set(d, []);
+          byDate.get(d).push(item);
         });
 
-        const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
-        listEl.innerHTML = Object.entries(groups).map(([dateStr, items]) => {
-          const [yy, mm, dd] = dateStr.split("-").map(Number);
-          const wd = weekdays[new Date(yy, mm - 1, dd).getDay()];
-          const dayExp = items.filter(i => i.type === "expense").reduce((s, i) => s + Number(i.amount), 0);
-          const dayInc = items.filter(i => i.type === "income").reduce((s, i) => s + Number(i.amount), 0);
+        groupsEl.innerHTML = [...byDate.entries()].map(([dateStr, items]) => {
+          const dt = new Date(dateStr + "T00:00:00");
+          const parts = dateStr.split("-");
+          const dayLabel = `${Number(parts[1])}月${Number(parts[2])}日 ${weekdays[dt.getDay()] || ""}`;
+          let dayExp = 0;
+          let dayInc = 0;
+          items.forEach((i) => {
+            if (i.type === "income") dayInc += Number(i.amount) || 0;
+            else dayExp += Number(i.amount) || 0;
+          });
+          const summaryBits = [];
+          if (dayInc > 0) summaryBits.push(`收 +$${dayInc.toLocaleString()}`);
+          if (dayExp > 0) summaryBits.push(`支 -$${dayExp.toLocaleString()}`);
 
-          const rows = items.map(tx => {
-            const cat = (CATEGORIES[tx.type] || []).find(c => c.id === tx.category) || { name: "其他", icon: "📌" };
-            const isExp = tx.type === "expense";
+          const rowsHtml = items.map((t) => {
+            const meta = getCatMeta(t.type, t.category);
+            const isInc = t.type === "income";
             return `
               <div class="tx-row">
-                <div class="tx-left">
-                  <div class="tx-icon-box">${cat.icon}</div>
-                  <div>
-                    <p class="tx-name">${esc(cat.name)}</p>
-                    ${tx.note ? `<p class="tx-note">${esc(tx.note)}</p>` : ""}
-                  </div>
+                <div class="tx-icon">${meta.icon}</div>
+                <div class="tx-info">
+                  <div class="tx-name">${esc(t.category)}</div>
+                  ${t.note ? `<div class="tx-note">${esc(t.note)}</div>` : ""}
                 </div>
-                <div class="tx-right">
-                  <span class="tx-amt ${isExp ? "exp-color" : "inc-color"}">${isExp ? "-" : "+"}${fmt(tx.amount)}</span>
-                  <button type="button" class="icon-del-btn" data-del-tx="${esc(tx.id)}" aria-label="刪除">🗑️</button>
+                <div class="tx-actions">
+                  <span class="tx-amt ${isInc ? "income-color" : "expense-color"}">${isInc ? "+" : "-"}${formatMoney(t.amount)}</span>
+                  <button type="button" class="icon-del-btn" data-del-tx="${esc(t.id)}" aria-label="刪除">🗑️</button>
                 </div>
               </div>
             `;
           }).join("");
 
           return `
-            <div class="day-group">
+            <div class="day-card">
               <div class="day-head">
-                <span>${mm}月${dd}日 週${wd}</span>
-                <div style="display:flex;gap:8px;">
-                  ${dayInc > 0 ? `<span class="inc-color">收 +${fmt(dayInc)}</span>` : ""}
-                  ${dayExp > 0 ? `<span class="exp-color">支 -${fmt(dayExp)}</span>` : ""}
-                </div>
+                <span>${esc(dayLabel)}</span>
+                <span class="${dayExp > 0 ? "expense-color" : "income-color"}">${esc(summaryBits.join(" · "))}</span>
               </div>
-              ${rows}
+              ${rowsHtml}
             </div>
           `;
         }).join("");
       }
 
       function renderStats() {
-        const expBtn = document.getElementById("stats-exp-btn");
-        const incBtn = document.getElementById("stats-inc-btn");
-        if (expBtn && incBtn) {
-          expBtn.className = state.statsType === "expense" ? "seg-btn active-exp" : "seg-btn";
-          incBtn.className = state.statsType === "income" ? "seg-btn active-inc" : "seg-btn";
-        }
+        const isInc = state.statType === "income";
+        const heading = document.getElementById("stats-heading");
+        if (heading) heading.textContent = isInc ? "收入結構分析" : "支出結構分析";
 
-        const st = getMonthStats(state.selectedYM);
-        const total = state.statsType === "expense" ? st.expense : st.income;
-        const map = state.statsType === "expense" ? st.expByCat : st.incByCat;
+        document.querySelectorAll("[data-stat-type]").forEach((btn) => {
+          btn.classList.toggle("active", btn.getAttribute("data-stat-type") === state.statType);
+        });
 
-        const lblEl = document.getElementById("donut-lbl");
-        const totEl = document.getElementById("donut-total");
-        const svgEl = document.getElementById("donut-svg");
-        const listEl = document.getElementById("stats-cat-list");
+        const monthStats = getMonthStats(state.month);
+        const items = monthStats.list.filter((t) => (isInc ? t.type === "income" : t.type !== "income"));
+        const total = items.reduce((acc, t) => acc + (Number(t.amount) || 0), 0);
 
-        if (lblEl) lblEl.textContent = state.statsType === "expense" ? "本月總支出" : "本月總收入";
-        if (totEl) totEl.textContent = fmt(total);
-        if (!svgEl || !listEl) return;
+        const map = new Map();
+        items.forEach((t) => {
+          map.set(t.category, (map.get(t.category) || 0) + (Number(t.amount) || 0));
+        });
+        const sorted = [...map.entries()].sort((a, b) => b[1] - a[1]);
 
-        const r = 76;
-        const c = 2 * Math.PI * r;
+        const donutEl = document.getElementById("donut-container");
+        const listEl = document.getElementById("stats-breakdown");
+        if (!donutEl || !listEl) return;
 
-        if (total <= 0) {
-          svgEl.innerHTML = `<circle cx="105" cy="105" r="${r}" fill="none" stroke="var(--bg-subtle)" stroke-width="26" />`;
-          listEl.innerHTML = `<div style="text-align:center;color:var(--text-muted);font-size:0.78rem;padding:12px 0;">本月暫無${state.statsType === "expense" ? "支出" : "收入"}數據</div>`;
+        if (total <= 0 || sorted.length === 0) {
+          donutEl.innerHTML = `<div style="padding:32px 0;color:var(--muted);font-size:0.86rem;">本月暫無${isInc ? "收入" : "支出"}數據</div>`;
+          listEl.innerHTML = "";
           return;
         }
 
-        const sorted = Object.entries(map)
-          .map(([cid, amt]) => {
-            const meta = (CATEGORIES[state.statsType] || []).find(item => item.id === cid) || { name: "其他", icon: "📌", color: "#64748b" };
-            return { ...meta, amt, pct: (amt / total) * 100 };
-          })
-          .sort((a, b) => b.amt - a.amt);
-
+        const r = 66;
+        const c = 2 * Math.PI * r;
         let offset = 0;
-        const circles = sorted.map(item => {
-          const dash = (item.pct / 100) * c;
-          const seg = `<circle cx="105" cy="105" r="${r}" fill="none" stroke="${item.color}" stroke-width="26" stroke-dasharray="${dash} ${c - dash}" stroke-dashoffset="${-offset}" transform="rotate(-90 105 105)" />`;
-          offset += dash;
-          return seg;
+
+        const circles = sorted.map(([name, val]) => {
+          const meta = getCatMeta(state.statType, name);
+          const segLen = (val / total) * c;
+          const svgSeg = `<circle cx="90" cy="90" r="${r}" fill="none" stroke="${meta.color}" stroke-width="22" stroke-dasharray="${segLen} ${c - segLen}" stroke-dashoffset="${-offset}" transform="rotate(-90 90 90)" />`;
+          offset += segLen;
+          return svgSeg;
         }).join("");
 
-        svgEl.innerHTML = `<circle cx="105" cy="105" r="${r}" fill="none" stroke="var(--bg-subtle)" stroke-width="26" />${circles}`;
+        donutEl.innerHTML = `
+          <svg width="180" height="180" viewBox="0 0 180 180">
+            <circle cx="90" cy="90" r="${r}" fill="none" stroke="var(--card-soft)" stroke-width="22" />
+            ${circles}
+            <text x="90" y="82" text-anchor="middle" fill="var(--muted)" font-size="11" font-weight="700">${isInc ? "本月總收入" : "本月總支出"}</text>
+            <text x="90" y="104" text-anchor="middle" fill="var(--text)" font-size="19" font-weight="900">${esc(formatMoney(total))}</text>
+          </svg>
+        `;
 
-        listEl.innerHTML = sorted.map(item => `
-          <div class="cat-prog-item">
-            <div class="cat-prog-head">
-              <div><span>${item.icon}</span> <strong>${esc(item.name)}</strong> <span style="color:var(--text-muted);">${item.pct.toFixed(1)}%</span></div>
-              <strong>${fmt(item.amt)}</strong>
+        listEl.innerHTML = sorted.map(([name, val]) => {
+          const meta = getCatMeta(state.statType, name);
+          const pct = ((val / total) * 100).toFixed(1);
+          return `
+            <div class="stat-row">
+              <div class="stat-row-top">
+                <span>${meta.icon} <strong>${esc(name)}</strong> <span style="color:var(--muted);font-size:0.76rem;">${pct}%</span></span>
+                <strong>${esc(formatMoney(val))}</strong>
+              </div>
+              <div class="stat-track">
+                <div class="stat-fill" style="width:${pct}%;background:${meta.color};"></div>
+              </div>
             </div>
-            <div class="cat-prog-track">
-              <div class="cat-prog-fill" style="width:${item.pct}%;background:${item.color};"></div>
-            </div>
-          </div>
-        `).join("");
-      }
-
-      function momBadge(diff, prevVal, invertGood) {
-        if (Math.abs(diff) < 0.01) return `<span class="mom-badge mom-flat">持平 0%</span>`;
-        const up = diff > 0;
-        const good = invertGood ? !up : up;
-        const arrow = up ? "▲" : "▼";
-        const pct = prevVal !== 0 ? `${Math.abs((diff / Math.abs(prevVal)) * 100).toFixed(1)}%` : "NEW";
-        return `<span class="mom-badge ${good ? "mom-good" : "mom-bad"}">${arrow} ${up ? "+" : "-"}${fmt(Math.abs(diff))} (${pct})</span>`;
+          `;
+        }).join("");
       }
 
       function renderSettlement() {
-        const prevYM = shiftYM(state.selectedYM, -1);
-        const cur = getMonthStats(state.selectedYM);
+        const curYM = state.month;
+        const prevYM = shiftMonth(curYM, -1);
+        const cur = getMonthStats(curYM);
         const prev = getMonthStats(prevYM);
+        const themeInfo = THEMES[state.theme] || THEMES.furuya;
 
-        const [cy, cm] = state.selectedYM.split("-").map(Number);
-        const [py, pm] = prevYM.split("-").map(Number);
+        const issueEl = document.getElementById("report-issue-month");
+        const subEl = document.getElementById("report-compare-sub");
+        const stampEl = document.getElementById("rank-stamp");
+        const quoteEl = document.getElementById("advisor-quote");
 
-        const periodEl = document.getElementById("settlement-period");
-        const subEl = document.getElementById("settlement-sub");
-        if (periodEl) periodEl.textContent = `${cy}年${cm}月號`;
-        if (subEl) subEl.textContent = `對比 ${py}年${pm}月 收支與淨資產變動`;
+        if (issueEl) issueEl.textContent = `${formatYMTitle(curYM)}號`;
+        if (subEl) subEl.textContent = `對比 ${formatYMTitle(prevYM)} 收支與淨資產變動`;
+        if (quoteEl) quoteEl.textContent = themeInfo.quote;
 
-        const stampEl = document.getElementById("monopoly-stamp");
-        const avatarEl = document.getElementById("monopoly-avatar");
-        const commentEl = document.getElementById("monopoly-comment");
+        // 累積帳目現金流（截至選定月份）
+        const cumCashflow = state.transactions
+          .filter((t) => (t.date || "").slice(0, 7) <= curYM)
+          .reduce((sum, t) => sum + (t.type === "income" ? Number(t.amount) || 0 : -(Number(t.amount) || 0)), 0);
 
-        const savingRate = cur.income > 0 ? cur.balance / cur.income : (cur.balance >= 0 ? 0.2 : -0.5);
-        let rank = { title: "穩健地主", avatar: "🏰", comment: "收支控制得宜，淨資產穩定向上爬升，繼續穩紮穩打！" };
-        if (cur.netWorth >= 100000 && savingRate >= 0.35) {
-          rank = { title: "理財大亨", avatar: "🎩", comment: "財源滾滾、資產雄厚！你的表現堪稱大富翁界傳奇大亨！" };
-        } else if (cur.balance < 0) {
-          rank = { title: "月光冒險家", avatar: "🎲", comment: "本月開支高於收入，下個月記得減少廢水同衝動消費呀！" };
-        } else if (state.theme === "furuhon") {
-          rank = { title: "古本屋店長", avatar: "🦀", comment: "用心經營每一筆小確幸收支，書屋庫存與儲蓄都滿滿當當！" };
+        const prevCumCashflow = state.transactions
+          .filter((t) => (t.date || "").slice(0, 7) <= prevYM)
+          .reduce((sum, t) => sum + (t.type === "income" ? Number(t.amount) || 0 : -(Number(t.amount) || 0)), 0);
+
+        let manualAssets = 0;
+        let manualLiabilities = 0;
+        state.assets.forEach((a) => {
+          const val = Number(a.amount) || 0;
+          if (a.kind === "liability") manualLiabilities += val;
+          else manualAssets += val;
+        });
+
+        const totalAssets = manualAssets + cumCashflow;
+        const prevTotalAssets = manualAssets + prevCumCashflow;
+        const netWorth = totalAssets - manualLiabilities;
+        const prevNetWorth = prevTotalAssets - manualLiabilities;
+
+        if (stampEl) {
+          if (cur.income > 0 && cur.balance / cur.income >= 0.3) stampEl.textContent = themeInfo.rankHigh;
+          else if (cur.balance >= 0) stampEl.textContent = themeInfo.rankMid;
+          else stampEl.textContent = themeInfo.rankLow;
         }
 
-        if (stampEl) stampEl.textContent = rank.title;
-        if (avatarEl) avatarEl.textContent = rank.avatar;
-        if (commentEl) commentEl.textContent = rank.comment;
-
-        const gridEl = document.getElementById("mom-grid");
-        if (gridEl) {
-          const cards = [
-            { lbl: "本月總收入", val: cur.income, prev: prev.income, inv: false, cls: "inc-color" },
-            { lbl: "本月總開支", val: cur.expense, prev: prev.expense, inv: true, cls: "exp-color" },
-            { lbl: "本月淨結餘", val: cur.balance, prev: prev.balance, inv: false, cls: cur.balance >= 0 ? "inc-color" : "exp-color" },
-            { lbl: "總資產", val: cur.totalAssets, prev: prev.totalAssets, inv: false, cls: "" },
-            { lbl: "總負債", val: cur.liabilities, prev: prev.liabilities, inv: true, cls: cur.liabilities > 0 ? "exp-color" : "" },
-            { lbl: "淨資產", val: cur.netWorth, prev: prev.netWorth, inv: false, cls: "gold-color" }
-          ];
-          gridEl.innerHTML = cards.map(c => `
-            <div class="mom-cell">
-              <div class="mom-lbl">${c.lbl}</div>
-              <div class="mom-val ${c.cls}">${fmt(c.val)}</div>
-              <div class="mom-prev">上月：${fmt(c.prev)}</div>
-              ${momBadge(c.val - c.prev, c.prev, c.inv)}
-            </div>
-          `).join("");
-        }
-
-        const assetWrap = document.getElementById("asset-items-wrap");
-        if (assetWrap) {
-          const cfRow = `
-            <div class="tx-row" style="padding:10px 4px;">
-              <div class="tx-left">
-                <div class="tx-icon-box">💵</div>
-                <div>
-                  <p class="tx-name">累積帳目現金流</p>
-                  <p class="tx-note">自動加總截至本月收支結餘</p>
-                </div>
-              </div>
-              <span class="tx-amt ${cur.cumCashflow >= 0 ? "inc-color" : "exp-color"}">${fmt(cur.cumCashflow)}</span>
+        function buildCell(title, curVal, prevVal, colorClass) {
+          const diff = curVal - prevVal;
+          const pctStr = prevVal !== 0 ? ` (${Math.abs((diff / prevVal) * 100).toFixed(1)}%)` : "";
+          const badge = diff > 0
+            ? `▲ +${formatMoney(diff)}${pctStr}`
+            : diff < 0
+              ? `▼ ${formatMoney(diff)}${pctStr}`
+              : "持平 0%";
+          return `
+            <div class="rich-cell">
+              <div class="rich-cell-title">${esc(title)}</div>
+              <div class="rich-cell-num ${colorClass}">${esc(formatMoney(curVal))}</div>
+              <div class="rich-cell-prev">上月：${esc(formatMoney(prevVal))}</div>
+              <span class="delta-badge">${esc(badge)}</span>
             </div>
           `;
-          const customRows = state.assets.map(a => {
-            const isLiab = a.kind === "liability";
-            return `
-              <div class="tx-row" style="padding:10px 4px;">
-                <div class="tx-left">
-                  <div class="tx-icon-box">${isLiab ? "💳" : "🏦"}</div>
-                  <div>
-                    <p class="tx-name">${esc(a.name)}</p>
-                    <p class="tx-note">${isLiab ? "負債項目" : "資產項目"}</p>
-                  </div>
-                </div>
-                <div class="tx-right">
-                  <span class="tx-amt ${isLiab ? "exp-color" : "inc-color"}">${isLiab ? "-" : ""}${fmt(a.amount)}</span>
-                  <button type="button" class="icon-del-btn" data-del-asset="${esc(a.id)}">🗑️</button>
-                </div>
+        }
+
+        const gridEl = document.getElementById("richman-metrics");
+        if (gridEl) {
+          gridEl.innerHTML =
+            buildCell("本月總收入", cur.income, prev.income, "income-color") +
+            buildCell("本月總開支", cur.expense, prev.expense, "expense-color") +
+            buildCell("本月淨結餘", cur.balance, prev.balance, cur.balance >= 0 ? "income-color" : "expense-color") +
+            buildCell("總資產", totalAssets, prevTotalAssets, "") +
+            buildCell("總負債", manualLiabilities, manualLiabilities, "expense-color") +
+            buildCell("淨資產", netWorth, prevNetWorth, "income-color");
+        }
+
+        const assetListEl = document.getElementById("asset-items-list");
+        if (!assetListEl) return;
+
+        const autoRow = `
+          <div class="tx-row" style="padding-left:0;padding-right:0;">
+            <div class="tx-icon">💵</div>
+            <div class="tx-info">
+              <div class="tx-name">累積帳目現金流</div>
+              <div class="tx-note">自動加總截至本月收支結餘</div>
+            </div>
+            <span class="tx-amt ${cumCashflow >= 0 ? "income-color" : "expense-color"}">${esc(formatMoney(cumCashflow))}</span>
+          </div>
+        `;
+
+        const userRows = state.assets.map((a) => {
+          const isLiab = a.kind === "liability";
+          return `
+            <div class="tx-row" style="padding-left:0;padding-right:0;">
+              <div class="tx-icon">${isLiab ? "💳" : "🏦"}</div>
+              <div class="tx-info">
+                <div class="tx-name">${esc(a.name)}</div>
+                <div class="tx-note">${isLiab ? "負債項目" : "資產項目"}</div>
               </div>
-            `;
-          }).join("");
-          assetWrap.innerHTML = cfRow + customRows;
+              <div class="tx-actions">
+                <span class="tx-amt ${isLiab ? "expense-color" : "income-color"}">${isLiab ? "-" : ""}${esc(formatMoney(a.amount))}</span>
+                <button type="button" class="icon-del-btn" data-del-asset="${esc(a.id)}" aria-label="刪除">🗑️</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+
+        assetListEl.innerHTML = autoRow + userRows;
+      }
+
+      function renderCategoryGrid() {
+        const grid = document.getElementById("category-grid");
+        const submitBtn = document.getElementById("submit-tx-btn");
+        if (!grid) return;
+
+        const themeInfo = THEMES[state.theme] || THEMES.furuya;
+        const cats = state.entryType === "income" ? INCOME_CATS : themeInfo.expenseCats;
+        if (!cats.some((c) => c.name === state.selectedCat)) {
+          state.selectedCat = cats[0].name;
         }
 
-        const tbody = document.getElementById("cat-mom-tbody");
-        if (tbody) {
-          const rows = CATEGORIES.expense.map(cat => {
-            const cAmt = cur.expByCat[cat.id] || 0;
-            const pAmt = prev.expByCat[cat.id] || 0;
-            return { ...cat, cAmt, pAmt, diff: cAmt - pAmt };
-          }).filter(r => r.cAmt > 0 || r.pAmt > 0).sort((a, b) => b.cAmt - a.cAmt);
+        document.querySelectorAll("[data-entry-type]").forEach((btn) => {
+          btn.classList.toggle("active", btn.getAttribute("data-entry-type") === state.entryType);
+        });
 
-          if (rows.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-muted);padding:14px 0;">本月與上月暫無分類開支紀錄</td></tr>`;
-          } else {
-            tbody.innerHTML = rows.map(r => {
-              let delta = `<span style="color:var(--text-muted);">持平</span>`;
-              if (r.diff > 0.01) delta = `<span class="exp-color">▲ +${fmt(r.diff)}</span>`;
-              else if (r.diff < -0.01) delta = `<span class="inc-color">▼ -${fmt(Math.abs(r.diff))}</span>`;
-              return `
-                <tr>
-                  <td>${r.icon} <strong>${esc(r.name)}</strong></td>
-                  <td style="color:var(--text-muted);">${fmt(r.pAmt)}</td>
-                  <td><strong>${fmt(r.cAmt)}</strong></td>
-                  <td>${delta}</td>
-                </tr>
-              `;
-            }).join("");
-          }
+        if (submitBtn) {
+          submitBtn.textContent = state.entryType === "income" ? "儲存收入" : "儲存支出";
         }
+
+        grid.innerHTML = cats.map((c) => `
+          <button type="button" class="cat-tile ${c.name === state.selectedCat ? "selected" : ""}" data-pick-cat="${esc(c.name)}">
+            <span class="cat-tile-ico">${c.icon}</span>
+            <span class="cat-tile-name">${esc(c.name)}</span>
+          </button>
+        `).join("");
       }
 
       function renderAll() {
-        applyTheme(false);
-        renderHome();
+        applyTheme();
+        renderLedger();
         renderStats();
         renderSettlement();
-      }
-
-      function renderCatGrid() {
-        const grid = document.getElementById("cat-grid");
-        if (!grid) return;
-        const list = CATEGORIES[entryType] || [];
-        grid.innerHTML = list.map(c => {
-          const sel = c.id === entryCat;
-          const border = sel ? `border-color:${entryType === "expense" ? "var(--expense)" : "var(--primary)"};background:${entryType === "expense" ? "var(--expense-soft)" : "var(--primary-soft)"};` : "";
-          return `
-            <button type="button" class="cat-item-btn" data-cat-id="${c.id}" style="${border}">
-              <span>${c.icon}</span>
-              <span>${esc(c.name)}</span>
-            </button>
-          `;
-        }).join("");
-      }
-
-      function setEntryType(type) {
-        entryType = type;
-        entryCat = CATEGORIES[type][0].id;
-        const expBtn = document.getElementById("type-exp-btn");
-        const incBtn = document.getElementById("type-inc-btn");
-        const subBtn = document.getElementById("btn-submit-tx");
-        if (expBtn && incBtn) {
-          expBtn.className = type === "expense" ? "seg-btn active-exp" : "seg-btn";
-          incBtn.className = type === "income" ? "seg-btn active-inc" : "seg-btn";
-        }
-        if (subBtn) {
-          subBtn.style.background = type === "expense" ? "var(--expense)" : "var(--primary)";
-          subBtn.textContent = type === "expense" ? "儲存支出" : "儲存收入";
-        }
-        renderCatGrid();
       }
 
       function initParticles() {
         const canvas = document.getElementById("particle-canvas");
         if (!canvas || !canvas.getContext) return;
         const ctx = canvas.getContext("2d");
-        let w = (canvas.width = window.innerWidth);
-        let h = (canvas.height = window.innerHeight);
+        let items = [];
 
-        window.addEventListener("resize", () => {
-          w = canvas.width = window.innerWidth;
-          h = canvas.height = window.innerHeight;
-        });
+        function resize() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+          items = Array.from({ length: 24 }, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: 2.5 + Math.random() * 3.5,
+            vy: 0.45 + Math.random() * 0.85,
+            vx: -0.3 + Math.random() * 0.6,
+            rot: Math.random() * Math.PI
+          }));
+        }
 
-        const particles = Array.from({ length: 26 }, () => ({
-          x: Math.random() * w,
-          y: Math.random() * h,
-          r: 2 + Math.random() * 2.8,
-          vy: 0.35 + Math.random() * 0.7,
-          vx: (Math.random() - 0.5) * 0.4,
-          rot: Math.random() * Math.PI * 2
-        }));
+        resize();
+        window.addEventListener("resize", resize);
 
         function loop() {
-          ctx.clearRect(0, 0, w, h);
-          if (state.snowEnabled && state.theme !== "minimal") {
-            particles.forEach(p => {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          if (state.particles) {
+            items.forEach((p) => {
               p.y += p.vy;
-              p.x += p.vx + Math.sin(p.y * 0.015) * 0.2;
-              p.rot += 0.02;
-              if (p.y > h + 8) { p.y = -8; p.x = Math.random() * w; }
-              if (p.x > w + 8) p.x = -8;
-              if (p.x < -8) p.x = w + 8;
-
+              p.x += p.vx;
+              p.rot += 0.015;
+              if (p.y > canvas.height + 8) {
+                p.y = -8;
+                p.x = Math.random() * canvas.width;
+              }
               ctx.save();
               ctx.translate(p.x, p.y);
-              if (state.theme === "furuhon") {
-                ctx.rotate(p.rot);
-                ctx.fillStyle = "rgba(235, 145, 165, 0.55)";
+              ctx.rotate(p.rot);
+              if (state.theme === "furuya") {
+                ctx.fillStyle = "rgba(244, 154, 174, 0.55)";
                 ctx.beginPath();
                 ctx.ellipse(0, 0, p.r * 1.4, p.r * 0.85, 0, 0, Math.PI * 2);
                 ctx.fill();
+              } else if (state.theme === "donald") {
+                ctx.strokeStyle = "rgba(0, 119, 204, 0.25)";
+                ctx.lineWidth = 1.5;
+                ctx.beginPath();
+                ctx.arc(0, 0, p.r * 1.3, 0, Math.PI * 2);
+                ctx.stroke();
               } else {
-                ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+                ctx.fillStyle = "rgba(255, 255, 255, 0.78)";
                 ctx.beginPath();
                 ctx.arc(0, 0, p.r, 0, Math.PI * 2);
                 ctx.fill();
@@ -1700,268 +1955,230 @@
       }
 
       function bindEvents() {
-        document.querySelectorAll(".nav-btn[data-tab]").forEach(btn => {
-          btn.addEventListener("click", () => switchTab(btn.getAttribute("data-tab")));
+        document.querySelectorAll("[data-nav]").forEach((btn) => {
+          btn.addEventListener("click", () => switchTab(btn.getAttribute("data-nav")));
         });
 
-        const prevM = document.getElementById("btn-prev-month");
-        const nextM = document.getElementById("btn-next-month");
-        if (prevM) prevM.addEventListener("click", () => { state.selectedYM = shiftYM(state.selectedYM, -1); save(); renderAll(); });
-        if (nextM) nextM.addEventListener("click", () => { state.selectedYM = shiftYM(state.selectedYM, 1); save(); renderAll(); });
-
-        const filterBtn = document.getElementById("btn-filter-toggle");
-        if (filterBtn) {
-          filterBtn.addEventListener("click", () => {
-            const order = ["all", "expense", "income"];
-            const labels = { all: "篩選：全部", expense: "篩選：只看支出", income: "篩選：只看收入" };
-            state.filterMode = order[(order.indexOf(state.filterMode) + 1) % order.length];
-            filterBtn.textContent = labels[state.filterMode];
-            renderHome();
+        const prevBtn = document.getElementById("prev-month");
+        const nextBtn = document.getElementById("next-month");
+        if (prevBtn) {
+          prevBtn.addEventListener("click", () => {
+            state.month = shiftMonth(state.month, -1);
+            saveState();
+            renderAll();
+          });
+        }
+        if (nextBtn) {
+          nextBtn.addEventListener("click", () => {
+            state.month = shiftMonth(state.month, 1);
+            saveState();
+            renderAll();
           });
         }
 
-        const sExp = document.getElementById("stats-exp-btn");
-        const sInc = document.getElementById("stats-inc-btn");
-        if (sExp) sExp.addEventListener("click", () => { state.statsType = "expense"; renderStats(); });
-        if (sInc) sInc.addEventListener("click", () => { state.statsType = "income"; renderStats(); });
-
-        const openAdd = document.getElementById("btn-open-add");
-        const closeAdd = document.getElementById("btn-close-add");
-        const addModal = document.getElementById("add-modal");
-        if (openAdd && addModal) {
-          openAdd.addEventListener("click", () => {
-            setEntryType("expense");
-            const amtEl = document.getElementById("inp-amount");
-            const dateEl = document.getElementById("inp-date");
-            const noteEl = document.getElementById("inp-note");
-            if (amtEl) amtEl.value = "";
-            if (noteEl) noteEl.value = "";
-            if (dateEl) dateEl.value = state.selectedYM === getNowYM() ? getTodayISO() : `${state.selectedYM}-01`;
-            addModal.classList.remove("hidden");
+        const catFilter = document.getElementById("category-filter");
+        if (catFilter) {
+          catFilter.addEventListener("change", () => {
+            state.filterCat = catFilter.value;
+            renderLedger();
           });
         }
-        if (closeAdd && addModal) closeAdd.addEventListener("click", () => addModal.classList.add("hidden"));
 
-        const tExp = document.getElementById("type-exp-btn");
-        const tInc = document.getElementById("type-inc-btn");
-        if (tExp) tExp.addEventListener("click", () => setEntryType("expense"));
-        if (tInc) tInc.addEventListener("click", () => setEntryType("income"));
-
-        document.querySelectorAll(".pill-btn[data-add]").forEach(btn => {
+        document.querySelectorAll("[data-stat-type]").forEach((btn) => {
           btn.addEventListener("click", () => {
-            const inp = document.getElementById("inp-amount");
-            if (!inp) return;
-            const cur = parseFloat(inp.value) || 0;
-            inp.value = (cur + Number(btn.getAttribute("data-add"))).toFixed(2).replace(/\.00$/, "");
+            state.statType = btn.getAttribute("data-stat-type") || "expense";
+            renderStats();
+          });
+        });
+
+        document.querySelectorAll("[data-theme-pick]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            state.theme = btn.getAttribute("data-theme-pick") || "furuya";
+            saveState();
+            renderAll();
+            toast(`已切換至「${THEMES[state.theme].label}」`);
+          });
+        });
+
+        const particleToggle = document.getElementById("toggle-particles");
+        if (particleToggle) {
+          particleToggle.addEventListener("click", () => {
+            state.particles = !state.particles;
+            saveState();
+            applyTheme();
+          });
+        }
+
+        // 開啟快速入帳抽屜
+        const fabAdd = document.getElementById("fab-add-tx");
+        const txModal = document.getElementById("tx-modal");
+        const closeTx = document.getElementById("close-tx-modal");
+        if (fabAdd && txModal) {
+          fabAdd.addEventListener("click", () => {
+            state.entryType = "expense";
+            const amtInput = document.getElementById("entry-amount");
+            const dateInput = document.getElementById("entry-date");
+            const noteInput = document.getElementById("entry-note");
+            if (amtInput) amtInput.value = "";
+            if (dateInput) {
+              dateInput.value = state.month === getNowYM() ? getToday() : `${state.month}-01`;
+            }
+            if (noteInput) noteInput.value = "";
+            renderCategoryGrid();
+            txModal.classList.remove("hidden");
+          });
+        }
+        if (closeTx && txModal) {
+          closeTx.addEventListener("click", () => txModal.classList.add("hidden"));
+        }
+
+        document.querySelectorAll("[data-entry-type]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            state.entryType = btn.getAttribute("data-entry-type") || "expense";
+            renderCategoryGrid();
+          });
+        });
+
+        document.querySelectorAll("[data-add-amt]").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            const inc = Number(btn.getAttribute("data-add-amt")) || 0;
+            const amtInput = document.getElementById("entry-amount");
+            if (amtInput) {
+              const cur = Number(amtInput.value) || 0;
+              amtInput.value = (cur + inc).toFixed(2).replace(/\.00$/, "");
+            }
           });
         });
 
         const txForm = document.getElementById("tx-form");
         if (txForm) {
-          txForm.addEventListener("submit", e => {
+          txForm.addEventListener("submit", (e) => {
             e.preventDefault();
-            const amount = parseFloat(document.getElementById("inp-amount").value);
-            const date = document.getElementById("inp-date").value;
-            const note = document.getElementById("inp-note").value.trim();
+            const amount = Number(document.getElementById("entry-amount").value);
+            const date = document.getElementById("entry-date").value;
+            const note = document.getElementById("entry-note").value.trim();
             if (!amount || amount <= 0 || !date) return;
 
             state.transactions.push({
-              id: "tx_" + Date.now() + "_" + Math.random().toString(36).slice(2, 6),
-              type: entryType,
+              id: "tx-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+              type: state.entryType,
               amount,
-              category: entryCat,
+              category: state.selectedCat,
               date,
-              note,
-              createdAt: Date.now()
+              note
             });
-            state.selectedYM = date.slice(0, 7);
-            save();
-            if (addModal) addModal.classList.add("hidden");
+            state.month = date.slice(0, 7);
+            saveState();
+            if (txModal) txModal.classList.add("hidden");
             renderAll();
-            toast(entryType === "expense" ? "已儲存支出" : "已儲存收入");
+            toast("已儲存帳目");
           });
         }
 
-        const openAsset = document.getElementById("btn-open-asset");
-        const closeAsset = document.getElementById("btn-close-asset");
+        // 資產負債彈窗
+        const openAsset = document.getElementById("open-asset-modal");
         const assetModal = document.getElementById("asset-modal");
+        const closeAsset = document.getElementById("close-asset-modal");
+        if (openAsset && assetModal) {
+          openAsset.addEventListener("click", () => {
+            document.getElementById("asset-name").value = "";
+            document.getElementById("asset-amount").value = "";
+            assetModal.classList.remove("hidden");
+          });
+        }
+        if (closeAsset && assetModal) {
+          closeAsset.addEventListener("click", () => assetModal.classList.add("hidden"));
+        }
+
         const assetForm = document.getElementById("asset-form");
-        if (openAsset && assetModal) openAsset.addEventListener("click", () => assetModal.classList.remove("hidden"));
-        if (closeAsset && assetModal) closeAsset.addEventListener("click", () => assetModal.classList.add("hidden"));
         if (assetForm) {
-          assetForm.addEventListener("submit", e => {
+          assetForm.addEventListener("submit", (e) => {
             e.preventDefault();
-            const kind = document.getElementById("inp-asset-kind").value;
-            const name = document.getElementById("inp-asset-name").value.trim();
-            const amount = parseFloat(document.getElementById("inp-asset-amt").value) || 0;
-            if (!name) return;
-            state.assets.push({ id: "bs_" + Date.now(), kind, name, amount });
-            save();
-            document.getElementById("inp-asset-name").value = "";
-            document.getElementById("inp-asset-amt").value = "";
+            const kind = document.getElementById("asset-kind").value;
+            const name = document.getElementById("asset-name").value.trim();
+            const amount = Number(document.getElementById("asset-amount").value);
+            if (!name || Number.isNaN(amount) || amount < 0) return;
+
+            state.assets.push({
+              id: "as-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+              kind,
+              name,
+              amount
+            });
+            saveState();
             if (assetModal) assetModal.classList.add("hidden");
             renderSettlement();
             toast("已新增資產/負債項目");
           });
         }
 
-        document.querySelectorAll("[data-theme-opt]").forEach(btn => {
-          btn.addEventListener("click", () => {
-            state.theme = btn.getAttribute("data-theme-opt") || "christmas";
-            save();
-            applyTheme(true);
-            renderHome();
-            renderSettlement();
-          });
-        });
-
-        const snowToggle = document.getElementById("btn-toggle-snow");
-        if (snowToggle) {
-          snowToggle.addEventListener("click", () => {
-            state.snowEnabled = !state.snowEnabled;
-            save();
-            applyTheme(false);
-          });
-        }
-
-        const demoBtn = document.getElementById("btn-load-demo");
-        if (demoBtn) {
-          demoBtn.addEventListener("click", () => {
-            const curYM = state.selectedYM;
-            const prevYM = shiftYM(curYM, -1);
+        // 示範與清空資料
+        const sampleBtn = document.getElementById("load-sample-data");
+        if (sampleBtn) {
+          sampleBtn.addEventListener("click", () => {
+            const cur = state.month;
+            const prev = shiftMonth(cur, -1);
             state.transactions = [
-              { id: "dm_p1", type: "income", amount: 25000, category: "salary", date: `${prevYM}-01`, note: "上月薪金", createdAt: 1 },
-              { id: "dm_p2", type: "expense", amount: 6500, category: "fixed", date: `${prevYM}-05`, note: "屋租及寬頻月費", createdAt: 2 },
-              { id: "dm_p3", type: "expense", amount: 420, category: "boba", date: `${prevYM}-12`, note: "黑糖珍珠鮮奶", createdAt: 3 },
-              { id: "dm_p4", type: "expense", amount: 3100, category: "food", date: `${prevYM}-18`, note: "日常午晚餐", createdAt: 4 },
-              { id: "dm_c1", type: "income", amount: 26000, category: "salary", date: `${curYM}-01`, note: "本月薪金", createdAt: 5 },
-              { id: "dm_c2", type: "expense", amount: 6500, category: "fixed", date: `${curYM}-05`, note: "屋租及寬頻月費", createdAt: 6 },
-              { id: "dm_c3", type: "expense", amount: 185, category: "boba", date: `${curYM}-09`, note: "芝士奶蓋烏龍", createdAt: 7 },
-              { id: "dm_c4", type: "expense", amount: 1280, category: "gift", date: `${curYM}-15`, note: "古本屋周邊同聖誕禮物", createdAt: 8 },
-              { id: "dm_c5", type: "expense", amount: 2450, category: "food", date: `${curYM}-20`, note: "聖誕聚餐", createdAt: 9 }
+              { id: "s1", type: "income", amount: 26000, category: "薪金收入", date: `${cur}-01`, note: "本月人工" },
+              { id: "s2", type: "expense", amount: 42, category: "廢水支出", date: `${cur}-04`, note: "黑糖珍珠鮮奶" },
+              { id: "s3", type: "expense", amount: 6500, category: "固定支出", date: `${cur}-05`, note: "月租與上網費" },
+              { id: "s4", type: "expense", amount: 185, category: "古本繪本", date: `${cur}-10`, note: "二手文庫本兩冊" },
+              { id: "s5", type: "expense", amount: 320, category: "餐飲美食", date: `${cur}-15`, note: "和風咖哩晚餐" },
+              { id: "s6", type: "income", amount: 25000, category: "薪金收入", date: `${prev}-01`, note: "上月人工" },
+              { id: "s7", type: "expense", amount: 6500, category: "固定支出", date: `${prev}-05`, note: "月租與上網費" },
+              { id: "s8", type: "expense", amount: 280, category: "廢水支出", date: `${prev}-14`, note: "手搖飲合集" }
             ];
-            state.assets = [
-              { id: "dm_a1", kind: "asset", name: "活期儲蓄存款", amount: 75000 },
-              { id: "dm_a2", kind: "liability", name: "信用卡結餘", amount: 2400 }
-            ];
-            save();
+            saveState();
             renderAll();
-            toast("已載入跨月份示範帳目");
+            toast("已載入示範帳目");
           });
         }
 
-        const clearBtn = document.getElementById("btn-clear-all");
-        if (clearBtn) {
-          clearBtn.addEventListener("click", () => {
+        const resetBtn = document.getElementById("reset-all-data");
+        if (resetBtn) {
+          resetBtn.addEventListener("click", () => {
             state.transactions = [];
             state.assets = [];
-            save();
+            saveState();
             renderAll();
-            toast("已清空所有本地紀錄");
+            toast("已清空全部資料");
           });
         }
 
-        const expJson = document.getElementById("btn-export-json");
-        if (expJson) {
-          expJson.addEventListener("click", () => {
-            const blob = new Blob([JSON.stringify(state, null, 2)], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement("a");
-            a.href = url;
-            a.download = `日常記帳備份_${getTodayISO()}.json`;
-            a.click();
-            URL.revokeObjectURL(url);
-            toast("已匯出 JSON 備份");
-          });
-        }
-
-        const impJson = document.getElementById("input-import-json");
-        if (impJson) {
-          impJson.addEventListener("change", e => {
-            const file = e.target.files && e.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = ev => {
-              try {
-                const parsed = JSON.parse(ev.target.result);
-                if (Array.isArray(parsed)) {
-                  state.transactions = parsed;
-                } else if (parsed && Array.isArray(parsed.transactions)) {
-                  state.transactions = parsed.transactions;
-                  if (Array.isArray(parsed.assets)) state.assets = parsed.assets;
-                }
-                save();
-                renderAll();
-                toast("已成功還原備份資料");
-              } catch (_err) {
-                toast("備份檔案格式無效");
-              }
-              e.target.value = "";
-            };
-            reader.readAsText(file);
-          });
-        }
-
-        document.addEventListener("click", e => {
-          const catBtn = e.target.closest("[data-cat-id]");
-          if (catBtn) {
-            entryCat = catBtn.getAttribute("data-cat-id");
-            renderCatGrid();
+        // 委派點擊（分類選擇、刪除紀錄）
+        document.addEventListener("click", (e) => {
+          const pickCat = e.target.closest("[data-pick-cat]");
+          if (pickCat) {
+            state.selectedCat = pickCat.getAttribute("data-pick-cat");
+            renderCategoryGrid();
             return;
           }
+
           const delTx = e.target.closest("[data-del-tx]");
           if (delTx) {
             const id = delTx.getAttribute("data-del-tx");
-            state.transactions = state.transactions.filter(t => t.id !== id);
-            save();
+            state.transactions = state.transactions.filter((t) => t.id !== id);
+            saveState();
             renderAll();
-            toast("已刪除紀錄");
+            toast("已刪除帳目");
             return;
           }
+
           const delAs = e.target.closest("[data-del-asset]");
           if (delAs) {
             const id = delAs.getAttribute("data-del-asset");
-            state.assets = state.assets.filter(a => a.id !== id);
-            save();
+            state.assets = state.assets.filter((a) => a.id !== id);
+            saveState();
             renderSettlement();
             toast("已刪除項目");
           }
         });
       }
 
-      function initPWA() {
-        try {
-          const manifest = {
-            name: "日常記帳",
-            short_name: "日常記帳",
-            start_url: location.href,
-            display: "standalone",
-            background_color: "#e6f2ea",
-            theme_color: "#23533a"
-          };
-          const mEl = document.getElementById("pwa-manifest");
-          if (mEl) mEl.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: "application/manifest+json" }));
-        } catch (_e) {}
-
-        const swEl = document.getElementById("sw-status");
-        if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-          const swCode = `
-            const CACHE = 'ledger-v2';
-            self.addEventListener('install', e => { self.skipWaiting(); e.waitUntil(caches.open(CACHE).then(c => c.addAll(['./']))); });
-            self.addEventListener('fetch', e => { e.respondWith(caches.match(e.request).then(r => r || fetch(e.request).catch(() => caches.match('./')))); });
-          `;
-          const swUrl = URL.createObjectURL(new Blob([swCode], { type: "application/javascript" }));
-          navigator.serviceWorker.register(swUrl)
-            .then(() => { if (swEl) swEl.textContent = "已就緒（支援完全離線開啟）"; })
-            .catch(() => { if (swEl) swEl.textContent = "本地儲存已啟用（上傳至免費網頁空間即可離線安裝）"; });
-        }
-      }
-
       function init() {
         bindEvents();
         initParticles();
-        initPWA();
-        switchTab(state.activeTab);
+        switchTab(state.tab);
       }
 
       if (document.readyState === "loading") {
