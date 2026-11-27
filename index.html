@@ -1,2017 +1,1208 @@
 <!DOCTYPE html>
-<html lang="zh-HK">
+<html lang="zh-HK" data-theme="christmas">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>日常記帳</title>
-    
-    <!-- iOS PWA 專屬 Meta 標籤：支援「加入主畫面」全螢幕原生體驗 -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="冬日日常記帳">
-    <meta name="theme-color" id="meta-theme-color" content="#F7F4EB">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#1f4e3d" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="冬日理財帳" />
+  <title>冬日理財帳 · 離線記帳與月度結算</title>
+  <style>
+    :root {
+      --bg: #f6f2ea;
+      --surface: #ffffff;
+      --surface-soft: #fbf8f3;
+      --text: #1e2923;
+      --muted: #5c6b63;
+      --border: #e5ddd0;
+      --primary: #1f4e3d;
+      --primary-text: #ffffff;
+      --accent: #b8332a;
+      --gold: #c4963a;
+      --income: #1b7a4b;
+      --expense: #b8332a;
+      --shadow: 0 8px 24px rgba(30, 41, 35, 0.06);
+      --snow-opacity: 0.45;
+    }
 
-    <!-- 動態生成 iOS Touch Icon (Canvas 生成聖誕松綠金徽章) -->
-    <link rel="apple-touch-icon" id="ios-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='112' fill='%231B4332'/%3E%3Ccircle cx='256' cy='256' r='200' fill='none' stroke='%23F59E0B' stroke-width='10' stroke-dasharray='18 12'/%3E%3Ctext x='50%25' y='52%25' dominant-baseline='middle' text-anchor='middle' font-size='220'%3E🎄%3C/text%3E%3C/svg%3E">
-    <!-- 動態 Manifest 佔位符 -->
-    <link rel="manifest" id="pwa-manifest">
+    html[data-theme="frost"] {
+      --bg: #eef5fa;
+      --surface: #ffffff;
+      --surface-soft: #f5f9fc;
+      --text: #172b3a;
+      --muted: #536c7e;
+      --border: #d7e5f0;
+      --primary: #1d5d8c;
+      --primary-text: #ffffff;
+      --accent: #2c7fb8;
+      --gold: #6baed6;
+      --income: #16796f;
+      --expense: #c2415a;
+      --shadow: 0 8px 24px rgba(23, 43, 58, 0.06);
+      --snow-opacity: 0.5;
+    }
 
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js 用於統計圖表與近6個月趨勢圖 -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', '"Helvetica Neue"', 'Inter', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-    <style>
-        /* 主題色彩變數系統 */
-        :root, [data-theme="christmas"] {
-            --bg-page: #F7F4EB;
-            --bg-header: rgba(247, 244, 235, 0.86);
-            --bg-card: #FFFDF9;
-            --bg-subtle: #EFECE1;
-            --border-card: rgba(217, 119, 6, 0.16);
-            --text-main: #1C2520;
-            --text-muted: #6B726D;
-            --primary: #1B4332;
-            --primary-light: #2D6A4F;
-            --primary-soft: rgba(27, 67, 50, 0.09);
-            --expense: #B91C1C;
-            --expense-soft: rgba(185, 28, 28, 0.09);
-            --gold: #D97706;
-            --gold-soft: rgba(217, 119, 6, 0.14);
-            --snow-color: rgba(217, 119, 6, 0.35);
-            --snow-flake: rgba(255, 255, 255, 0.9);
-        }
+    html[data-theme="minimal"] {
+      --bg: #f4f5f6;
+      --surface: #ffffff;
+      --surface-soft: #f9fafb;
+      --text: #18181b;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --primary: #18181b;
+      --primary-text: #ffffff;
+      --accent: #334155;
+      --gold: #94a3b8;
+      --income: #15803d;
+      --expense: #b91c1c;
+      --shadow: 0 6px 18px rgba(15, 23, 42, 0.05);
+      --snow-opacity: 0;
+    }
 
-        [data-theme="winter"] {
-            --bg-page: #EEF4FA;
-            --bg-header: rgba(238, 244, 250, 0.86);
-            --bg-card: #FFFFFF;
-            --bg-subtle: #E1ECF7;
-            --border-card: rgba(59, 130, 246, 0.15);
-            --text-main: #0F172A;
-            --text-muted: #64748B;
-            --primary: #0369A1;
-            --primary-light: #0284C7;
-            --primary-soft: rgba(3, 105, 161, 0.09);
-            --expense: #BE123C;
-            --expense-soft: rgba(190, 18, 60, 0.09);
-            --gold: #0EA5E9;
-            --gold-soft: rgba(14, 165, 233, 0.14);
-            --snow-color: rgba(14, 165, 233, 0.35);
-            --snow-flake: rgba(255, 255, 255, 0.95);
-        }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
 
-        [data-theme="classic"] {
-            --bg-page: #F2F2F7;
-            --bg-header: rgba(242, 242, 247, 0.86);
-            --bg-card: #FFFFFF;
-            --bg-subtle: #E5E5EA;
-            --border-card: rgba(15, 23, 42, 0.08);
-            --text-main: #0F172A;
-            --text-muted: #64748B;
-            --primary: #10B981;
-            --primary-light: #059669;
-            --primary-soft: rgba(16, 185, 129, 0.1);
-            --expense: #E11D48;
-            --expense-soft: rgba(225, 29, 72, 0.1);
-            --gold: #F59E0B;
-            --gold-soft: rgba(245, 158, 11, 0.14);
-            --snow-color: rgba(148, 163, 184, 0.35);
-            --snow-flake: rgba(255, 255, 255, 0.8);
-        }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "PingFang HK", "Noto Sans HK", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding-bottom: calc(88px + env(safe-area-inset-bottom));
+      min-height: 100vh;
+    }
 
-        /* iOS 安全區域與原生滾動優化 */
-        body {
-            background-color: var(--bg-page);
-            color: var(--text-main);
-            -webkit-tap-highlight-color: transparent;
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: calc(env(safe-area-inset-bottom) + 88px);
-            user-select: none;
-            transition: background-color 0.3s ease, color 0.3s ease;
-        }
-        input, select {
-            user-select: auto;
-        }
-        .theme-header {
-            background-color: var(--bg-header);
-            border-bottom: 1px solid var(--border-card);
-        }
-        .theme-card {
-            background-color: var(--bg-card);
-            border: 1px solid var(--border-card);
-            box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.04);
-        }
-        .theme-subtle {
-            background-color: var(--bg-subtle);
-        }
-        .text-muted {
-            color: var(--text-muted);
-        }
-        .text-primary-theme {
-            color: var(--primary);
-        }
-        .bg-primary-theme {
-            background-color: var(--primary);
-        }
-        .bg-primary-soft {
-            background-color: var(--primary-soft);
-        }
-        .text-expense-theme {
-            color: var(--expense);
-        }
-        .bg-expense-theme {
-            background-color: var(--expense);
-        }
-        .bg-expense-soft {
-            background-color: var(--expense-soft);
-        }
-        .text-gold-theme {
-            color: var(--gold);
-        }
-        .bg-gold-soft {
-            background-color: var(--gold-soft);
-        }
+    #snow-canvas {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      opacity: var(--snow-opacity);
+    }
 
-        /* 抽屜動畫 */
-        .drawer-enter {
-            transform: translateY(100%);
-        }
-        .drawer-active {
-            transform: translateY(0);
-        }
-        /* 聖誕吊飾按鈕光澤與微動效 */
-        .ornament-btn {
-            background: linear-gradient(135deg, var(--expense) 0%, #991B1B 100%);
-            box-shadow: 0 8px 20px -3px rgba(185, 28, 28, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.35);
-        }
-        [data-theme="winter"] .ornament-btn {
-            background: linear-gradient(135deg, #0284C7 0%, #0369A1 100%);
-            box-shadow: 0 8px 20px -3px rgba(2, 132, 199, 0.45), inset 0 2px 4px rgba(255, 255, 255, 0.35);
-        }
-        [data-theme="classic"] .ornament-btn {
-            background: linear-gradient(135deg, #10B981 0%, #059669 100%);
-            box-shadow: 0 8px 20px -3px rgba(16, 185, 129, 0.4), inset 0 2px 4px rgba(255, 255, 255, 0.35);
-        }
+    .app-shell {
+      position: relative;
+      z-index: 2;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 16px 16px 24px;
+    }
 
-        /* 《大富翁4》復古財經報表風格 */
-        .monopoly-paper {
-            background-image: radial-gradient(var(--border-card) 1px, transparent 1px);
-            background-size: 16px 16px;
-        }
-        .monopoly-stamp {
-            transform: rotate(-6deg);
-            border: 2.5px double var(--expense);
-            color: var(--expense);
-        }
-    </style>
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+
+    .brand-title {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: var(--primary);
+      letter-spacing: -0.01em;
+    }
+
+    .brand-sub {
+      margin: 2px 0 0;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .month-picker {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 7px 10px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
+      box-shadow: var(--shadow);
+      margin-bottom: 14px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .stat-box {
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 10px;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-size: 1.02rem;
+      font-weight: 800;
+      word-break: break-word;
+    }
+
+    .income-text { color: var(--income); }
+    .expense-text { color: var(--expense); }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .section-title {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .tx-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .tx-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+    }
+
+    .tx-main {
+      min-width: 0;
+      flex: 1;
+    }
+
+    .tx-cat {
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .tx-meta {
+      font-size: 0.76rem;
+      color: var(--muted);
+    }
+
+    .tx-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tx-amount {
+      font-weight: 800;
+      font-size: 0.95rem;
+      white-space: nowrap;
+    }
+
+    .btn {
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--primary-text);
+      border-color: var(--primary);
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .btn-sm {
+      padding: 5px 9px;
+      font-size: 0.76rem;
+      border-radius: 8px;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 28px 12px;
+      color: var(--muted);
+      font-size: 0.9rem;
+    }
+
+    .bar-row {
+      margin-bottom: 10px;
+    }
+
+    .bar-head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.84rem;
+      margin-bottom: 4px;
+    }
+
+    .bar-track {
+      height: 10px;
+      border-radius: 999px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 999px;
+    }
+
+    .badge-stamp {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: color-mix(in srgb, var(--gold) 20%, transparent);
+      border: 1px solid var(--gold);
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .compare-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+    }
+
+    .compare-table th,
+    .compare-table td {
+      padding: 8px 6px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    .compare-table th:last-child,
+    .compare-table td:last-child {
+      text-align: right;
+    }
+
+    .option-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .tabbar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 20;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      align-items: center;
+      gap: 4px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 0;
+      color: var(--muted);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 6px 4px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .tab-btn.is-active {
+      color: var(--primary);
+      background: var(--surface-soft);
+      font-weight: 800;
+    }
+
+    .fab-btn {
+      width: 46px;
+      height: 46px;
+      margin: -14px auto 0;
+      border-radius: 50%;
+      border: 0;
+      background: var(--accent);
+      color: #ffffff;
+      font-size: 1.5rem;
+      line-height: 1;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(0, 0, 0, 0.18);
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 40;
+      background: rgba(15, 23, 42, 0.45);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 12px;
+    }
+
+    .modal-panel {
+      width: 100%;
+      max-width: 520px;
+      background: var(--surface);
+      border-radius: 18px;
+      padding: 18px;
+      border: 1px solid var(--border);
+    }
+
+    .field {
+      margin-bottom: 12px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select {
+      width: 100%;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface-soft);
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .toast {
+      position: fixed;
+      top: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 50;
+      background: var(--primary);
+      color: var(--primary-text);
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+      box-shadow: var(--shadow);
+    }
+  </style>
 </head>
-        <!-- 分頁 2：統計分析 (Stats Tab - Chart.js 圓環圖與分類佔比) -->
-        <div id="tab-stats" class="hidden space-y-4 pb-6">
-            <section class="theme-card rounded-3xl p-5">
-                <div class="flex items-center justify-between mb-4">
-                    <div>
-                        <h3 class="font-bold text-base">收支結構分析</h3>
-                        <p class="text-xs text-muted mt-0.5">按分類統計當月消費與收入佔比</p>
-                    </div>
-                    <div class="inline-flex p-1 rounded-xl theme-subtle text-xs font-bold">
-                        <button onclick="setStatsType('expense')" id="stats-btn-exp" class="px-3 py-1 rounded-lg bg-white shadow-xs text-expense-theme transition">支出</button>
-                        <button onclick="setStatsType('income')" id="stats-btn-inc" class="px-3 py-1 rounded-lg text-muted transition">收入</button>
-                    </div>
-                </div>
+<body>
+  <canvas id="snow-canvas"></canvas>
+  <div id="toast" class="toast hidden"></div>
 
-                <!-- Chart.js 圓環圖容器 -->
-                <div id="donut-wrapper" class="flex flex-col items-center justify-center py-2">
-                    <div class="relative w-52 h-52 flex items-center justify-center">
-                        <canvas id="stats-donut-canvas"></canvas>
-                        <div class="absolute inset-0 flex flex-col items-center justify-center text-center pointer-events-none">
-                            <span id="donut-center-label" class="text-[11px] font-semibold text-muted">本月總支出</span>
-                            <span id="donut-center-total" class="text-xl font-extrabold tabular-nums mt-0.5">$0</span>
-                        </div>
-                    </div>
-                </div>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1 id="app-heading" class="brand-title">🎄 冬日理財帳</h1>
+        <p id="app-subtitle" class="brand-sub">離線優先 · 本機儲存 · 聖誕冬日主題</p>
+      </div>
+      <input id="month-filter" type="month" class="month-picker" aria-label="選擇月份" />
+    </header>
 
-                <!-- 詳細分類進度列表 -->
-                <div id="stats-category-list" class="mt-4 space-y-3 pt-4 border-t border-black/5">
-                    <!-- 動態生成分類進度條 -->
-                </div>
-            </section>
+    <!-- 分頁 1：明細 -->
+    <section id="tab-ledger" class="tab-panel">
+      <div class="card">
+        <div class="summary-grid">
+          <div class="stat-box">
+            <div class="stat-label">本月收入</div>
+            <div id="sum-income" class="stat-value income-text">$0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">本月支出</div>
+            <div id="sum-expense" class="stat-value expense-text">$0</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-label">本月結餘</div>
+            <div id="sum-balance" class="stat-value">$0</div>
+          </div>
         </div>
+      </div>
 
-        <!-- 分頁 3：《大富翁4》月度財務結算表 (Settlement Tab) -->
-        <div id="tab-settlement" class="hidden space-y-4 pb-6">
-            <!-- 1. 復古財經報紙頭條與稱號評級卡片 -->
-            <section class="theme-card monopoly-paper rounded-3xl p-5 relative overflow-hidden">
-                <!-- 報頭雙線框 -->
-                <div class="border-y-2 border-current/20 py-2 mb-3 flex items-center justify-between">
-                    <div class="flex items-center gap-1.5">
-                        <span class="text-base">📰</span>
-                        <span class="text-[11px] font-extrabold tracking-widest uppercase text-muted">RICHMAN 4 · 財經快報</span>
-                    </div>
-                    <span id="settlement-period-tag" class="text-[11px] font-bold px-2 py-0.5 rounded bg-gold-soft text-gold-theme">2026年11月號</span>
-                </div>
-
-                <div class="flex items-start justify-between gap-2">
-                    <div>
-                        <h2 class="text-xl font-black tracking-tight">大富翁月度財務結算報</h2>
-                        <p id="settlement-compare-subtitle" class="text-xs text-muted mt-0.5">對比上月財務表現與淨資產變動</p>
-                    </div>
-                    <!-- 經典稱號蓋章徽章 -->
-                    <div id="monopoly-rank-stamp" class="monopoly-stamp px-2.5 py-1 rounded-lg text-center shrink-0 bg-white/80 shadow-xs">
-                        <div class="text-[9px] font-bold tracking-wider uppercase opacity-75">本月評級</div>
-                        <div id="monopoly-rank-title" class="text-xs font-black">穩健地主</div>
-                    </div>
-                </div>
-
-                <!-- 評語氣泡 -->
-                <div class="mt-3 p-3 rounded-2xl theme-subtle flex items-center gap-2.5 text-xs">
-                    <span id="monopoly-avatar" class="text-2xl shrink-0">🎩</span>
-                    <p id="monopoly-commentary" class="font-medium leading-relaxed">本月收支表現穩健，繼續保持儲蓄節奏！</p>
-                </div>
-
-                <!-- 2. 核心 6 項指標上月對比 (MoM Grid) -->
-                <div id="mom-metrics-grid" class="grid grid-cols-2 gap-2.5 mt-4">
-                    <!-- 動態生成：總收入、總開支、本月淨結餘、總資產、總負債、淨資產 -->
-                </div>
-            </section>
-
-            <!-- 3. 資產與負債配置面板（支援手動新增/編輯/刪除並儲存於 localStorage） -->
-            <section class="theme-card rounded-3xl p-5 space-y-4">
-                <div class="flex items-center justify-between">
-                    <div>
-                        <h3 class="font-bold text-base flex items-center gap-1.5">
-                            <span>🏦</span>
-                            <span>資產與負債配置表</span>
-                        </h3>
-                        <p class="text-[11px] text-muted mt-0.5">累積帳目現金流自動計入總資產，可自訂存款/投資/負債</p>
-                    </div>
-                    <button onclick="openAssetModal()" class="px-3 py-1.5 rounded-xl bg-primary-theme text-white text-xs font-bold shadow-xs active:scale-95 transition">
-                        + 新增項目
-                    </button>
-                </div>
-
-                <!-- 資產清單 -->
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between text-xs font-bold text-primary-theme px-1">
-                        <span>📈 資產項目 (Assets)</span>
-                        <span id="panel-total-assets" class="tabular-nums">$0</span>
-                    </div>
-                    <div id="assets-list" class="space-y-2">
-                        <!-- 動態生成資產項目 -->
-                    </div>
-                </div>
-
-                <!-- 負債清單 -->
-                <div class="space-y-2 pt-2 border-t border-black/5">
-                    <div class="flex items-center justify-between text-xs font-bold text-expense-theme px-1">
-                        <span>💳 負債項目 (Liabilities)</span>
-                        <span id="panel-total-liabilities" class="tabular-nums">$0</span>
-                    </div>
-                    <div id="liabilities-list" class="space-y-2">
-                        <!-- 動態生成負債項目 -->
-                    </div>
-                </div>
-
-                <!-- 淨資產總結條 -->
-                <div class="p-3.5 rounded-2xl bg-gold-soft flex items-center justify-between">
-                    <div>
-                        <span class="text-xs font-bold text-gold-theme block">當前淨資產 (Net Worth)</span>
-                        <span class="text-[10px] text-muted">總資產 − 總負債</span>
-                    </div>
-                    <span id="panel-net-worth" class="text-xl font-black text-gold-theme tabular-nums">$0</span>
-                </div>
-            </section>
-
-            <!-- 4. 《大富翁4》分類開支上月對比明細表 -->
-            <section class="theme-card rounded-3xl p-5">
-                <div class="flex items-center justify-between mb-3">
-                    <div>
-                        <h3 class="font-bold text-base">📋 分類開支上月對比表</h3>
-                        <p class="text-[11px] text-muted mt-0.5">比較本月與上月各分類花費增減</p>
-                    </div>
-                    <span id="cat-diff-month-label" class="text-[11px] font-bold text-muted">vs 上月</span>
-                </div>
-
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
-                        <thead>
-                            <tr class="border-b border-black/10 text-[11px] text-muted">
-                                <th class="py-2 font-bold">分類</th>
-                                <th class="py-2 font-bold text-right">上月</th>
-                                <th class="py-2 font-bold text-right">本月</th>
-                                <th class="py-2 font-bold text-right">增減變化</th>
-                            </tr>
-                        </thead>
-                        <tbody id="category-comparison-tbody" class="divide-y divide-black/5 text-xs">
-                            <!-- 動態生成分類對比列 -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- 5. 近 6 個月收支與淨資產趨勢圖 (Chart.js) -->
-            <section class="theme-card rounded-3xl p-5">
-                <div class="mb-3">
-                    <h3 class="font-bold text-base">📊 近 6 個月收支與淨資產走勢</h3>
-                    <p class="text-[11px] text-muted mt-0.5">柱狀圖對比每月收入與開支，折線追蹤淨資產成長</p>
-                </div>
-                <div class="relative h-56 w-full">
-                    <canvas id="trend-combo-canvas"></canvas>
-                </div>
-            </section>
+      <div class="card">
+        <div class="section-header">
+          <h2 class="section-title">收支明細</h2>
+          <button id="btn-quick-add" type="button" class="btn btn-primary btn-sm">+ 記一筆</button>
         </div>
+        <div id="tx-list" class="tx-list"></div>
+      </div>
+    </section>
 
-        <!-- 分頁 4：主題、備份與 PWA 設定 (Settings Tab) -->
-        <div id="tab-settings" class="hidden space-y-4 pb-6">
-            <!-- 冬日/聖誕氛圍與主題切換 -->
-            <section class="theme-card rounded-3xl p-5 space-y-4">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <span class="text-2xl">🎅</span>
-                        <div>
-                            <h3 class="font-bold text-base">節日主題與背景氣氛</h3>
-                            <p class="text-xs text-muted">自訂你同朋友鍾意嘅介面風格</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 三款主題選擇器 -->
-                <div class="grid grid-cols-3 gap-2.5">
-                    <button onclick="setAppTheme('christmas')" id="theme-opt-christmas" class="p-3 rounded-2xl border-2 text-center transition active:scale-95">
-                        <div class="text-xl mb-1">🎄</div>
-                        <div class="text-xs font-bold">溫馨聖誕</div>
-                        <div class="flex justify-center gap-1 mt-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#1B4332]"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#B91C1C]"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#D97706]"></span>
-                        </div>
-                    </button>
-
-                    <button onclick="setAppTheme('winter')" id="theme-opt-winter" class="p-3 rounded-2xl border-2 text-center transition active:scale-95">
-                        <div class="text-xl mb-1">❄️</div>
-                        <div class="text-xs font-bold">冬日初雪</div>
-                        <div class="flex justify-center gap-1 mt-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#0369A1]"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#38BDF8]"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#E0F2FE]"></span>
-                        </div>
-                    </button>
-
-                    <button onclick="setAppTheme('classic')" id="theme-opt-classic" class="p-3 rounded-2xl border-2 text-center transition active:scale-95">
-                        <div class="text-xl mb-1">🌿</div>
-                        <div class="text-xs font-bold">經典簡約</div>
-                        <div class="flex justify-center gap-1 mt-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#10B981]"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#E11D48]"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-[#94A3B8]"></span>
-                        </div>
-                    </button>
-                </div>
-
-                <!-- 飄雪動畫開關 -->
-                <div class="flex items-center justify-between pt-2 border-t border-black/5">
-                    <div>
-                        <p class="text-sm font-bold">背景輕柔飄雪效果</p>
-                        <p class="text-[11px] text-muted">極低耗電，營造冬日聖誕氣氛</p>
-                    </div>
-                    <button id="snow-toggle-btn" onclick="toggleSnowEffect()" class="w-12 h-7 rounded-full bg-primary-theme p-1 transition-colors duration-200 flex items-center">
-                        <span id="snow-toggle-knob" class="w-5 h-5 rounded-full bg-white shadow-sm transform translate-x-5 transition-transform duration-200"></span>
-                    </button>
-                </div>
-            </section>
-
-            <!-- iOS 主畫面安裝教學卡片 -->
-            <section class="theme-card rounded-3xl p-5">
-                <div class="flex items-center gap-3 mb-3">
-                    <div class="w-10 h-10 rounded-2xl bg-primary-soft text-primary-theme flex items-center justify-center text-xl">📱</div>
-                    <div>
-                        <h3 class="font-bold text-base">加到 iPhone 主畫面</h3>
-                        <p class="text-xs text-muted">變成獨立 App，搭地鐵無網絡都用到</p>
-                    </div>
-                </div>
-                <ol class="text-xs text-muted space-y-2 theme-subtle p-3.5 rounded-2xl leading-relaxed">
-                    <li>1. 用 iPhone 嘅 <strong>Safari 瀏覽器</strong> 開啟此網頁。</li>
-                    <li>2. 點擊底部工具列中間嘅 <strong>「分享」按鈕</strong> (正方形加向上箭咀)。</li>
-                    <li>3. 向下滑並選擇 <strong>「加入主畫面」</strong>，再按右上角「新增」。</li>
-                    <li>4. 之後直接喺桌面點擊 🎄 Icon 開啟，所有資料離線保存。</li>
-                </ol>
-                <div class="mt-3 flex items-center justify-between text-xs px-1">
-                    <span class="text-muted">離線快取引擎狀態：</span>
-                    <span id="sw-status" class="font-bold text-primary-theme">檢查中...</span>
-                </div>
-            </section>
-
-            <!-- 資料備份與還原 -->
-            <section class="theme-card rounded-3xl p-5 space-y-3">
-                <div>
-                    <h3 class="font-bold text-base">資料備份與匯出</h3>
-                    <p class="text-xs text-muted mt-1">帳目存於手機本地瀏覽器。建議定期匯出備份，或分享畀朋友。</p>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 pt-1">
-                    <button onclick="exportData('csv')" class="flex flex-col items-center justify-center p-3.5 rounded-2xl theme-subtle hover:opacity-85 active:scale-95 transition">
-                        <span class="text-xl mb-1">📊</span>
-                        <span class="text-xs font-bold">匯出 Excel (CSV)</span>
-                    </button>
-                    <button onclick="exportData('json')" class="flex flex-col items-center justify-center p-3.5 rounded-2xl theme-subtle hover:opacity-85 active:scale-95 transition">
-                        <span class="text-xl mb-1">💾</span>
-                        <span class="text-xs font-bold">匯出備份 (JSON)</span>
-                    </button>
-                </div>
-
-                <div class="pt-1">
-                    <label class="w-full flex items-center justify-center gap-2 p-3.5 rounded-2xl bg-primary-soft text-primary-theme text-xs font-bold cursor-pointer active:scale-98 transition">
-                        <span>📥 匯入 JSON 備份檔案還原</span>
-                        <input type="file" id="import-file" accept=".json" class="hidden" onchange="importJSON(event)">
-                    </label>
-                </div>
-            </section>
-
-            <!-- 測試資料與重置 -->
-            <section class="theme-card rounded-3xl p-5 space-y-2.5">
-                <h3 class="font-bold text-sm text-muted">測試與管理</h3>
-                <button onclick="loadSampleData()" class="w-full py-3 px-4 rounded-2xl bg-gold-soft text-gold-theme text-xs font-bold active:scale-98 transition">
-                    🎁 載入跨月份聖誕冬日示範帳目與資產（含上月對比）
-                </button>
-                <button onclick="promptClearAll()" class="w-full py-3 px-4 rounded-2xl bg-expense-soft text-xs font-bold text-expense-theme active:scale-98 transition">
-                    清空所有本地紀錄
-                </button>
-            </section>
+    <!-- 分頁 2：統計 -->
+    <section id="tab-stats" class="tab-panel hidden">
+      <div class="card">
+        <div class="section-header">
+          <h2 class="section-title">本月支出分類分佈</h2>
+          <span id="stats-total-expense" class="tx-meta"></span>
         </div>
-    </main>
+        <div id="category-bars"></div>
+      </div>
+    </section>
 
-    <!-- 底部 iOS Tab Bar (4 分頁：明細、統計、中央吊飾記帳、結算、設定) -->
-    <nav class="fixed bottom-0 inset-x-0 z-30 theme-card backdrop-blur-lg border-t border-black/5 pb-[env(safe-area-inset-bottom)]">
-        <div class="max-w-md mx-auto h-16 px-2 flex items-center justify-between relative">
-            <button onclick="switchTab('home')" id="nav-home" class="flex-1 flex flex-col items-center justify-center gap-1 text-primary-theme transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
-                <span class="text-[10px] font-bold">明細</span>
-            </button>
+    <!-- 分頁 3：月度結算（大富翁4風格） -->
+    <section id="tab-settlement" class="tab-panel hidden">
+      <div class="card">
+        <span id="settlement-badge" class="badge-stamp">🎩 理財見習生</span>
+        <h2 class="section-title">月度財務結算表（上月對比）</h2>
+        <p id="settlement-comment" class="brand-sub"></p>
+        <table class="compare-table" style="margin-top: 10px;">
+          <thead>
+            <tr>
+              <th>項目</th>
+              <th>上月</th>
+              <th>本月</th>
+              <th>增減</th>
+            </tr>
+          </thead>
+          <tbody id="settlement-rows"></tbody>
+        </table>
+      </div>
 
-            <button onclick="switchTab('stats')" id="nav-stats" class="flex-1 flex flex-col items-center justify-center gap-1 text-muted transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z"/><path stroke-linecap="round" stroke-linejoin="round" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z"/></svg>
-                <span class="text-[10px] font-bold">統計</span>
-            </button>
-
-            <!-- 中央節日吊飾快速記帳按鈕 -->
-            <div class="flex-1 flex justify-center">
-                <button onclick="openAddModal()" class="w-14 h-14 -mt-7 rounded-full ornament-btn text-white flex items-center justify-center active:scale-90 transition relative" aria-label="新增記帳">
-                    <!-- 頂部小金環裝飾 -->
-                    <span class="absolute -top-1.5 w-3.5 h-2 rounded-t-sm bg-amber-400 border border-amber-500/50"></span>
-                    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                </button>
-            </div>
-
-            <button onclick="switchTab('settlement')" id="nav-settlement" class="flex-1 flex flex-col items-center justify-center gap-1 text-muted transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
-                <span class="text-[10px] font-bold">結算</span>
-            </button>
-
-            <button onclick="switchTab('settings')" id="nav-settings" class="flex-1 flex flex-col items-center justify-center gap-1 text-muted transition">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
-                <span class="text-[10px] font-bold">設定</span>
-            </button>
+      <div class="card">
+        <div class="section-header">
+          <h2 class="section-title">資產與負債項目</h2>
+          <button id="btn-add-asset" type="button" class="btn btn-primary btn-sm">+ 新增項目</button>
         </div>
-    </nav>
+        <div id="asset-list" class="tx-list"></div>
+      </div>
+    </section>
 
-    <!-- 底部彈出式快速記帳抽屜 (Modal Drawer) -->
-    <div id="add-modal" class="fixed inset-0 z-50 hidden">
-        <!-- 背景遮罩 -->
-        <div onclick="closeAddModal()" class="absolute inset-0 bg-black/45 backdrop-blur-xs transition-opacity"></div>
-        
-        <!-- 抽屜主體 -->
-        <div id="add-drawer" class="absolute bottom-0 inset-x-0 max-w-md mx-auto theme-card rounded-t-3xl p-5 pb-[calc(env(safe-area-inset-bottom)+20px)] shadow-2xl transition-transform duration-300 drawer-enter">
-            <!-- 頂部拖曳條 -->
-            <div class="w-10 h-1 bg-black/15 rounded-full mx-auto mb-4"></div>
-            
-            <div class="flex items-center justify-between mb-4">
-                <!-- 支出 / 收入 切換器 -->
-                <div class="inline-flex p-1 rounded-2xl theme-subtle">
-                    <button type="button" onclick="setTxType('expense')" id="btn-type-expense" class="px-5 py-1.5 rounded-xl text-sm font-bold bg-white text-expense-theme shadow-xs transition">支出</button>
-                    <button type="button" onclick="setTxType('income')" id="btn-type-income" class="px-5 py-1.5 rounded-xl text-sm font-bold text-muted transition">收入</button>
-                </div>
-                <button onclick="closeAddModal()" class="p-2 rounded-full theme-subtle text-muted">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-
-            <form id="tx-form" onsubmit="saveTransaction(event)" class="space-y-4">
-                <!-- 金額輸入框 -->
-                <div class="theme-subtle rounded-2xl px-4 py-3 flex items-center justify-between">
-                    <span class="text-2xl font-bold text-muted">$</span>
-                    <input type="number" id="input-amount" inputmode="decimal" step="0.01" min="0.01" placeholder="0.00" required
-                        class="w-full text-right text-3xl font-extrabold bg-transparent focus:outline-none tabular-nums">
-                </div>
-
-                <!-- 快捷金額按鈕 -->
-                <div class="flex gap-2 overflow-x-auto no-scrollbar">
-                    <button type="button" onclick="quickAddAmount(50)" class="px-3 py-1 rounded-xl theme-subtle text-xs font-bold text-muted active:scale-95 transition">+$50</button>
-                    <button type="button" onclick="quickAddAmount(100)" class="px-3 py-1 rounded-xl theme-subtle text-xs font-bold text-muted active:scale-95 transition">+$100</button>
-                    <button type="button" onclick="quickAddAmount(200)" class="px-3 py-1 rounded-xl theme-subtle text-xs font-bold text-muted active:scale-95 transition">+$200</button>
-                    <button type="button" onclick="quickAddAmount(500)" class="px-3 py-1 rounded-xl theme-subtle text-xs font-bold text-muted active:scale-95 transition">+$500</button>
-                </div>
-
-                <!-- 分類選擇網格 -->
-                <div>
-                    <label class="block text-xs font-bold text-muted mb-2">選擇分類</label>
-                    <div id="category-grid" class="grid grid-cols-4 gap-2">
-                        <!-- 動態生成分類按鈕 -->
-                    </div>
-                </div>
-
-                <!-- 日期與備註 -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-bold text-muted mb-1">日期</label>
-                        <input type="date" id="input-date" required
-                            class="w-full px-3 py-2.5 rounded-xl theme-subtle text-xs font-semibold focus:outline-none">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-bold text-muted mb-1">備註 (選填)</label>
-                        <input type="text" id="input-note" placeholder="例如：聖誕大餐、交換禮物" maxlength="40"
-                            class="w-full px-3 py-2.5 rounded-xl theme-subtle text-xs font-semibold focus:outline-none">
-                    </div>
-                </div>
-
-                <button type="submit" id="submit-btn" class="w-full py-3.5 rounded-2xl bg-expense-theme text-white font-bold text-base shadow-lg active:scale-98 transition">
-                    儲存支出
-                </button>
-            </form>
+    <!-- 分頁 4：設定 -->
+    <section id="tab-settings" class="tab-panel hidden">
+      <div class="card">
+        <h2 class="section-title">主題與冬日特效</h2>
+        <div class="option-row">
+          <button type="button" class="btn theme-btn" data-theme="christmas">🎄 溫馨聖誕</button>
+          <button type="button" class="btn theme-btn" data-theme="frost">❄️ 冬日初雪</button>
+          <button type="button" class="btn theme-btn" data-theme="minimal">⬜ 經典簡約</button>
         </div>
+        <div class="option-row" style="margin-top: 12px;">
+          <button id="btn-toggle-snow" type="button" class="btn btn-sm">❄️ 飄雪特效：開啟</button>
+          <button id="btn-load-demo" type="button" class="btn btn-sm">🎁 載入冬日示範帳目</button>
+          <button id="btn-clear-all" type="button" class="btn btn-sm">🗑️ 清空全部資料</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- 底部導覽列（5 格：明細、統計、+、結算、設定） -->
+  <nav class="tabbar" aria-label="主導覽">
+    <button type="button" class="tab-btn is-active" data-tab="ledger">
+      <span>📒</span>
+      <span>明細</span>
+    </button>
+    <button type="button" class="tab-btn" data-tab="stats">
+      <span>📊</span>
+      <span>統計</span>
+    </button>
+    <button id="fab-open" type="button" class="fab-btn" aria-label="新增收支">+</button>
+    <button type="button" class="tab-btn" data-tab="settlement">
+      <span>🎩</span>
+      <span>結算</span>
+    </button>
+    <button type="button" class="tab-btn" data-tab="settings">
+      <span>⚙️</span>
+      <span>設定</span>
+    </button>
+  </nav>
+
+  <!-- 新增收支彈窗 -->
+  <div id="tx-modal" class="modal-backdrop hidden">
+    <div class="modal-panel">
+      <h2 class="section-title" style="margin-bottom: 12px;">新增收支記錄</h2>
+      <form id="tx-form">
+        <div class="field">
+          <label for="tx-type">類型</label>
+          <select id="tx-type">
+            <option value="expense">支出</option>
+            <option value="income">收入</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="tx-amount">金額</label>
+          <input id="tx-amount" type="number" step="0.01" min="0.01" required placeholder="例如 68" />
+        </div>
+        <div class="field">
+          <label for="tx-category">分類</label>
+          <select id="tx-category"></select>
+        </div>
+        <div class="field">
+          <label for="tx-date">日期</label>
+          <input id="tx-date" type="date" required />
+        </div>
+        <div class="field">
+          <label for="tx-note">備註（可選）</label>
+          <input id="tx-note" type="text" placeholder="例如：午餐、地鐵、聖誕禮物" />
+        </div>
+        <div class="modal-actions">
+          <button id="tx-cancel" type="button" class="btn">取消</button>
+          <button type="submit" class="btn btn-primary">儲存</button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <!-- 資產與負債項目新增/編輯彈窗 -->
-    <div id="asset-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-5">
-        <div onclick="closeAssetModal()" class="absolute inset-0 bg-black/45 backdrop-blur-xs"></div>
-        <div class="relative theme-card rounded-3xl p-5 max-w-sm w-full shadow-2xl space-y-4">
-            <div class="flex items-center justify-between">
-                <h4 id="asset-modal-title" class="font-bold text-base">新增資產 / 負債項目</h4>
-                <button onclick="closeAssetModal()" class="p-1.5 rounded-full theme-subtle text-muted">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-
-            <form onsubmit="saveAssetItem(event)" class="space-y-3.5">
-                <input type="hidden" id="asset-edit-id">
-                <div class="grid grid-cols-2 gap-2 p-1 rounded-2xl theme-subtle">
-                    <button type="button" onclick="setAssetFormKind('asset')" id="kind-btn-asset" class="py-1.5 rounded-xl text-xs font-bold bg-white text-primary-theme shadow-xs transition">📈 資產項目</button>
-                    <button type="button" onclick="setAssetFormKind('liability')" id="kind-btn-liability" class="py-1.5 rounded-xl text-xs font-bold text-muted transition">💳 負債項目</button>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-muted mb-1">項目名稱</label>
-                    <input type="text" id="asset-name-input" placeholder="例如：銀行定期存款、股票ETF、信用卡卡數" required maxlength="30"
-                        class="w-full px-3.5 py-2.5 rounded-xl theme-subtle text-sm font-semibold focus:outline-none">
-                </div>
-
-                <div>
-                    <label class="block text-xs font-bold text-muted mb-1">當前金額 ($)</label>
-                    <input type="number" id="asset-amount-input" inputmode="decimal" step="0.01" min="0" placeholder="0.00" required
-                        class="w-full px-3.5 py-2.5 rounded-xl theme-subtle text-lg font-extrabold tabular-nums focus:outline-none">
-                </div>
-
-                <div class="flex gap-2 pt-1">
-                    <button type="button" id="asset-delete-btn" onclick="deleteCurrentAssetItem()" class="hidden px-4 py-3 rounded-2xl bg-expense-soft text-expense-theme text-xs font-bold">
-                        刪除
-                    </button>
-                    <button type="submit" class="flex-1 py-3 rounded-2xl bg-primary-theme text-white text-xs font-bold shadow-md active:scale-98 transition">
-                        儲存項目
-                    </button>
-                </div>
-            </form>
+  <!-- 新增資產/負債彈窗 -->
+  <div id="asset-modal" class="modal-backdrop hidden">
+    <div class="modal-panel">
+      <h2 class="section-title" style="margin-bottom: 12px;">新增資產或負債</h2>
+      <form id="asset-form">
+        <div class="field">
+          <label for="asset-kind">類別</label>
+          <select id="asset-kind">
+            <option value="asset">資產（現金／存款／投資）</option>
+            <option value="liability">負債（信用卡／貸款）</option>
+          </select>
         </div>
-    </div>
-
-    <!-- 自訂提示訊息與確認對話框 -->
-    <div id="toast" class="fixed top-16 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-full bg-slate-900/90 text-white text-xs font-bold shadow-lg opacity-0 pointer-events-none transition-opacity duration-200"></div>
-
-    <div id="confirm-dialog" class="fixed inset-0 z-50 hidden flex items-center justify-center p-5">
-        <div onclick="closeConfirm()" class="absolute inset-0 bg-black/45 backdrop-blur-xs"></div>
-        <div class="relative theme-card rounded-3xl p-5 max-w-xs w-full shadow-xl text-center space-y-4">
-            <h4 id="confirm-title" class="font-bold text-base">確定刪除？</h4>
-            <p id="confirm-desc" class="text-xs text-muted">此操作無法復原。</p>
-            <div class="grid grid-cols-2 gap-2.5 pt-1">
-                <button onclick="closeConfirm()" class="py-2.5 rounded-xl theme-subtle text-xs font-bold">取消</button>
-                <button id="confirm-ok-btn" class="py-2.5 rounded-xl bg-expense-theme text-white text-xs font-bold">確定</button>
-            </div>
+        <div class="field">
+          <label for="asset-name">名稱</label>
+          <input id="asset-name" type="text" required placeholder="例如：活期存款、信用卡結餘" />
         </div>
+        <div class="field">
+          <label for="asset-amount">金額</label>
+          <input id="asset-amount" type="number" step="0.01" min="0" required placeholder="例如 25000" />
+        </div>
+        <div class="modal-actions">
+          <button id="asset-cancel" type="button" class="btn">取消</button>
+          <button type="submit" class="btn btn-primary">儲存</button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <script>
-        // ==========================================
-        // 1. 分類定義（加入聖誕/冬日節日分類）
-        // ==========================================
-        const CATEGORIES = {
-            expense: [
-                { id: 'food', name: '餐飲美食', icon: '🍲', color: '#D97706' },
-                { id: 'gift', name: '聖誕禮物', icon: '🎁', color: '#B91C1C' },
-                { id: 'transport', name: '交通出行', icon: '🚇', color: '#2563EB' },
-                { id: 'shopping', name: '冬日購物', icon: '🧣', color: '#DB2777' },
-                { id: 'entertainment', name: '聚會娛樂', icon: '🥂', color: '#7C3AED' },
-                { id: 'home', name: '家居日用', icon: '🕯️', color: '#1B4332' },
-                { id: 'medical', name: '醫療健康', icon: '💊', color: '#DC2626' },
-                { id: 'other_exp', name: '其他支出', icon: '❄️', color: '#64748B' }
-            ],
-            income: [
-                { id: 'salary', name: '人工薪金', icon: '💼', color: '#1B4332' },
-                { id: 'bonus', name: '年終花紅', icon: '🎄', color: '#D97706' },
-                { id: 'gift_inc', name: '利是/禮物', icon: '🧧', color: '#B91C1C' },
-                { id: 'invest', name: '投資回報', icon: '📈', color: '#0284C7' },
-                { id: 'other_inc', name: '其他收入', icon: '✨', color: '#64748B' }
-            ]
+  <script>
+    (function () {
+      const STORAGE_KEY = "winter_ledger_state_v1";
+      const EXPENSE_CATS = ["餐飲", "交通", "購物", "🎁 聖誕禮物", "🧣 冬日購物", "居家帳單", "其他支出"];
+      const INCOME_CATS = ["人工", "🎄 年終花紅", "🧧 利是/禮物", "投資回報", "其他收入"];
+
+      const THEME_META = {
+        christmas: { title: "🎄 冬日理財帳", sub: "離線優先 · 本機儲存 · 溫馨聖誕主題" },
+        frost: { title: "❄️ 初雪理財帳", sub: "離線優先 · 本機儲存 · 冬日初雪主題" },
+        minimal: { title: "日常理財帳", sub: "離線優先 · 本機儲存 · 經典簡約主題" }
+      };
+
+      function getCurrentMonthStr() {
+        const now = new Date();
+        const m = String(now.getMonth() + 1).padStart(2, "0");
+        return `${now.getFullYear()}-${m}`;
+      }
+
+      function getTodayStr() {
+        const now = new Date();
+        const m = String(now.getMonth() + 1).padStart(2, "0");
+        const d = String(now.getDate()).padStart(2, "0");
+        return `${now.getFullYear()}-${m}-${d}`;
+      }
+
+      function getPrevMonthStr(ym) {
+        const parts = (ym || getCurrentMonthStr()).split("-").map(Number);
+        let y = parts[0] || new Date().getFullYear();
+        let m = (parts[1] || 1) - 1;
+        if (m < 1) {
+          m = 12;
+          y -= 1;
+        }
+        return `${y}-${String(m).padStart(2, "0")}`;
+      }
+
+      function defaultState() {
+        return {
+          theme: "christmas",
+          snowEnabled: true,
+          activeTab: "ledger",
+          selectedMonth: getCurrentMonthStr(),
+          transactions: [],
+          assets: [
+            { id: "a-cash", kind: "asset", name: "銀行存款", amount: 50000 }
+          ]
         };
+      }
 
-        // ==========================================
-        // 2. 狀態與 LocalStorage 持久化管理
-        // ==========================================
-        const STORAGE_KEY = 'hk_pwa_ledger_v1';
-        const PREFS_KEY = 'hk_pwa_ledger_prefs_v1';
-        const BALANCE_SHEET_KEY = 'hk_pwa_balance_sheet_v1';
+      function loadState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return defaultState();
+          const parsed = JSON.parse(raw);
+          const base = defaultState();
+          return {
+            theme: THEME_META[parsed.theme] ? parsed.theme : base.theme,
+            snowEnabled: typeof parsed.snowEnabled === "boolean" ? parsed.snowEnabled : base.snowEnabled,
+            activeTab: ["ledger", "stats", "settlement", "settings"].includes(parsed.activeTab)
+              ? parsed.activeTab
+              : base.activeTab,
+            selectedMonth: typeof parsed.selectedMonth === "string" && parsed.selectedMonth
+              ? parsed.selectedMonth
+              : base.selectedMonth,
+            transactions: Array.isArray(parsed.transactions) ? parsed.transactions : [],
+            assets: Array.isArray(parsed.assets) ? parsed.assets : base.assets
+          };
+        } catch (_err) {
+          return defaultState();
+        }
+      }
 
-        let transactions = [];
-        let balanceSheet = {
-            assets: [],      // [{ id, name, amount, icon }]
-            liabilities: [], // [{ id, name, amount, icon }]
-            snapshots: {}    // { '2026-10': { assets, liabilities, netWorth } }
-        };
-        let prefs = {
-            theme: 'christmas', // 'christmas' | 'winter' | 'classic'
-            snowEnabled: true
-        };
-        let currentDate = new Date();
-        let currentTxType = 'expense';
-        let selectedCategory = 'food';
-        let filterMode = 'all';
-        let statsType = 'expense';
-        let assetFormKind = 'asset';
-        let confirmCallback = null;
-        let donutChartInstance = null;
-        let trendChartInstance = null;
+      let state = loadState();
+      let toastTimer = null;
 
-        // 初始化應用程式
-        function initApp() {
-            loadPrefs();
-            applyTheme(prefs.theme, false);
-            loadFromStorage();
-            loadBalanceSheet();
-            updateMonthLabel();
-            renderCategoryGrid();
-            renderDashboard();
-            setupOfflineDetection();
-            initSnowfall();
-            initPWAFeatures();
+      function saveState() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (_err) {
+          // 忽略部分受限環境嘅儲存限制
+        }
+      }
+
+      function showToast(msg) {
+        const toastEl = document.getElementById("toast");
+        if (!toastEl) return;
+        toastEl.textContent = msg;
+        toastEl.classList.remove("hidden");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => {
+          toastEl.classList.add("hidden");
+        }, 1800);
+      }
+
+      function fmtMoney(num) {
+        const n = Number(num) || 0;
+        const sign = n < 0 ? "-" : "";
+        return sign + "$" + Math.abs(n).toLocaleString("en-US", { maximumFractionDigits: 2 });
+      }
+
+      function applyTheme() {
+        const themeKey = THEME_META[state.theme] ? state.theme : "christmas";
+        state.theme = themeKey;
+        document.documentElement.setAttribute("data-theme", themeKey);
+
+        const headingEl = document.getElementById("app-heading");
+        const subEl = document.getElementById("app-subtitle");
+        const snowBtn = document.getElementById("btn-toggle-snow");
+
+        if (headingEl) headingEl.textContent = THEME_META[themeKey].title;
+        if (subEl) subEl.textContent = THEME_META[themeKey].sub;
+        if (snowBtn) {
+          snowBtn.textContent = state.snowEnabled ? "❄️ 飄雪特效：開啟" : "❄️ 飄雪特效：關閉";
         }
 
-        function loadPrefs() {
-            try {
-                const raw = localStorage.getItem(PREFS_KEY);
-                if (raw) prefs = { ...prefs, ...JSON.parse(raw) };
-            } catch (e) {}
-        }
-
-        function savePrefs() {
-            try {
-                localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
-            } catch (e) {}
-        }
-
-        function loadFromStorage() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                transactions = raw ? JSON.parse(raw) : [];
-            } catch (e) {
-                transactions = [];
-            }
-        }
-
-        function saveToStorage() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(transactions));
-                recordCurrentMonthSnapshot();
-            } catch (e) {
-                showToast('儲存空間已滿或受限，請匯出備份');
-            }
-        }
-
-        function loadBalanceSheet() {
-            try {
-                const raw = localStorage.getItem(BALANCE_SHEET_KEY);
-                if (raw) {
-                    const parsed = JSON.parse(raw);
-                    balanceSheet = {
-                        assets: Array.isArray(parsed.assets) ? parsed.assets : [],
-                        liabilities: Array.isArray(parsed.liabilities) ? parsed.liabilities : [],
-                        snapshots: parsed.snapshots || {}
-                    };
-                }
-            } catch (e) {
-                balanceSheet = { assets: [], liabilities: [], snapshots: {} };
-            }
-        }
-
-        function saveBalanceSheet() {
-            try {
-                recordCurrentMonthSnapshot();
-                localStorage.setItem(BALANCE_SHEET_KEY, JSON.stringify(balanceSheet));
-            } catch (e) {
-                showToast('資產負債儲存失敗');
-            }
-        }
-
-        // 計算截至某個月份（含當月）的累積帳目現金流結餘
-        function getCumulativeCashflowUpTo(ymStr) {
-            return transactions.reduce((sum, tx) => {
-                if (tx.date.slice(0, 7) <= ymStr) {
-                    const amt = parseFloat(tx.amount) || 0;
-                    return sum + (tx.type === 'income' ? amt : -amt);
-                }
-                return sum;
-            }, 0);
-        }
-
-        // 記錄當月（現實最新月份）資產負債快照，供日後對比
-        function recordCurrentMonthSnapshot() {
-            const nowYM = getYearMonthKey(new Date());
-            const cashflow = getCumulativeCashflowUpTo(nowYM);
-            const manualAssets = balanceSheet.assets.reduce((s, a) => s + (parseFloat(a.amount) || 0), 0);
-            const totalAssets = cashflow + manualAssets;
-            const totalLiabilities = balanceSheet.liabilities.reduce((s, l) => s + (parseFloat(l.amount) || 0), 0);
-            balanceSheet.snapshots[nowYM] = {
-                totalAssets,
-                totalLiabilities,
-                netWorth: totalAssets - totalLiabilities
-            };
-        }
-
-        // ==========================================
-        // 3. 主題切換與冬日飄雪背景引擎
-        // ==========================================
-        function setAppTheme(themeName) {
-            prefs.theme = themeName;
-            savePrefs();
-            applyTheme(themeName, true);
-        }
-
-        function applyTheme(themeName, notify) {
-            document.documentElement.setAttribute('data-theme', themeName);
-
-            const themeMeta = {
-                christmas: { icon: '🎄', sub: '✨ 溫馨聖誕版 · 本地離線儲存', pill: 'Merry X’mas', corner: '🎄', metaColor: '#F7F4EB', toast: '已切換至「溫馨聖誕」主題' },
-                winter: { icon: '❄️', sub: '☃️ 冬日初雪版 · 本地離線儲存', pill: 'Winter Snow', corner: '❄️', metaColor: '#EEF4FA', toast: '已切換至「冬日初雪」主題' },
-                classic: { icon: '📒', sub: '本地儲存 · 零網絡可用', pill: 'Minimal', corner: '✨', metaColor: '#F2F2F7', toast: '已切換至「經典簡約」主題' }
-            };
-
-            const cfg = themeMeta[themeName] || themeMeta.christmas;
-            document.getElementById('header-festive-icon').textContent = cfg.icon;
-            document.getElementById('header-subtitle').innerHTML = `<span>${cfg.sub}</span>`;
-            document.getElementById('season-pill').textContent = cfg.pill;
-            document.getElementById('card-corner-deco').textContent = cfg.corner;
-            document.getElementById('meta-theme-color').setAttribute('content', cfg.metaColor);
-
-            // 更新設定頁主題按鈕選中框
-            ['christmas', 'winter', 'classic'].forEach(t => {
-                const btn = document.getElementById(`theme-opt-${t}`);
-                if (btn) {
-                    if (t === themeName) {
-                        btn.style.borderColor = 'var(--primary)';
-                        btn.style.backgroundColor = 'var(--primary-soft)';
-                    } else {
-                        btn.style.borderColor = 'transparent';
-                        btn.style.backgroundColor = 'var(--bg-subtle)';
-                    }
-                }
-            });
-
-            updateSnowToggleUI();
-            if (notify) showToast(cfg.toast);
-        }
-
-        function toggleSnowEffect() {
-            prefs.snowEnabled = !prefs.snowEnabled;
-            savePrefs();
-            updateSnowToggleUI();
-            showToast(prefs.snowEnabled ? '❄️ 已開啟背景飄雪' : '已關閉背景飄雪');
-        }
-
-        function updateSnowToggleUI() {
-            const btn = document.getElementById('snow-toggle-btn');
-            const knob = document.getElementById('snow-toggle-knob');
-            const canvas = document.getElementById('snow-canvas');
-            if (prefs.snowEnabled) {
-                btn.style.backgroundColor = 'var(--primary)';
-                knob.classList.add('translate-x-5');
-                canvas.style.opacity = '1';
-            } else {
-                btn.style.backgroundColor = '#CBD5E1';
-                knob.classList.remove('translate-x-5');
-                canvas.style.opacity = '0';
-            }
-        }
-
-        function initSnowfall() {
-            const canvas = document.getElementById('snow-canvas');
-            const ctx = canvas.getContext('2d');
-            let width = canvas.width = window.innerWidth;
-            let height = canvas.height = window.innerHeight;
-
-            window.addEventListener('resize', () => {
-                width = canvas.width = window.innerWidth;
-                height = canvas.height = window.innerHeight;
-            });
-
-            // 輕量化 28 粒雪花與金星微粒，確保 iPhone 省電流暢
-            const flakes = Array.from({ length: 28 }, () => ({
-                x: Math.random() * width,
-                y: Math.random() * height,
-                r: Math.random() * 2.6 + 1.2,
-                speedY: Math.random() * 0.65 + 0.25,
-                speedX: Math.random() * 0.4 - 0.2,
-                isGold: Math.random() > 0.72
-            }));
-
-            function draw() {
-                ctx.clearRect(0, 0, width, height);
-                if (prefs.snowEnabled) {
-                    const goldColor = getComputedStyle(document.documentElement).getPropertyValue('--snow-color').trim() || 'rgba(217, 119, 6, 0.35)';
-                    flakes.forEach(f => {
-                        ctx.beginPath();
-                        ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
-                        ctx.fillStyle = f.isGold ? goldColor : 'rgba(255, 255, 255, 0.85)';
-                        ctx.fill();
-
-                        f.y += f.speedY;
-                        f.x += f.speedX + Math.sin(f.y * 0.015) * 0.15;
-
-                        if (f.y > height) {
-                            f.y = -5;
-                            f.x = Math.random() * width;
-                        }
-                        if (f.x > width) f.x = 0;
-                        if (f.x < 0) f.x = width;
-                    });
-                }
-                requestAnimationFrame(draw);
-            }
-            draw();
-        }
-
-        // ==========================================
-        // 4. UI 渲染、統計圓環圖與核心計算邏輯
-        // ==========================================
-        function formatCurrency(num) {
-            return '$' + Number(num).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
-        }
-
-        function getYearMonthKey(dateObj) {
-            const y = dateObj.getFullYear();
-            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-            return `${y}-${m}`;
-        }
-
-        function updateMonthLabel() {
-            const y = currentDate.getFullYear();
-            const m = currentDate.getMonth() + 1;
-            document.getElementById('current-month-label').textContent = `${y}年${m}月`;
-        }
-
-        function changeMonth(delta) {
-            currentDate.setMonth(currentDate.getMonth() + delta);
-            updateMonthLabel();
-            renderDashboard();
-            renderStatsPage();
-            renderSettlementPage();
-        }
-
-        function filterTypeToggle() {
-            const modes = ['all', 'expense', 'income'];
-            const labels = { all: '篩選：全部', expense: '篩選：只看支出', income: '篩選：只看收入' };
-            const nextIdx = (modes.indexOf(filterMode) + 1) % modes.length;
-            filterMode = modes[nextIdx];
-            document.getElementById('filter-pill').textContent = labels[filterMode];
-            renderDashboard();
-        }
-
-        function renderDashboard() {
-            const targetYM = getYearMonthKey(currentDate);
-            const monthTxs = transactions.filter(t => t.date.startsWith(targetYM));
-
-            let totalIncome = 0;
-            let totalExpense = 0;
-            const expenseByCat = {};
-
-            monthTxs.forEach(tx => {
-                const amt = parseFloat(tx.amount) || 0;
-                if (tx.type === 'income') {
-                    totalIncome += amt;
-                } else {
-                    totalExpense += amt;
-                    expenseByCat[tx.category] = (expenseByCat[tx.category] || 0) + amt;
-                }
-            });
-
-            const balance = totalIncome - totalExpense;
-            const balanceEl = document.getElementById('summary-balance');
-            balanceEl.textContent = (balance < 0 ? '-' : '') + formatCurrency(Math.abs(balance));
-            balanceEl.style.color = balance < 0 ? 'var(--expense)' : 'var(--text-main)';
-
-            document.getElementById('summary-income').textContent = formatCurrency(totalIncome);
-            document.getElementById('summary-expense').textContent = formatCurrency(totalExpense);
-            document.getElementById('tx-count-badge').textContent = `${monthTxs.length} 筆紀錄`;
-
-            renderCategoryChart(expenseByCat, totalExpense);
-            renderTransactionList(monthTxs);
-        }
-
-        function renderCategoryChart(expenseByCat, totalExpense) {
-            const container = document.getElementById('category-breakdown-container');
-            const barEl = document.getElementById('category-bar');
-            const legendEl = document.getElementById('category-legend');
-
-            if (totalExpense <= 0) {
-                container.classList.add('hidden');
-                return;
-            }
-            container.classList.remove('hidden');
-
-            const sorted = Object.entries(expenseByCat)
-                .map(([catId, amount]) => {
-                    const meta = CATEGORIES.expense.find(c => c.id === catId) || { name: '其他', color: '#64748B' };
-                    return { ...meta, amount, pct: (amount / totalExpense) * 100 };
-                })
-                .sort((a, b) => b.amount - a.amount);
-
-            document.getElementById('top-category-label').textContent = `最高：${sorted[0].name} (${Math.round(sorted[0].pct)}%) ›`;
-
-            barEl.innerHTML = sorted.map(item => 
-                `<div style="width: ${item.pct}%; background-color: ${item.color};" class="h-full transition-all duration-300"></div>`
-            ).join('');
-
-            legendEl.innerHTML = sorted.slice(0, 4).map(item => `
-                <div class="flex items-center gap-1">
-                    <span class="w-2 h-2 rounded-full" style="background-color: ${item.color}"></span>
-                    <span>${item.name} ${Math.round(item.pct)}%</span>
-                </div>
-            `).join('');
-        }
-
-        function setStatsType(type) {
-            statsType = type;
-            const expBtn = document.getElementById('stats-btn-exp');
-            const incBtn = document.getElementById('stats-btn-inc');
-            if (type === 'expense') {
-                expBtn.className = 'px-3 py-1 rounded-lg bg-white shadow-xs text-expense-theme transition';
-                incBtn.className = 'px-3 py-1 rounded-lg text-muted transition';
-            } else {
-                incBtn.className = 'px-3 py-1 rounded-lg bg-white shadow-xs text-primary-theme transition';
-                expBtn.className = 'px-3 py-1 rounded-lg text-muted transition';
-            }
-            renderStatsPage();
-        }
-
-        function renderStatsPage() {
-            const targetYM = getYearMonthKey(currentDate);
-            const filtered = transactions.filter(t => t.date.startsWith(targetYM) && t.type === statsType);
-            const total = filtered.reduce((s, t) => s + (parseFloat(t.amount) || 0), 0);
-
-            document.getElementById('donut-center-label').textContent = statsType === 'expense' ? '本月總支出' : '本月總收入';
-            document.getElementById('donut-center-total').textContent = formatCurrency(total);
-
-            const canvas = document.getElementById('stats-donut-canvas');
-            const listEl = document.getElementById('stats-category-list');
-
-            if (donutChartInstance) {
-                donutChartInstance.destroy();
-                donutChartInstance = null;
-            }
-
-            if (total <= 0) {
-                if (canvas && typeof Chart !== 'undefined') {
-                    donutChartInstance = new Chart(canvas, {
-                        type: 'doughnut',
-                        data: {
-                            datasets: [{
-                                data: [1],
-                                backgroundColor: ['#E2E8F0'],
-                                borderWidth: 0
-                            }]
-                        },
-                        options: {
-                            cutout: '72%',
-                            plugins: { legend: { display: false }, tooltip: { enabled: false } },
-                            animation: false
-                        }
-                    });
-                }
-                listEl.innerHTML = `<p class="text-xs text-center text-muted py-4">呢個月暫無${statsType === 'expense' ? '支出' : '收入'}數據</p>`;
-                return;
-            }
-
-            const byCat = {};
-            filtered.forEach(t => {
-                byCat[t.category] = (byCat[t.category] || 0) + (parseFloat(t.amount) || 0);
-            });
-
-            const sorted = Object.entries(byCat)
-                .map(([catId, amount]) => {
-                    const meta = (CATEGORIES[statsType] || []).find(c => c.id === catId) || { name: '其他', icon: '📌', color: '#64748B' };
-                    return { ...meta, amount, pct: (amount / total) * 100 };
-                })
-                .sort((a, b) => b.amount - a.amount);
-
-            if (canvas && typeof Chart !== 'undefined') {
-                donutChartInstance = new Chart(canvas, {
-                    type: 'doughnut',
-                    data: {
-                        labels: sorted.map(s => s.name),
-                        datasets: [{
-                            data: sorted.map(s => s.amount),
-                            backgroundColor: sorted.map(s => s.color),
-                            borderWidth: 2,
-                            borderColor: getComputedStyle(document.documentElement).getPropertyValue('--bg-card').trim() || '#FFFFFF'
-                        }]
-                    },
-                    options: {
-                        cutout: '72%',
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        plugins: {
-                            legend: { display: false },
-                            tooltip: {
-                                callbacks: {
-                                    label: ctx => ` ${ctx.label}: ${formatCurrency(ctx.raw)}`
-                                }
-                            }
-                        }
-                    }
-                });
-            }
-
-            listEl.innerHTML = sorted.map(item => `
-                <div class="space-y-1.5">
-                    <div class="flex items-center justify-between text-xs">
-                        <div class="flex items-center gap-2">
-                            <span class="text-base">${item.icon}</span>
-                            <span class="font-bold">${item.name}</span>
-                            <span class="text-muted">${item.pct.toFixed(1)}%</span>
-                        </div>
-                        <span class="font-extrabold tabular-nums">${formatCurrency(item.amount)}</span>
-                    </div>
-                    <div class="w-full h-2 theme-subtle rounded-full overflow-hidden">
-                        <div class="h-full rounded-full transition-all duration-300" style="width: ${item.pct}%; background-color: ${item.color};"></div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function renderTransactionList(monthTxs) {
-            const listEl = document.getElementById('transaction-list');
-            const filtered = monthTxs.filter(t => filterMode === 'all' || t.type === filterMode);
-
-            if (filtered.length === 0) {
-                listEl.innerHTML = `
-                    <div class="theme-card rounded-3xl p-8 text-center">
-                        <div class="text-3xl mb-2">🎄</div>
-                        <p class="text-sm font-bold">呢個月暫時未有紀錄</p>
-                        <p class="text-xs text-muted mt-1">撳下方紅色吊飾「+」掣開始記帳，或去設定載入示範帳目</p>
-                    </div>
-                `;
-                return;
-            }
-
-            filtered.sort((a, b) => b.date.localeCompare(a.date) || b.createdAt - a.createdAt);
-
-            const groups = {};
-            filtered.forEach(tx => {
-                if (!groups[tx.date]) groups[tx.date] = [];
-                groups[tx.date].push(tx);
-            });
-
-            listEl.innerHTML = Object.entries(groups).map(([dateStr, items]) => {
-                const dayExpense = items.filter(i => i.type === 'expense').reduce((s, i) => s + Number(i.amount), 0);
-                const dayIncome = items.filter(i => i.type === 'income').reduce((s, i) => s + Number(i.amount), 0);
-                const displayDate = formatDisplayDate(dateStr);
-
-                const rowsHtml = items.map(tx => {
-                    const catList = CATEGORIES[tx.type] || [];
-                    const cat = catList.find(c => c.id === tx.category) || { name: '其他', icon: '📌' };
-                    const isExp = tx.type === 'expense';
-
-                    return `
-                        <div class="flex items-center justify-between py-3 px-4 border-b last:border-b-0 border-black/5 transition">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-10 h-10 rounded-2xl theme-subtle flex items-center justify-center text-lg shrink-0">
-                                    ${cat.icon}
-                                </div>
-                                <div class="min-w-0">
-                                    <p class="text-sm font-bold truncate">${cat.name}</p>
-                                    ${tx.note ? `<p class="text-xs text-muted truncate">${escapeHtml(tx.note)}</p>` : ''}
-                                </div>
-                            </div>
-                            <div class="flex items-center gap-2.5 shrink-0 ml-2">
-                                <span class="text-sm font-extrabold tabular-nums ${isExp ? 'text-expense-theme' : 'text-primary-theme'}">
-                                    ${isExp ? '-' : '+'}${formatCurrency(tx.amount)}
-                                </span>
-                                <button onclick="promptDeleteTx('${tx.id}')" class="p-1.5 text-muted opacity-40 hover:opacity-100 hover:text-expense-theme transition" aria-label="刪除">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                                </button>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-
-                return `
-                    <div class="theme-card rounded-3xl overflow-hidden">
-                        <div class="theme-subtle px-4 py-2 flex justify-between items-center text-[11px] font-bold text-muted">
-                            <span>${displayDate}</span>
-                            <div class="flex gap-2.5 tabular-nums">
-                                ${dayIncome > 0 ? `<span class="text-primary-theme">收 +${formatCurrency(dayIncome)}</span>` : ''}
-                                ${dayExpense > 0 ? `<span class="text-expense-theme">支 -${formatCurrency(dayExpense)}</span>` : ''}
-                            </div>
-                        </div>
-                        <div>${rowsHtml}</div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function formatDisplayDate(dateStr) {
-            const today = new Date().toISOString().split('T')[0];
-            if (dateStr === today) return `${dateStr} (今日)`;
-            const parts = dateStr.split('-');
-            const d = new Date(parts[0], parts[1] - 1, parts[2]);
-            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-            return `${Number(parts[1])}月${Number(parts[2])}日 週${weekdays[d.getDay()]}`;
-        }
-
-        function escapeHtml(str) {
-            return str.replace(/[&<>"']/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
-        }
-
-        // ==========================================
-        // 5. 新增與刪除交易互動
-        // ==========================================
-        function openAddModal() {
-            const modal = document.getElementById('add-modal');
-            const drawer = document.getElementById('add-drawer');
-            document.getElementById('input-amount').value = '';
-            document.getElementById('input-note').value = '';
-            
-            const now = new Date();
-            const localISO = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().split('T')[0];
-            document.getElementById('input-date').value = localISO;
-
-            modal.classList.remove('hidden');
-            requestAnimationFrame(() => {
-                drawer.classList.remove('drawer-enter');
-                drawer.classList.add('drawer-active');
-            });
-            setTimeout(() => document.getElementById('input-amount').focus(), 150);
-        }
-
-        function closeAddModal() {
-            const modal = document.getElementById('add-modal');
-            const drawer = document.getElementById('add-drawer');
-            drawer.classList.remove('drawer-active');
-            drawer.classList.add('drawer-enter');
-            setTimeout(() => modal.classList.add('hidden'), 250);
-        }
-
-        function quickAddAmount(val) {
-            const input = document.getElementById('input-amount');
-            const cur = parseFloat(input.value) || 0;
-            input.value = (cur + val).toFixed(2).replace(/\.00$/, '');
-        }
-
-        function setTxType(type) {
-            currentTxType = type;
-            selectedCategory = CATEGORIES[type][0].id;
-
-            const expBtn = document.getElementById('btn-type-expense');
-            const incBtn = document.getElementById('btn-type-income');
-            const submitBtn = document.getElementById('submit-btn');
-
-            if (type === 'expense') {
-                expBtn.className = 'px-5 py-1.5 rounded-xl text-sm font-bold bg-white text-expense-theme shadow-xs transition';
-                incBtn.className = 'px-5 py-1.5 rounded-xl text-sm font-bold text-muted transition';
-                submitBtn.className = 'w-full py-3.5 rounded-2xl bg-expense-theme text-white font-bold text-base shadow-lg active:scale-98 transition';
-                submitBtn.textContent = '儲存支出';
-            } else {
-                incBtn.className = 'px-5 py-1.5 rounded-xl text-sm font-bold bg-white text-primary-theme shadow-xs transition';
-                expBtn.className = 'px-5 py-1.5 rounded-xl text-sm font-bold text-muted transition';
-                submitBtn.className = 'w-full py-3.5 rounded-2xl bg-primary-theme text-white font-bold text-base shadow-lg active:scale-98 transition';
-                submitBtn.textContent = '儲存收入';
-            }
-            renderCategoryGrid();
-        }
-
-        function renderCategoryGrid() {
-            const grid = document.getElementById('category-grid');
-            const list = CATEGORIES[currentTxType];
-
-            grid.innerHTML = list.map(cat => {
-                const isSelected = cat.id === selectedCategory;
-                const borderStyle = isSelected 
-                    ? `border-color: ${currentTxType === 'expense' ? 'var(--expense)' : 'var(--primary)'}; background-color: ${currentTxType === 'expense' ? 'var(--expense-soft)' : 'var(--primary-soft)'};`
-                    : 'border-color: transparent; background-color: var(--bg-subtle);';
-
-                return `
-                    <button type="button" onclick="selectCategory('${cat.id}')" style="${borderStyle}" class="flex flex-col items-center justify-center py-2.5 rounded-2xl border-2 transition active:scale-95">
-                        <span class="text-xl mb-0.5">${cat.icon}</span>
-                        <span class="text-[11px] font-bold">${cat.name}</span>
-                    </button>
-                `;
-            }).join('');
-        }
-
-        function selectCategory(catId) {
-            selectedCategory = catId;
-            renderCategoryGrid();
-        }
-
-        function saveTransaction(e) {
-            e.preventDefault();
-            const amount = parseFloat(document.getElementById('input-amount').value);
-            const date = document.getElementById('input-date').value;
-            const note = document.getElementById('input-note').value.trim();
-
-            if (!amount || amount <= 0) {
-                showToast('請輸入有效金額');
-                return;
-            }
-
-            const newTx = {
-                id: 'tx_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
-                type: currentTxType,
-                amount: amount,
-                category: selectedCategory,
-                date: date,
-                note: note,
-                createdAt: Date.now()
-            };
-
-            transactions.push(newTx);
-            saveToStorage();
-
-            const [y, m] = date.split('-');
-            currentDate = new Date(Number(y), Number(m) - 1, 1);
-            updateMonthLabel();
-
-            closeAddModal();
-            renderDashboard();
-            renderStatsPage();
-            renderSettlementPage();
-            showToast(currentTxType === 'expense' ? '🎁 已記低一筆支出' : '✨ 已記低一筆收入');
-        }
-
-        function promptDeleteTx(id) {
-            openConfirm('刪除呢筆紀錄？', '刪除後無法復原。', () => {
-                transactions = transactions.filter(t => t.id !== id);
-                saveToStorage();
-                renderDashboard();
-                renderStatsPage();
-                renderSettlementPage();
-                showToast('已刪除紀錄');
-            });
-        }
-
-        // ==========================================
-        // 6. 《大富翁4》月度結算表邏輯與資產負債互動
-        // ==========================================
-        function getPrevMonthDate(dateObj) {
-            return new Date(dateObj.getFullYear(), dateObj.getMonth() - 1, 1);
-        }
-
-        function getMonthSummaryStats(ymStr) {
-            const txs = transactions.filter(t => t.date.startsWith(ymStr));
-            let income = 0;
-            let expense = 0;
-            const expByCat = {};
-
-            txs.forEach(t => {
-                const amt = parseFloat(t.amount) || 0;
-                if (t.type === 'income') {
-                    income += amt;
-                } else {
-                    expense += amt;
-                    expByCat[t.category] = (expByCat[t.category] || 0) + amt;
-                }
-            });
-
-            // 計算該月資產、負債與淨資產（若有該月快照則優先採用，否則由累積現金流＋當前資產負債推算）
-            const snap = balanceSheet.snapshots[ymStr];
-            const cumCashflow = getCumulativeCashflowUpTo(ymStr);
-            const manualAssetsSum = balanceSheet.assets.reduce((s, a) => s + (parseFloat(a.amount) || 0), 0);
-            const manualLiabSum = balanceSheet.liabilities.reduce((s, l) => s + (parseFloat(l.amount) || 0), 0);
-
-            const totalAssets = snap ? snap.totalAssets : (cumCashflow + manualAssetsSum);
-            const totalLiabilities = snap ? snap.totalLiabilities : manualLiabSum;
-            const netWorth = totalAssets - totalLiabilities;
-
-            return {
-                ym: ymStr,
-                income,
-                expense,
-                netSaving: income - expense,
-                expByCat,
-                cumCashflow,
-                totalAssets,
-                totalLiabilities,
-                netWorth
-            };
-        }
-
-        function evaluateMonopolyRank(cur, prev) {
-            const savingRate = cur.income > 0 ? (cur.netSaving / cur.income) : (cur.netSaving >= 0 ? 0.2 : -0.5);
-            const nwGrowth = cur.netWorth - prev.netWorth;
-
-            if (cur.netWorth >= 100000 && savingRate >= 0.35) {
-                return { title: '理財大亨', avatar: '🎩', comment: '財源滾滾、資產雄厚！你的財務表現堪稱大富翁界傳奇大亨！' };
-            }
-            if (cur.netSaving > 0 && nwGrowth > 0 && savingRate >= 0.2) {
-                return { title: '穩健地主', avatar: '🏰', comment: '收支控制得宜，淨資產穩定向上爬升，繼續穩紮穩打！' };
-            }
-            if (cur.netSaving >= 0) {
-                return { title: '聖誕小富翁', avatar: '🎅', comment: '本月成功守住正結餘！節日消費之餘仲有錢落袋，表現唔錯！' };
-            }
-            return { title: '月光冒險家', avatar: '🎲', comment: '本月開支高過收入少少，下個月記得避開「均貧卡」同衝動消費呀！' };
-        }
-
-        function formatMoMBadge(diff, prevVal, invertGood = false) {
-            // invertGood = true 代表數值減少係好事（例如開支減少、負債減少）
-            if (Math.abs(diff) < 0.01) {
-                return `<span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-black/5 text-muted">持平 0%</span>`;
-            }
-            const isUp = diff > 0;
-            const isGood = invertGood ? !isUp : isUp;
-            const arrow = isUp ? '▲' : '▼';
-            const sign = isUp ? '+' : '-';
-            const pctStr = prevVal !== 0 ? `${Math.abs((diff / Math.abs(prevVal)) * 100).toFixed(1)}%` : 'NEW';
-            const colorCls = isGood ? 'bg-primary-soft text-primary-theme' : 'bg-expense-soft text-expense-theme';
-
-            return `<span class="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded text-[10px] font-extrabold ${colorCls} tabular-nums">${arrow} ${sign}${formatCurrency(Math.abs(diff))} (${pctStr})</span>`;
-        }
-
-        function renderSettlementPage() {
-            const curYM = getYearMonthKey(currentDate);
-            const prevDate = getPrevMonthDate(currentDate);
-            const prevYM = getYearMonthKey(prevDate);
-
-            const cur = getMonthSummaryStats(curYM);
-            const prev = getMonthSummaryStats(prevYM);
-
-            // 更新報表標題與評級
-            document.getElementById('settlement-period-tag').textContent = `${currentDate.getFullYear()}年${currentDate.getMonth() + 1}月號`;
-            document.getElementById('settlement-compare-subtitle').textContent = `對比 ${prevDate.getFullYear()}年${prevDate.getMonth() + 1}月 財務表現與淨資產變動`;
-            document.getElementById('cat-diff-month-label').textContent = `vs ${prevDate.getMonth() + 1}月`;
-
-            const rank = evaluateMonopolyRank(cur, prev);
-            document.getElementById('monopoly-rank-title').textContent = rank.title;
-            document.getElementById('monopoly-avatar').textContent = rank.avatar;
-            document.getElementById('monopoly-commentary').textContent = rank.comment;
-
-            // 渲染 6 大核心指標上月對比卡片
-            const metrics = [
-                {
-                    label: '本月總收入',
-                    val: cur.income,
-                    prev: prev.income,
-                    diff: cur.income - prev.income,
-                    invertGood: false,
-                    valColor: 'text-primary-theme'
-                },
-                {
-                    label: '本月總開支',
-                    val: cur.expense,
-                    prev: prev.expense,
-                    diff: cur.expense - prev.expense,
-                    invertGood: true,
-                    valColor: 'text-expense-theme'
-                },
-                {
-                    label: '本月淨結餘',
-                    val: cur.netSaving,
-                    prev: prev.netSaving,
-                    diff: cur.netSaving - prev.netSaving,
-                    invertGood: false,
-                    valColor: cur.netSaving >= 0 ? 'text-primary-theme' : 'text-expense-theme'
-                },
-                {
-                    label: '總資產',
-                    val: cur.totalAssets,
-                    prev: prev.totalAssets,
-                    diff: cur.totalAssets - prev.totalAssets,
-                    invertGood: false,
-                    valColor: ''
-                },
-                {
-                    label: '總負債',
-                    val: cur.totalLiabilities,
-                    prev: prev.totalLiabilities,
-                    diff: cur.totalLiabilities - prev.totalLiabilities,
-                    invertGood: true,
-                    valColor: cur.totalLiabilities > 0 ? 'text-expense-theme' : ''
-                },
-                {
-                    label: '淨資產 (Net Worth)',
-                    val: cur.netWorth,
-                    prev: prev.netWorth,
-                    diff: cur.netWorth - prev.netWorth,
-                    invertGood: false,
-                    valColor: 'text-gold-theme'
-                }
-            ];
-
-            document.getElementById('mom-metrics-grid').innerHTML = metrics.map(m => {
-                const formattedVal = (m.val < 0 ? '-' : '') + formatCurrency(Math.abs(m.val));
-                const formattedPrev = (m.prev < 0 ? '-' : '') + formatCurrency(Math.abs(m.prev));
-                return `
-                    <div class="theme-subtle rounded-2xl p-3 flex flex-col justify-between space-y-1.5">
-                        <div class="flex items-center justify-between">
-                            <span class="text-[11px] font-bold text-muted">${m.label}</span>
-                        </div>
-                        <div class="text-base font-black tabular-nums ${m.valColor}">${formattedVal}</div>
-                        <div class="pt-0.5 flex flex-col gap-1">
-                            <span class="text-[10px] text-muted tabular-nums">上月：${formattedPrev}</span>
-                            <div>${formatMoMBadge(m.diff, m.prev, m.invertGood)}</div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            renderAssetsLiabilitiesPanel(cur);
-            renderCategoryComparisonTable(cur, prev);
-            renderTrendComboChart();
-        }
-
-        function renderAssetsLiabilitiesPanel(curStats) {
-            const assetsListEl = document.getElementById('assets-list');
-            const liabListEl = document.getElementById('liabilities-list');
-
-            // 1. 自動連動累積帳目現金流列（不可手動刪除，隨帳目自動更新）
-            const cfVal = curStats.cumCashflow;
-            const cfHtml = `
-                <div class="flex items-center justify-between px-3 py-2.5 rounded-2xl theme-subtle">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <span class="text-base">💵</span>
-                        <div class="min-w-0">
-                            <p class="text-xs font-bold truncate">累積帳目結餘 (現金流)</p>
-                            <p class="text-[10px] text-muted">自動加總截至本月所有收支紀錄</p>
-                        </div>
-                    </div>
-                    <span class="text-xs font-extrabold tabular-nums ${cfVal >= 0 ? 'text-primary-theme' : 'text-expense-theme'}">
-                        ${(cfVal < 0 ? '-' : '') + formatCurrency(Math.abs(cfVal))}
-                    </span>
-                </div>
-            `;
-
-            const manualAssetsHtml = balanceSheet.assets.map(item => `
-                <div onclick="openAssetModal('${item.id}', 'asset')" class="flex items-center justify-between px-3 py-2.5 rounded-2xl theme-subtle cursor-pointer active:scale-99 transition">
-                    <div class="flex items-center gap-2 min-w-0">
-                        <span class="text-base">${item.icon || '🏦'}</span>
-                        <p class="text-xs font-bold truncate">${escapeHtml(item.name)}</p>
-                    </div>
-                    <div class="flex items-center gap-1.5 shrink-0">
-                        <span class="text-xs font-extrabold tabular-nums">${formatCurrency(item.amount)}</span>
-                        <span class="text-[10px] text-muted">✎</span>
-                    </div>
-                </div>
-            `).join('');
-
-            assetsListEl.innerHTML = cfHtml + manualAssetsHtml;
-
-            if (balanceSheet.liabilities.length === 0) {
-                liabListEl.innerHTML = `<p class="text-[11px] text-muted px-2 py-1">暫無負債項目（撳右上角「+ 新增項目」可加入信用卡或分期）</p>`;
-            } else {
-                liabListEl.innerHTML = balanceSheet.liabilities.map(item => `
-                    <div onclick="openAssetModal('${item.id}', 'liability')" class="flex items-center justify-between px-3 py-2.5 rounded-2xl theme-subtle cursor-pointer active:scale-99 transition">
-                        <div class="flex items-center gap-2 min-w-0">
-                            <span class="text-base">${item.icon || '💳'}</span>
-                            <p class="text-xs font-bold truncate">${escapeHtml(item.name)}</p>
-                        </div>
-                        <div class="flex items-center gap-1.5 shrink-0">
-                            <span class="text-xs font-extrabold text-expense-theme tabular-nums">-${formatCurrency(item.amount)}</span>
-                            <span class="text-[10px] text-muted">✎</span>
-                        </div>
-                    </div>
-                `).join('');
-            }
-
-            document.getElementById('panel-total-assets').textContent = (curStats.totalAssets < 0 ? '-' : '') + formatCurrency(Math.abs(curStats.totalAssets));
-            document.getElementById('panel-total-liabilities').textContent = formatCurrency(curStats.totalLiabilities);
-            document.getElementById('panel-net-worth').textContent = (curStats.netWorth < 0 ? '-' : '') + formatCurrency(Math.abs(curStats.netWorth));
-        }
-
-        function renderCategoryComparisonTable(cur, prev) {
-            const tbody = document.getElementById('category-comparison-tbody');
-            const rows = CATEGORIES.expense.map(cat => {
-                const curAmt = cur.expByCat[cat.id] || 0;
-                const prevAmt = prev.expByCat[cat.id] || 0;
-                return { ...cat, curAmt, prevAmt, diff: curAmt - prevAmt };
-            }).filter(r => r.curAmt > 0 || r.prevAmt > 0);
-
-            if (rows.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" class="py-5 text-center text-muted">本月與上月暫無開支分類紀錄</td></tr>`;
-                return;
-            }
-
-            // 按本月金額由高至低排列
-            rows.sort((a, b) => b.curAmt - a.curAmt);
-
-            tbody.innerHTML = rows.map(r => {
-                let diffBadge = `<span class="text-muted font-bold">持平</span>`;
-                if (r.diff > 0.01) {
-                    const pct = r.prevAmt > 0 ? `+${Math.round((r.diff / r.prevAmt) * 100)}%` : '新增';
-                    diffBadge = `<span class="text-expense-theme font-extrabold">▲ +${formatCurrency(r.diff)} <span class="text-[10px]">(${pct})</span></span>`;
-                } else if (r.diff < -0.01) {
-                    const pct = r.prevAmt > 0 ? `-${Math.round((Math.abs(r.diff) / r.prevAmt) * 100)}%` : '';
-                    diffBadge = `<span class="text-primary-theme font-extrabold">▼ -${formatCurrency(Math.abs(r.diff))} <span class="text-[10px]">(${pct})</span></span>`;
-                }
-
-                return `
-                    <tr>
-                        <td class="py-2.5 font-bold whitespace-nowrap">
-                            <span class="mr-1">${r.icon}</span>${r.name}
-                        </td>
-                        <td class="py-2.5 text-right text-muted tabular-nums">${formatCurrency(r.prevAmt)}</td>
-                        <td class="py-2.5 text-right font-extrabold tabular-nums">${formatCurrency(r.curAmt)}</td>
-                        <td class="py-2.5 text-right tabular-nums whitespace-nowrap">${diffBadge}</td>
-                    </tr>
-                `;
-            }).join('');
-        }
-
-        function renderTrendComboChart() {
-            const canvas = document.getElementById('trend-combo-canvas');
-            if (!canvas || typeof Chart === 'undefined') return;
-
-            if (trendChartInstance) {
-                trendChartInstance.destroy();
-                trendChartInstance = null;
-            }
-
-            // 取得截至選定月份嘅近 6 個月數據
-            const labels = [];
-            const incomeData = [];
-            const expenseData = [];
-            const netWorthData = [];
-
-            for (let i = 5; i >= 0; i--) {
-                const d = new Date(currentDate.getFullYear(), currentDate.getMonth() - i, 1);
-                const ym = getYearMonthKey(d);
-                const st = getMonthSummaryStats(ym);
-                labels.push(`${d.getMonth() + 1}月`);
-                incomeData.push(st.income);
-                expenseData.push(st.expense);
-                netWorthData.push(st.netWorth);
-            }
-
-            const primaryColor = getComputedStyle(document.documentElement).getPropertyValue('--primary').trim() || '#1B4332';
-            const expenseColor = getComputedStyle(document.documentElement).getPropertyValue('--expense').trim() || '#B91C1C';
-            const goldColor = getComputedStyle(document.documentElement).getPropertyValue('--gold').trim() || '#D97706';
-
-            trendChartInstance = new Chart(canvas, {
-                data: {
-                    labels,
-                    datasets: [
-                        {
-                            type: 'line',
-                            label: '淨資產',
-                            data: netWorthData,
-                            borderColor: goldColor,
-                            backgroundColor: goldColor,
-                            borderWidth: 2.5,
-                            pointRadius: 3.5,
-                            tension: 0.3,
-                            yAxisID: 'y1'
-                        },
-                        {
-                            type: 'bar',
-                            label: '總收入',
-                            data: incomeData,
-                            backgroundColor: primaryColor,
-                            borderRadius: 5,
-                            barPercentage: 0.65,
-                            yAxisID: 'y'
-                        },
-                        {
-                            type: 'bar',
-                            label: '總開支',
-                            data: expenseData,
-                            backgroundColor: expenseColor,
-                            borderRadius: 5,
-                            barPercentage: 0.65,
-                            yAxisID: 'y'
-                        }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    interaction: { mode: 'index', intersect: false },
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { boxWidth: 10, font: { size: 11, weight: 'bold' } }
-                        }
-                    },
-                    scales: {
-                        x: { grid: { display: false }, ticks: { font: { size: 11 } } },
-                        y: {
-                            position: 'left',
-                            beginAtZero: true,
-                            grid: { color: 'rgba(0,0,0,0.05)' },
-                            ticks: { font: { size: 10 }, callback: v => '$' + (v >= 1000 ? (v / 1000) + 'k' : v) }
-                        },
-                        y1: {
-                            position: 'right',
-                            grid: { drawOnChartArea: false },
-                            ticks: { font: { size: 10 }, callback: v => '$' + (v >= 1000 ? (v / 1000) + 'k' : v) }
-                        }
-                    }
-                }
-            });
-        }
-
-        // 資產與負債彈窗操作
-        function setAssetFormKind(kind) {
-            assetFormKind = kind;
-            const aBtn = document.getElementById('kind-btn-asset');
-            const lBtn = document.getElementById('kind-btn-liability');
-            if (kind === 'asset') {
-                aBtn.className = 'py-1.5 rounded-xl text-xs font-bold bg-white text-primary-theme shadow-xs transition';
-                lBtn.className = 'py-1.5 rounded-xl text-xs font-bold text-muted transition';
-            } else {
-                lBtn.className = 'py-1.5 rounded-xl text-xs font-bold bg-white text-expense-theme shadow-xs transition';
-                aBtn.className = 'py-1.5 rounded-xl text-xs font-bold text-muted transition';
-            }
-        }
-
-        function openAssetModal(editId = '', kind = 'asset') {
-            const modal = document.getElementById('asset-modal');
-            const delBtn = document.getElementById('asset-delete-btn');
-            document.getElementById('asset-edit-id').value = editId;
-            setAssetFormKind(kind);
-
-            if (editId) {
-                const list = kind === 'asset' ? balanceSheet.assets : balanceSheet.liabilities;
-                const found = list.find(i => i.id === editId);
-                if (found) {
-                    document.getElementById('asset-modal-title').textContent = '編輯項目';
-                    document.getElementById('asset-name-input').value = found.name;
-                    document.getElementById('asset-amount-input').value = found.amount;
-                    delBtn.classList.remove('hidden');
-                }
-            } else {
-                document.getElementById('asset-modal-title').textContent = '新增資產 / 負債項目';
-                document.getElementById('asset-name-input').value = '';
-                document.getElementById('asset-amount-input').value = '';
-                delBtn.classList.add('hidden');
-            }
-            modal.classList.remove('hidden');
-        }
-
-        function closeAssetModal() {
-            document.getElementById('asset-modal').classList.add('hidden');
-        }
-
-        function saveAssetItem(e) {
-            e.preventDefault();
-            const editId = document.getElementById('asset-edit-id').value;
-            const name = document.getElementById('asset-name-input').value.trim();
-            const amount = parseFloat(document.getElementById('asset-amount-input').value) || 0;
-
-            if (!name) return;
-
-            // 若原本存在先從兩邊移除（支援編輯時切換資產/負債類型）
-            if (editId) {
-                balanceSheet.assets = balanceSheet.assets.filter(i => i.id !== editId);
-                balanceSheet.liabilities = balanceSheet.liabilities.filter(i => i.id !== editId);
-            }
-
-            const itemObj = {
-                id: editId || ('bs_' + Date.now()),
-                name,
-                amount,
-                icon: assetFormKind === 'asset' ? '🏦' : '💳'
-            };
-
-            if (assetFormKind === 'asset') {
-                balanceSheet.assets.push(itemObj);
-            } else {
-                balanceSheet.liabilities.push(itemObj);
-            }
-
-            saveBalanceSheet();
-            closeAssetModal();
-            renderSettlementPage();
-            showToast('已更新資產負債表');
-        }
-
-        function deleteCurrentAssetItem() {
-            const editId = document.getElementById('asset-edit-id').value;
-            if (!editId) return;
-            balanceSheet.assets = balanceSheet.assets.filter(i => i.id !== editId);
-            balanceSheet.liabilities = balanceSheet.liabilities.filter(i => i.id !== editId);
-            saveBalanceSheet();
-            closeAssetModal();
-            renderSettlementPage();
-            showToast('已刪除項目');
-        }
-
-        // ==========================================
-        // 7. 分頁切換、匯出/匯入與跨月份聖誕示範資料
-        // ==========================================
-        function switchTab(tab) {
-            const tabs = ['home', 'stats', 'settlement', 'settings'];
-            tabs.forEach(t => {
-                const pageEl = document.getElementById(`tab-${t}`);
-                const navEl = document.getElementById(`nav-${t}`);
-                if (t === tab) {
-                    pageEl.classList.remove('hidden');
-                    navEl.classList.remove('text-muted');
-                    navEl.classList.add('text-primary-theme');
-                } else {
-                    pageEl.classList.add('hidden');
-                    navEl.classList.remove('text-primary-theme');
-                    navEl.classList.add('text-muted');
-                }
-            });
-            if (tab === 'stats') renderStatsPage();
-            if (tab === 'settlement') renderSettlementPage();
-        }
-
-        function promptDeleteTx(id) {
-            openConfirm('刪除呢筆紀錄？', '刪除後無法復原。', () => {
-                transactions = transactions.filter(t => t.id !== id);
-                saveToStorage();
-                renderDashboard();
-                renderStatsPage();
-                showToast('已刪除紀錄');
-            });
-        }
-
-        // ==========================================
-        // 6. 分頁切換、匯出/匯入與聖誕示範資料
-        // ==========================================
-        function switchTab(tab) {
-            const tabs = ['home', 'stats', 'settings'];
-            tabs.forEach(t => {
-                const pageEl = document.getElementById(`tab-${t}`);
-                const navEl = document.getElementById(`nav-${t}`);
-                if (t === tab) {
-                    pageEl.classList.remove('hidden');
-                    navEl.classList.remove('text-muted');
-                    navEl.classList.add('text-primary-theme');
-                } else {
-                    pageEl.classList.add('hidden');
-                    navEl.classList.remove('text-primary-theme');
-                    navEl.classList.add('text-muted');
-                }
-            });
-            if (tab === 'stats') renderStatsPage();
-        }
-
-        function exportData(format) {
-            if (transactions.length === 0) {
-                showToast('目前無任何帳目可以匯出');
-                return;
-            }
-            const dateStamp = new Date().toISOString().slice(0, 10);
-            let content = '';
-            let mimeType = '';
-            let filename = '';
-
-            if (format === 'json') {
-                content = JSON.stringify(transactions, null, 2);
-                mimeType = 'application/json';
-                filename = `冬日日常記帳備份_${dateStamp}.json`;
-            } else {
-                const headers = ['日期', '類型', '分類', '金額', '備註'];
-                const rows = transactions.map(t => {
-                    const cat = (CATEGORIES[t.type] || []).find(c => c.id === t.category)?.name || t.category;
-                    const typeName = t.type === 'expense' ? '支出' : '收入';
-                    const safeNote = `"${(t.note || '').replace(/"/g, '""')}"`;
-                    return [t.date, typeName, cat, t.amount, safeNote].join(',');
-                });
-                content = '\uFEFF' + [headers.join(','), ...rows].join('\n');
-                mimeType = 'text/csv;charset=utf-8;';
-                filename = `冬日日常記帳明細_${dateStamp}.csv`;
-            }
-
-            const blob = new Blob([content], { type: mimeType });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.click();
-            URL.revokeObjectURL(url);
-            showToast(`已匯出 ${filename}`);
-        }
-
-        function importJSON(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const imported = JSON.parse(e.target.result);
-                    if (!Array.isArray(imported)) throw new Error('格式錯誤');
-                    const existingIds = new Set(transactions.map(t => t.id));
-                    let addedCount = 0;
-                    imported.forEach(item => {
-                        if (item.id && item.amount && item.date && !existingIds.has(item.id)) {
-                            transactions.push(item);
-                            addedCount++;
-                        }
-                    });
-                    saveToStorage();
-                    renderDashboard();
-                    renderStatsPage();
-                    showToast(`成功匯入 ${addedCount} 筆新紀錄`);
-                } catch (err) {
-                    showToast('備份檔案格式無效');
-                }
-                event.target.value = '';
-            };
-            reader.readAsText(file);
-        }
-
-        function loadSampleData() {
-            const curYM = getYearMonthKey(currentDate);
-            const prevDate = getPrevMonthDate(currentDate);
-            const prevYM = getYearMonthKey(prevDate);
-            const twoMonthsAgoDate = new Date(currentDate.getFullYear(), currentDate.getMonth() - 2, 1);
-            const twoMonthsAgoYM = getYearMonthKey(twoMonthsAgoDate);
-
-            const samples = [
-                // 前兩個月紀錄（令趨勢圖更豐富）
-                { id: 'xmas_p2_1', type: 'income', amount: 25000, category: 'salary', date: `${twoMonthsAgoYM}-01`, note: '月薪入帳', createdAt: Date.now() - 200000 },
-                { id: 'xmas_p2_2', type: 'expense', amount: 4200, category: 'food', date: `${twoMonthsAgoYM}-12`, note: '日常餐飲開支', createdAt: Date.now() - 190000 },
-                { id: 'xmas_p2_3', type: 'expense', amount: 1800, category: 'home', date: `${twoMonthsAgoYM}-20`, note: '水電煤及日用品', createdAt: Date.now() - 180000 },
-
-                // 上個月紀錄（供《大富翁4》結算表做上月對比）
-                { id: 'xmas_p1_1', type: 'income', amount: 26000, category: 'salary', date: `${prevYM}-01`, note: '上月薪金', createdAt: Date.now() - 150000 },
-                { id: 'xmas_p1_2', type: 'expense', amount: 3600, category: 'food', date: `${prevYM}-08`, note: '朋友聚餐與咖啡', createdAt: Date.now() - 140000 },
-                { id: 'xmas_p1_3', type: 'expense', amount: 1150, category: 'transport', date: `${prevYM}-14`, note: '八達通自動增值', createdAt: Date.now() - 130000 },
-                { id: 'xmas_p1_4', type: 'expense', amount: 2400, category: 'shopping', date: `${prevYM}-19`, note: '換季買外套', createdAt: Date.now() - 120000 },
-                { id: 'xmas_p1_5', type: 'expense', amount: 950, category: 'entertainment', date: `${prevYM}-25`, note: '睇戲唱K', createdAt: Date.now() - 110000 },
-
-                // 本月聖誕冬日紀錄
-                { id: 'xmas_1', type: 'income', amount: 26000, category: 'salary', date: `${curYM}-01`, note: '今個月出糧', createdAt: Date.now() - 60000 },
-                { id: 'xmas_2', type: 'income', amount: 4500, category: 'bonus', date: `${curYM}-15`, note: '公司聖誕節花紅 🎄', createdAt: Date.now() - 50000 },
-                { id: 'xmas_3', type: 'expense', amount: 1280, category: 'gift', date: `${curYM}-18`, note: '聖誕交換禮物及家人禮物 🎁', createdAt: Date.now() - 40000 },
-                { id: 'xmas_4', type: 'expense', amount: 3100, category: 'food', date: `${curYM}-20`, note: '冬至大餐及聖誕火雞餐', createdAt: Date.now() - 30000 },
-                { id: 'xmas_5', type: 'expense', amount: 980, category: 'shopping', date: `${curYM}-22`, note: '暖笠笠羊毛頸巾', createdAt: Date.now() - 20000 },
-                { id: 'xmas_6', type: 'expense', amount: 890, category: 'transport', date: `${curYM}-23`, note: '地鐵及的士出行', createdAt: Date.now() - 15000 },
-                { id: 'xmas_7', type: 'expense', amount: 650, category: 'entertainment', date: `${curYM}-24`, note: '平安夜尖沙咀睇燈飾飲熱朱古力', createdAt: Date.now() - 10000 }
-            ];
-            const existingIds = new Set(transactions.map(t => t.id));
-            samples.forEach(s => { if (!existingIds.has(s.id)) transactions.push(s); });
-
-            // 預設示範資產與負債項目
-            if (balanceSheet.assets.length === 0) {
-                balanceSheet.assets = [
-                    { id: 'bs_demo_1', name: '銀行高息定期存款', amount: 85000, icon: '🏦' },
-                    { id: 'bs_demo_2', name: '美股 / 盈富基金 ETF', amount: 42000, icon: '📈' }
-                ];
-            }
-            if (balanceSheet.liabilities.length === 0) {
-                balanceSheet.liabilities = [
-                    { id: 'bs_demo_3', name: '聖誕購物信用卡未繳結餘', amount: 3200, icon: '💳' }
-                ];
-            }
-
-            // 建立上月資產負債快照，令上月淨資產對比更真實
-            const prevCashflow = getCumulativeCashflowUpTo(prevYM);
-            balanceSheet.snapshots[prevYM] = {
-                totalAssets: prevCashflow + 122000,
-                totalLiabilities: 4500,
-                netWorth: (prevCashflow + 122000) - 4500
-            };
-
-            saveToStorage();
-            saveBalanceSheet();
-            renderDashboard();
-            renderStatsPage();
-            renderSettlementPage();
-            switchTab('settlement');
-            showToast('📰 已載入示範帳目並切換至《大富翁4》結算報！');
-        }
-
-        function promptClearAll() {
-            openConfirm('清空所有記帳資料？', '建議先匯出 JSON 備份，清空後無法復原。', () => {
-                transactions = [];
-                balanceSheet = { assets: [], liabilities: [], snapshots: {} };
-                saveToStorage();
-                saveBalanceSheet();
-                renderDashboard();
-                renderStatsPage();
-                renderSettlementPage();
-                showToast('已清空所有資料');
-            });
-        }
-
-        // 自訂 Toast 與 Confirm Modal
-        let toastTimer;
-        function showToast(msg) {
-            const el = document.getElementById('toast');
-            el.textContent = msg;
-            el.classList.remove('opacity-0');
-            clearTimeout(toastTimer);
-            toastTimer = setTimeout(() => el.classList.add('opacity-0'), 2400);
-        }
-
-        function openConfirm(title, desc, onOk) {
-            document.getElementById('confirm-title').textContent = title;
-            document.getElementById('confirm-desc').textContent = desc;
-            confirmCallback = onOk;
-            document.getElementById('confirm-dialog').classList.remove('hidden');
-        }
-
-        function closeConfirm() {
-            document.getElementById('confirm-dialog').classList.add('hidden');
-            confirmCallback = null;
-        }
-
-        document.getElementById('confirm-ok-btn').addEventListener('click', () => {
-            if (confirmCallback) confirmCallback();
-            closeConfirm();
+        document.querySelectorAll(".theme-btn").forEach((btn) => {
+          const isCurrent = btn.getAttribute("data-theme") === themeKey;
+          btn.classList.toggle("btn-primary", isCurrent);
+        });
+      }
+
+      function switchTab(tabName) {
+        const validTabs = ["ledger", "stats", "settlement", "settings"];
+        const target = validTabs.includes(tabName) ? tabName : "ledger";
+        state.activeTab = target;
+        saveState();
+
+        validTabs.forEach((name) => {
+          const panel = document.getElementById(`tab-${name}`);
+          if (panel) {
+            panel.classList.toggle("hidden", name !== target);
+          }
         });
 
-        // ==========================================
-        // 7. 離線偵測與動態 PWA Manifest / Service Worker
-        // ==========================================
-        function setupOfflineDetection() {
-            const badge = document.getElementById('offline-badge');
-            const updateOnlineStatus = () => {
-                if (!navigator.onLine) {
-                    badge.classList.remove('hidden');
-                } else {
-                    badge.classList.add('hidden');
-                }
-            };
-            window.addEventListener('online', updateOnlineStatus);
-            window.addEventListener('offline', updateOnlineStatus);
-            updateOnlineStatus();
+        document.querySelectorAll(".tab-btn[data-tab]").forEach((btn) => {
+          btn.classList.toggle("is-active", btn.getAttribute("data-tab") === target);
+        });
+
+        renderAll();
+      }
+
+      function getMonthSummary(monthStr) {
+        const list = state.transactions.filter((t) => (t.date || "").startsWith(monthStr));
+        let income = 0;
+        let expense = 0;
+        list.forEach((t) => {
+          const amt = Number(t.amount) || 0;
+          if (t.type === "income") income += amt;
+          else expense += amt;
+        });
+        return { income, expense, balance: income - expense, list };
+      }
+
+      function renderLedger() {
+        const monthEl = document.getElementById("month-filter");
+        if (monthEl && monthEl.value !== state.selectedMonth) {
+          monthEl.value = state.selectedMonth;
         }
 
-        function initPWAFeatures() {
-            const manifestObj = {
-                name: '冬日日常記帳',
-                short_name: '日常記帳',
-                start_url: location.href,
-                display: 'standalone',
-                background_color: '#F7F4EB',
-                theme_color: '#1B4332',
-                icons: [{
-                    src: document.getElementById('ios-icon').href,
-                    sizes: '512x512',
-                    type: 'image/svg+xml'
-                }]
-            };
-            const manifestBlob = new Blob([JSON.stringify(manifestObj)], { type: 'application/manifest+json' });
-            document.getElementById('pwa-manifest').href = URL.createObjectURL(manifestBlob);
+        const summary = getMonthSummary(state.selectedMonth);
+        const incEl = document.getElementById("sum-income");
+        const expEl = document.getElementById("sum-expense");
+        const balEl = document.getElementById("sum-balance");
+        const listEl = document.getElementById("tx-list");
 
-            const swStatusEl = document.getElementById('sw-status');
-            if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
-                const swCode = `
-                    const CACHE_NAME = 'hk-winter-ledger-v1';
-                    self.addEventListener('install', e => {
-                        self.skipWaiting();
-                        e.waitUntil(caches.open(CACHE_NAME).then(c => c.addAll(['./'])));
-                    });
-                    self.addEventListener('fetch', e => {
-                        e.respondWith(
-                            caches.match(e.request).then(res => res || fetch(e.request).then(netRes => {
-                                const clone = netRes.clone();
-                                caches.open(CACHE_NAME).then(c => c.put(e.request, clone));
-                                return netRes;
-                            }).catch(() => caches.match('./')))
-                        );
-                    });
-                `;
-                const swBlob = new Blob([swCode], { type: 'application/javascript' });
-                const swUrl = URL.createObjectURL(swBlob);
-                navigator.serviceWorker.register(swUrl)
-                    .then(() => { swStatusEl.textContent = '已就緒（支援完全離線開啟）'; })
-                    .catch(() => { swStatusEl.textContent = '本地儲存已啟用（部署至 HTTPS 後啟用全離線快取）'; });
-            } else {
-                swStatusEl.textContent = '本地儲存已啟用（上傳至免費網頁空間即可離線安裝）';
+        if (incEl) incEl.textContent = fmtMoney(summary.income);
+        if (expEl) expEl.textContent = fmtMoney(summary.expense);
+        if (balEl) {
+          balEl.textContent = fmtMoney(summary.balance);
+          balEl.className = "stat-value " + (summary.balance >= 0 ? "income-text" : "expense-text");
+        }
+
+        if (!listEl) return;
+        const sorted = [...summary.list].sort((a, b) => (b.date || "").localeCompare(a.date || ""));
+        if (sorted.length === 0) {
+          listEl.innerHTML = '<div class="empty-state">本月暫無收支記錄，撳「+」即可新增。</div>';
+          return;
+        }
+
+        listEl.innerHTML = sorted.map((item) => {
+          const isInc = item.type === "income";
+          const sign = isInc ? "+" : "-";
+          const amtClass = isInc ? "income-text" : "expense-text";
+          const noteText = item.note ? ` · ${escapeHtml(item.note)}` : "";
+          return `
+            <div class="tx-item">
+              <div class="tx-main">
+                <div class="tx-cat">${escapeHtml(item.category || "其他")}</div>
+                <div class="tx-meta">${escapeHtml(item.date || "")}${noteText}</div>
+              </div>
+              <div class="tx-right">
+                <span class="tx-amount ${amtClass}">${sign}${fmtMoney(item.amount)}</span>
+                <button type="button" class="btn btn-sm del-tx-btn" data-id="${escapeHtml(item.id)}">刪除</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function renderStats() {
+        const summary = getMonthSummary(state.selectedMonth);
+        const totalEl = document.getElementById("stats-total-expense");
+        const barsEl = document.getElementById("category-bars");
+        if (totalEl) totalEl.textContent = `總支出：${fmtMoney(summary.expense)}`;
+        if (!barsEl) return;
+
+        const map = new Map();
+        summary.list
+          .filter((t) => t.type !== "income")
+          .forEach((t) => {
+            const cat = t.category || "其他支出";
+            map.set(cat, (map.get(cat) || 0) + (Number(t.amount) || 0));
+          });
+
+        const entries = [...map.entries()].sort((a, b) => b[1] - a[1]);
+        if (entries.length === 0 || summary.expense <= 0) {
+          barsEl.innerHTML = '<div class="empty-state">本月未有支出資料可統計。</div>';
+          return;
+        }
+
+        barsEl.innerHTML = entries.map(([cat, amt]) => {
+          const pct = Math.min(100, Math.round((amt / summary.expense) * 100));
+          return `
+            <div class="bar-row">
+              <div class="bar-head">
+                <span>${escapeHtml(cat)}</span>
+                <strong>${fmtMoney(amt)} (${pct}%)</strong>
+              </div>
+              <div class="bar-track">
+                <div class="bar-fill" style="width: ${pct}%;"></div>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function renderSettlement() {
+        const cur = getMonthSummary(state.selectedMonth);
+        const prev = getMonthSummary(getPrevMonthStr(state.selectedMonth));
+
+        let totalAssets = 0;
+        let totalLiabilities = 0;
+        state.assets.forEach((a) => {
+          const val = Number(a.amount) || 0;
+          if (a.kind === "liability") totalLiabilities += val;
+          else totalAssets += val;
+        });
+
+        const netWorth = totalAssets - totalLiabilities;
+        const prevNetWorth = netWorth - cur.balance + prev.balance;
+
+        const badgeEl = document.getElementById("settlement-badge");
+        const commentEl = document.getElementById("settlement-comment");
+        const rowsEl = document.getElementById("settlement-rows");
+
+        let badgeText = "🎲 穩健冒險家";
+        let commentText = "收支保持平衡，繼續留意每月開支節奏。";
+        if (cur.income > 0 && cur.balance / cur.income >= 0.3) {
+          badgeText = "🎩 理財大亨";
+          commentText = "儲蓄率表現出色，淨資產穩步上升！";
+        } else if (cur.balance > 0) {
+          badgeText = "🏰 穩健地主";
+          commentText = "本月錄得正結餘，資金配置健康。";
+        } else if (cur.balance < 0) {
+          badgeText = "🧣 節日衝刺玩家";
+          commentText = "本月支出高於收入，可檢視非必要消費。";
+        }
+
+        if (badgeEl) badgeEl.textContent = badgeText;
+        if (commentEl) commentEl.textContent = commentText;
+
+        const rows = [
+          { label: "總收入", prevVal: prev.income, curVal: cur.income },
+          { label: "總開支", prevVal: prev.expense, curVal: cur.expense },
+          { label: "本月結餘", prevVal: prev.balance, curVal: cur.balance },
+          { label: "淨資產估算", prevVal: prevNetWorth, curVal: netWorth }
+        ];
+
+        if (rowsEl) {
+          rowsEl.innerHTML = rows.map((r) => {
+            const diff = r.curVal - r.prevVal;
+            const sign = diff > 0 ? "+" : "";
+            return `
+              <tr>
+                <td>${escapeHtml(r.label)}</td>
+                <td>${fmtMoney(r.prevVal)}</td>
+                <td><strong>${fmtMoney(r.curVal)}</strong></td>
+                <td>${sign}${fmtMoney(diff)}</td>
+              </tr>
+            `;
+          }).join("");
+        }
+
+        const assetListEl = document.getElementById("asset-list");
+        if (!assetListEl) return;
+        if (state.assets.length === 0) {
+          assetListEl.innerHTML = '<div class="empty-state">尚未新增資產或負債項目。</div>';
+          return;
+        }
+
+        assetListEl.innerHTML = state.assets.map((a) => {
+          const isLiab = a.kind === "liability";
+          return `
+            <div class="tx-item">
+              <div class="tx-main">
+                <div class="tx-cat">${escapeHtml(a.name)}</div>
+                <div class="tx-meta">${isLiab ? "負債" : "資產"}</div>
+              </div>
+              <div class="tx-right">
+                <span class="tx-amount ${isLiab ? "expense-text" : "income-text"}">${isLiab ? "-" : ""}${fmtMoney(a.amount)}</span>
+                <button type="button" class="btn btn-sm del-asset-btn" data-id="${escapeHtml(a.id)}">刪除</button>
+              </div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      function renderAll() {
+        applyTheme();
+        renderLedger();
+        renderStats();
+        renderSettlement();
+      }
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+      }
+
+      function populateCategories(type) {
+        const selectEl = document.getElementById("tx-category");
+        if (!selectEl) return;
+        const list = type === "income" ? INCOME_CATS : EXPENSE_CATS;
+        selectEl.innerHTML = list.map((c) => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join("");
+      }
+
+      function openTxModal() {
+        const modal = document.getElementById("tx-modal");
+        const typeEl = document.getElementById("tx-type");
+        const amtEl = document.getElementById("tx-amount");
+        const dateEl = document.getElementById("tx-date");
+        const noteEl = document.getElementById("tx-note");
+        if (typeEl) {
+          typeEl.value = "expense";
+          populateCategories("expense");
+        }
+        if (amtEl) amtEl.value = "";
+        if (dateEl) dateEl.value = `${state.selectedMonth}-01`.startsWith(getCurrentMonthStr())
+          ? getTodayStr()
+          : `${state.selectedMonth}-01`;
+        if (noteEl) noteEl.value = "";
+        if (modal) modal.classList.remove("hidden");
+      }
+
+      function closeTxModal() {
+        const modal = document.getElementById("tx-modal");
+        if (modal) modal.classList.add("hidden");
+      }
+
+      function openAssetModal() {
+        const modal = document.getElementById("asset-modal");
+        const nameEl = document.getElementById("asset-name");
+        const amtEl = document.getElementById("asset-amount");
+        if (nameEl) nameEl.value = "";
+        if (amtEl) amtEl.value = "";
+        if (modal) modal.classList.remove("hidden");
+      }
+
+      function closeAssetModal() {
+        const modal = document.getElementById("asset-modal");
+        if (modal) modal.classList.add("hidden");
+      }
+
+      function initSnow() {
+        const canvas = document.getElementById("snow-canvas");
+        if (!canvas || !canvas.getContext) return;
+        const ctx = canvas.getContext("2d");
+        let flakes = [];
+
+        function resize() {
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+          flakes = Array.from({ length: 28 }, () => ({
+            x: Math.random() * canvas.width,
+            y: Math.random() * canvas.height,
+            r: 1.5 + Math.random() * 2.5,
+            s: 0.4 + Math.random() * 0.9
+          }));
+        }
+
+        resize();
+        window.addEventListener("resize", resize);
+
+        function tick() {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          if (state.snowEnabled && state.theme !== "minimal") {
+            ctx.fillStyle = "#ffffff";
+            flakes.forEach((f) => {
+              f.y += f.s;
+              if (f.y > canvas.height) {
+                f.y = -5;
+                f.x = Math.random() * canvas.width;
+              }
+              ctx.beginPath();
+              ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
+              ctx.fill();
+            });
+          }
+          requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+
+      function bindEvents() {
+        document.querySelectorAll(".tab-btn[data-tab]").forEach((btn) => {
+          btn.addEventListener("click", () => switchTab(btn.getAttribute("data-tab")));
+        });
+
+        const fabOpen = document.getElementById("fab-open");
+        const quickAdd = document.getElementById("btn-quick-add");
+        if (fabOpen) fabOpen.addEventListener("click", openTxModal);
+        if (quickAdd) quickAdd.addEventListener("click", openTxModal);
+
+        const txCancel = document.getElementById("tx-cancel");
+        const txType = document.getElementById("tx-type");
+        const txForm = document.getElementById("tx-form");
+        if (txCancel) txCancel.addEventListener("click", closeTxModal);
+        if (txType) {
+          txType.addEventListener("change", () => populateCategories(txType.value));
+        }
+        if (txForm) {
+          txForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const type = document.getElementById("tx-type").value;
+            const amount = Number(document.getElementById("tx-amount").value);
+            const category = document.getElementById("tx-category").value;
+            const date = document.getElementById("tx-date").value;
+            const note = document.getElementById("tx-note").value.trim();
+            if (!amount || amount <= 0 || !date) return;
+
+            state.transactions.push({
+              id: "tx-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+              type,
+              amount,
+              category,
+              date,
+              note
+            });
+            state.selectedMonth = date.slice(0, 7);
+            saveState();
+            closeTxModal();
+            renderAll();
+            showToast("已新增記錄");
+          });
+        }
+
+        const addAssetBtn = document.getElementById("btn-add-asset");
+        const assetCancel = document.getElementById("asset-cancel");
+        const assetForm = document.getElementById("asset-form");
+        if (addAssetBtn) addAssetBtn.addEventListener("click", openAssetModal);
+        if (assetCancel) assetCancel.addEventListener("click", closeAssetModal);
+        if (assetForm) {
+          assetForm.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const kind = document.getElementById("asset-kind").value;
+            const name = document.getElementById("asset-name").value.trim();
+            const amount = Number(document.getElementById("asset-amount").value);
+            if (!name || Number.isNaN(amount) || amount < 0) return;
+
+            state.assets.push({
+              id: "as-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6),
+              kind,
+              name,
+              amount
+            });
+            saveState();
+            closeAssetModal();
+            renderSettlement();
+            showToast("已新增項目");
+          });
+        }
+
+        const monthFilter = document.getElementById("month-filter");
+        if (monthFilter) {
+          monthFilter.addEventListener("change", () => {
+            if (monthFilter.value) {
+              state.selectedMonth = monthFilter.value;
+              saveState();
+              renderAll();
             }
+          });
         }
 
-        window.addEventListener('DOMContentLoaded', initApp);
-    </script>
+        document.querySelectorAll(".theme-btn").forEach((btn) => {
+          btn.addEventListener("click", () => {
+            state.theme = btn.getAttribute("data-theme") || "christmas";
+            saveState();
+            applyTheme();
+            showToast("已切換主題");
+          });
+        });
+
+        const snowBtn = document.getElementById("btn-toggle-snow");
+        if (snowBtn) {
+          snowBtn.addEventListener("click", () => {
+            state.snowEnabled = !state.snowEnabled;
+            saveState();
+            applyTheme();
+          });
+        }
+
+        const demoBtn = document.getElementById("btn-load-demo");
+        if (demoBtn) {
+          demoBtn.addEventListener("click", () => {
+            const curM = state.selectedMonth || getCurrentMonthStr();
+            const prevM = getPrevMonthStr(curM);
+            state.transactions = [
+              { id: "d1", type: "income", amount: 24000, category: "人工", date: `${curM}-01`, note: "月薪" },
+              { id: "d2", type: "expense", amount: 78, category: "餐飲", date: `${curM}-03`, note: "午餐" },
+              { id: "d3", type: "expense", amount: 520, category: "🎁 聖誕禮物", date: `${curM}-05`, note: "朋友交換禮物" },
+              { id: "d4", type: "expense", amount: 340, category: "🧣 冬日購物", date: `${curM}-08`, note: "冷衫" },
+              { id: "d5", type: "income", amount: 24000, category: "人工", date: `${prevM}-01`, note: "上月月薪" },
+              { id: "d6", type: "expense", amount: 3200, category: "居家帳單", date: `${prevM}-12`, note: "水電煤" }
+            ];
+            state.assets = [
+              { id: "da1", kind: "asset", name: "活期存款", amount: 68000 },
+              { id: "da2", kind: "asset", name: "ETF 投資", amount: 42000 },
+              { id: "da3", kind: "liability", name: "信用卡結餘", amount: 4500 }
+            ];
+            saveState();
+            renderAll();
+            showToast("已載入示範帳目");
+          });
+        }
+
+        const clearBtn = document.getElementById("btn-clear-all");
+        if (clearBtn) {
+          clearBtn.addEventListener("click", () => {
+            state.transactions = [];
+            state.assets = [];
+            saveState();
+            renderAll();
+            showToast("已清空資料");
+          });
+        }
+
+        document.addEventListener("click", (e) => {
+          const delTx = e.target.closest(".del-tx-btn");
+          if (delTx) {
+            const id = delTx.getAttribute("data-id");
+            state.transactions = state.transactions.filter((t) => t.id !== id);
+            saveState();
+            renderAll();
+            showToast("已刪除記錄");
+            return;
+          }
+
+          const delAsset = e.target.closest(".del-asset-btn");
+          if (delAsset) {
+            const id = delAsset.getAttribute("data-id");
+            state.assets = state.assets.filter((a) => a.id !== id);
+            saveState();
+            renderSettlement();
+            showToast("已刪除項目");
+          }
+        });
+      }
+
+      function initApp() {
+        bindEvents();
+        initSnow();
+        switchTab(state.activeTab);
+      }
+
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initApp);
+      } else {
+        initApp();
+      }
+    })();
+  </script>
 </body>
 </html>
